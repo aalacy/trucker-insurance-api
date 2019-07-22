@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=yes">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>LuckyTruck</title>
+    <style>
+      body{
+          margin: 0px;
+          padding: 0px;
+          font-size: 0.9rem;
+          line-height: 1.5rem;
+      }
+      .container_pdf_doc{
+        width: 1024px;
+        margin: 0px auto;
+        background-color:white;
+      }
+      .page_index{
+          page-break-after: always;
+      }
+      .border_bottom{
+          border: 0px;
+          border-bottom:1px solid #000;
+      }
+      .border-title{
+          border: 1px solid #000;
+      }
+      .field_item{
+          min-width: 100px;
+          display: inline-block;
+          
+      }
+      .table td, .table th {
+          padding: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but LuckyTruck doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div class="container_pdf_doc">
+<!-- Page 1 -->
+      <div class="container page_index">
+
+        <div class="mt-5 "><img src="<%= logo %>"/></div>
+
+        <div class="h4 my-3 ">Trucking Insurance Application</div>
+
+        <div class="text-right ">
+          Policy Term 
+          From: <span class="border_bottom field_item" id="policyTermFrom"><%= policy_term_from %></span> 
+          To: <span class="border_bottom field_item" id="policyTermTo"><%= policy_term_to %></span>
+        </div>
+
+        <p class="border-title p-2 ">Providing Any of The Following Documents Will Enable Us To Get You The Cheapest Quotes In The Least Amount of Time!</p>
+        
+        <table border="0" style="table-layout: fixed">
+            <tr>
+              <td>
+                <ul>
+                    <li>Any Previously Completed Applications</li>
+                    <li>Picture of Driver(s) License and Registration(s)</li>
+                    <li>MVR Report</li>
+                    <li>Loss Runs (3-5 years as applicable)</li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                    <li>Insurance Requirements Documentation</li>
+                    <li>Schedule of vehicles and drivers</li>
+                    <li>IFTA - all 4 quarters</li>
+                    <li>A copy of rental/lease agreement for leased vehicles</li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+
+        <p class="border-title p-2 ">General Information</p>
+        <% console.log('com:',company_name) %>
+        <p class="">
+          Company Name<span class="border_bottom field_item " id="companyName"> <% company_name %></span> 
+          DBA<span class="border_bottom field_item " id="dba"><%= dba_name %></span>
+          Phone number<span class="border_bottom field_item " id="phoneNumber"><%= phone_number %></span>
+        </p>
+
+        <p class="">
+          Mailing address<span class="border_bottom field_item " id=""><%= mailing_address %></span> 
+          City<span class="border_bottom field_item " id=""><%= mailing_city %></span>
+          State<span class="border_bottom field_item " id=""><%= mailing_state %></span>
+          Zip<span class="border_bottom field_item " id=""><%= mailing_zip %></span>
+        </p>
+
+        <p class="">
+          Garaging address<span class="border_bottom field_item " id=""><%= garaging_address %></span> 
+          City<span class="border_bottom field_item " id=""><%= garaging_city %></span>
+          State<span class="border_bottom field_item " id=""><%= garaging_state %></span>
+          Zip<span class="border_bottom field_item " id=""><%= garaging_zip %></span>
+        </p>
+
+        <p class="">
+          E-mail Address <span class="border_bottom field_item " id=""><%= email_address %></span>
+          Business start date <span class="border_bottom field_item " id=""><%= business_start_date %></span>
+          DOT Number <span class="border_bottom field_item " id=""><%= dot_number %></span>
+          MC Number <span class="border_bottom field_item " id=""><%= mc_number %></span>
+        </p>
+
+        <p class="">
+          Radius of travel <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
+          Current Carrier <span class="border_bottom field_item " id=""></span> 
+          Current ELD Provider <span class="border_bottom field_item " id=""><%= eldProvider %></span>
+        </p>
+
+        <p class="border-title p-2 ">Driver Information - attach schedule if over 5 drivers</p>
+
+        <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="">Name</th>
+                <th scope="">Date of Birth</th>
+                <th scope="">State</th>
+                <th scope="">Driver's License Number</th>
+                <th scope="">CDL (yes or no)</th>
+                <th scope="">Years of Experience Using Scheduled Equipment</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <% if(drivers.length > 0){ %>
+                <% drivers.forEach(function(driver, index) { %>
+                  <% driversLeft-- %>
+                  <tr>
+                      <td scope="">
+                          <!-- <%= index+1 %>. -->
+                          <%= (driver.firstName || driver.lastName)?driver.firstName+" "+driver.lastName:'' %>
+                      </td>
+                      <td><%= (driver.dateOfBirth)?driver.dateOfBirth:'' %></td>
+                      <td><%= (driver.state)?driver.state:'' %></td>
+                      <td><%= (driver.licenseNumber)?driver.licenseNumber:'' %></td>
+                      <td></td>
+                      <td><%= (driver.yearsOfExperience)?driver.yearsOfExperience:'' %></td>
+                    </tr>
+              <% }); %>
+              <% } %>
+
+              <% for(var i=0; i < drivers; i++) { %>
+                <tr>
+                  <td  scope=""></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+
+        <p class="border-title p-2">Vehicle and Trailer Information - attach schedule if over 10 vehicles/trailers</p>
+
+        <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="">VIN</th>
+                <th scope="">Year</th>
+                <th scope="">Make</th>
+                <th scope="">Vehicle/Trailer Type</th>
+                <th scope="">Garaging Zip Code</th>
+                <th scope="">Maximum Distance Traveled from Garaging Location (Radius)</th>
+                <th scope="">Current Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if(vehiclesTrailers.length > 0){ %>
+                <% JSON.parse(vehiclesTrailers).forEach(function(vehicle, index) { %>
+                  <% vehiclesTrailersLeft-- %>
+                  <tr>
+                    <td  scope="">
+                      <!-- <%= index+1 %>. --> 
+                      <%= (vehicle.VIN)?vehicle.VIN:'' %>
+                    </td>
+                    <td><%= (vehicle.year)?vehicle.year:'' %></td>
+                    <td><%= (vehicle.make)?vehicle.make:'' %></td>
+                    <td><%= (vehicle.vehicleType)?vehicle.vehicleType:'' %></td>
+                    <td><%= (vehicle.zipCode)?vehicle.zipCode:'' %></td>
+                    <td><%= (vehicle.radiusOfTravel)?vehicle.radiusOfTravel:'' %></td>
+                    <td><%= (vehicle.currentValue)?vehicle.currentValue:'' %></td>
+                  </tr>
+                <% }); %>
+              <% } %>
+
+              <% for(var i=0; i < vehiclesTrailersLeft; i++) { %>
+                  <tr>
+                    <td  scope=""></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+              <% } %>
+            </tbody>
+        </table>
+
+        <div class="d-none d-print-block">
+          <div class=" text-left">LuckyTrucking!, Inc.</div>
+          <div class=" text-right">1 (646) 933-0419</div>
+        </div>
+
+      </div>
+<!-- Page 2 -->
+      <div class="container page_index">
+
+          <div class="mt-5  d-none d-print-block"><img src="<%= logo %>"/></div>
+  
+          <div class="h4 my-3  d-none d-print-block">Trucking Insurance Application</div>
+  
+          <p class="border-title p-2  mt-3">Liability and Cargo Coverage</p>
+  
+          <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="">Type of Cargo Hauled</th>
+                  <th scope="">% of Total Cargo</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              <% if(cargoHauled.length > 0){ %>
+                <% cargoHauled.forEach(function(cargo, index) { %>
+                <% cargoHauledLeft-- %>
+                <tr>
+                  <td  scope=""><%= cargo %></td>
+                  <td></td>
+                </tr>
+                <% }); %>
+              <% } %>
+
+              <% for(var i=0; i < cargoHauledLeft; i++) { %>
+                  <tr>
+                    <td  scope=""></td>
+                    <td></td>
+                  </tr>
+              <% } %>
+            
+              </tbody>
+          </table>
+          
+          <p class="border-title p-2  mt-3">Owner, Partner and Managers Information</p>
+  
+          <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="">Full Name</th>
+                  <th scope="">Date of Birth</th>
+                  <th scope="">Mailing Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% var a = owners %>
+                <% console.log("a =>>>>>>>>>>>",a) %>
+                  <% if(a.owners.length > 0){ %>
+                    <% a.owners.forEach(function(owner, index) { %>
+                    <% ownersLeft-- %>
+                    <tr>
+                      <td  scope=""><%= owner.firstName %> <%= owner.lastName %></td>
+                      <td><%= owner.dateOfBirth %></td>
+                      <td><%= owner.address %> <%= owner.state %></td>
+                    </tr>
+                    <% }); %>
+                  <% } %>
+
+                  <% for(var i=0; i < ownersLeft; i++) { %>
+                    <tr>
+                        <td  scope=""></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                  <% } %>
+              </tbody>
+          </table>
+
+          <p class="border-title p-2 mt-3">Additional Questions</p>          
+  
+          <p class="">
+            Do you pull double trailers?<span class="border_bottom field_item " id=""></span> 
+            Do you pull triple trailers?<span class="border_bottom field_item " id=""></span>
+            Do you plan on adding any additional drivers? <span class="border_bottom field_item " id=""></span>
+          </p>
+  
+          <p class="">
+            What BI & PD Limits are you looking for?<span class="border_bottom field_item " id=""></span> 
+            What Cargo Coverage Limits are you looking for?<span class="border_bottom field_item " id=""></span>
+          </p>
+  
+          <p class="">
+            If plan to hire, what are the minimum Years of Commercial Driving experience required? <span class="border_bottom field_item " id=""></span>
+            CDL years required?  <span class="border_bottom field_item " id=""></span>
+          </p>
+  
+          <p class="">
+            If plan to hire, are vehicles Owner-driven only? <span class="border_bottom field_item " id=""></span> 
+            Do you order MVRs on all drivers prior to Hiring? <span class="border_bottom field_item " id=""></span>
+          </p>
+
+          <p class="">
+            Do you Agree to report all newly hired operators? <span class="border_bottom field_item " id=""></span>
+            Do you lease your authority? <span class="border_bottom field_item " id=""></span>
+          </p>
+    
+          <p class="">
+            Do you operate as a subsidiary of a different company? <span class="border_bottom field_item " id=""></span> 
+            Have you ever changed your operating name? <span class="border_bottom field_item " id=""></span>
+          </p>
+          
+          <p class="">
+            Does our policy cover all vehicles owned operated or leased to the Business? <span class="border_bottom field_item " id=""></span> 
+          </p>
+
+          <p  class=" my-5">
+            COMMENTS <span class="border_bottom field_item " id=""><%= comments %></span> 
+          </p>
+          
+          
+          <div class="d-none d-print-block ">
+              <div class=" text-left">LuckyTrucking!, Inc.</div>
+              <div class=" text-right">1 (646) 933-0419</div>
+          </div>
+
+      </div>
+
+<!-- Page 3 -->
+      <div class="container page_index">
+
+          <div class="mt-5  d-none d-print-block"><img src="<%= logo %>"/></div>
+
+          <div class="h4 my-3  d-none d-print-block">Trucking Insurance Application</div>
+
+          <p  class=" my-5">
+            No coverage is bound until the Company (LuckyTrucking!, Inc. DBA LuckyTruck) advises the Applicant or its representative that a policy will be issued and then only as of the policy effective date and in accordance with all policy terms. The Applicant acknowledges that the Applicant's Representative named below is acting as Applicant's agent and not on behalf of the Company. The Applicant's Representative has no authority to bind coverage, may not accept any funds for the Company, and may not modify or interpret the terms of the policy. The Applicant agrees that the foregoing statements and answers are true and correct. The Applicant requests the Company to rely on its statements and answers in issuing any policy or subsequent renewal. The Applicant agrees that if its statements and answers are materially false, the Company may deny a claim on any policy or subsequent renewal it may issue. If any jurisdiction in which the Applicant intends to operate or the Federal Highway Administration requires a special endorsement to be attached to the policy which increases the Company's liability, the Applicant agrees to reimburse the Company in accordance with the terms of that endorsement. The Applicant agrees that any inspection of autos, vehicles, equipment, premises, operations, or inspection of any other matter relating to insurance that may be provided by the Company, is made for the use and benefit of the Company only, and is not to be relied upon by the Applicant or any other party in any respect. The Applicant understands that an inquiry may be made into the character, finances, driving records, and other personal and business background information the Company deems necessary in determining whether to bind or maintain coverage. Upon written request, additional information will be provided to the Applicant regarding any investigation. The Applicant represents that she/he has completed all relevant sections of this Application prior to execution and that the Applicant has personally signed below (or if Applicant is a Corporation, a corporate officer has signed below).
+          </p>
+
+          <p class="">
+            If premium financed, please list provider <span class="border_bottom field_item " id=""></span> 
+          </p>
+
+          <p  class=" font-weight-bold text-uppercase">A PERSON WHO KNOWINGLY AND WITH INTENT TO INJURE, DEFRAUD, OR DECEIVE AN INSURANCE COMPANY FILES A CLAIM CONTAINING FALSE, INCOMPLETE, OR MISLEADING INFORMATION MAY BE PROSECUTED UNDER STATE LAW.</p>
+
+          <div  class="my-5">
+              Witness <span class="border_bottom field_item" id=""></span>
+              Applicant’s signature <span class="border_bottom field_item" id=""></span>
+              Date <span class="border_bottom field_item" id=""><%= new Date(Date.now()).toLocaleString(); %></span>
+            </div>
+
+          <div class="border-title p-2">
+            <span class="font-weight-bold text-uppercase w-100">REQUEST TO COMPANY GENERAL AGENT:</span>
+            <div class="form-group form-check ">
+              <input type="checkbox" class="form-check-input" id="check1">
+              <label class="form-check-label" for="check1">Please quote</label>
+            </div>
+            <div class="form-group form-check ">
+              <input type="checkbox" class="form-check-input" id="check2">
+              <label class="form-check-label" for="check2">Please bind at the earliest possible date and issue policy</label>
+            </div>
+            <div class="w-100"></div>
+            <div class="form-group form-check ">
+              <input type="checkbox" class="form-check-input" id="check3">
+              <label class="form-check-label" for="check3">
+                  Please issue policy effective <span class="border_bottom field_item" id=""></span>
+                  Coverage was bound by <span class="border_bottom field_item" id=""></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="d-none d-print-block">
+            <div class=" text-left">LuckyTrucking!, Inc.</div>
+            <div class=" text-right">1 (646) 933-0419</div>
+          </div>
+
+      </div>
+
+      </div>
+
+    </div>
+    
+  </body>
+</html>

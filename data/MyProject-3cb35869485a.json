@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "glassy-fort-706",
+  "private_key_id": "3cb35869485aa8c058b0dfc6955da5f76f027440",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDVnIfgC8+gNmXL\nGzrWMXL1VyL1cESIAZGIV3v3QD4PNseVBZ70vspdKrcEDCPQVlNoKwaFTRPGOGTy\nDsTvebl6e/4RArHmUpJgt16WgQu9zlk4eyazm7ZOX2yI9AdGMmT5ROqz5aKl4bzf\nmiQgxADEUdAoOEqTH3KxNU+pI/IMVTDOslhwrdINUTt62Lx8UweME8C2CkvnLu8t\nNv2JHd5v1fhxcYUvzgd2JY4UqUbsNJ50vIV8JH3zGzfnR3k9jeqcBPVMJdpBIq/D\nID4a7NtSAopaKzx0KNOgqcan9ID+MjJS+NWE/YeFJnw8BH1kv6AMjM15hgxR0Rq1\nL5QSE+vbAgMBAAECggEACpVnJm+MLOAOtBaYMcoHOM1FiXHNQdkK2Mpo26vE4P3l\nIc0o/okmpdR6qkpfSrCN3ZPmjoIIPRWvOE6i0316KW26SiWr72fFu+GdLKM3lALR\nnEEYMX70dFA5cVTeuJiOAZge2HH3JVvlZUWR860/OOFK1hG2VDEsy0eDOACn1GEb\nzLJKvPZb5eNBBCgJ+M4uLMkPemm9NwJHSigzpCmQ9vLhkxLRPGSkMsFVlbd8IGI8\nHdExJ06bjewpREe8bClpp1LlD6d7RO3NML2m3o0Swh7M7CxjT+Zr0EImV4bmfhjY\nkQq0qkjaXq4AxOLlAk0zphsar7di9r1rng/NLvYAjQKBgQDu3ehJl461l+96q9cH\n0dnf8cgzOPs7g8Qzudkb23U8cxvRkl1mBspm+GPQxoBtROY4ur2Qp0BNNqbTAZ8g\npcX2Qb2w+3e+oYLyY0R9wpCiMdUHR+F1O0SFlZ5WxHlzNNqOk05l6nIouiyZkUD2\nNi/0CGgPHxuEr86c28z/88RGBwKBgQDk7uHNP9N5wOv9e5UH8M9P6IBOn7kme7lD\nsss5a/gPvxo/YNlktCr17hGwAkloVP4tlrLi6VRj2HEFSPq/vSf41fNBr5l/VMSi\nmOE20TG+X3s4hdWsHDkekUus75hRTAogn6i5fi8z2Kw1dROvQ6RfCV/RlJ4dub3f\nfEowoDVWjQKBgEQwm0BvALF8h0QYzFESKkWRC1r8GFR8IEW392/JbaVtIvLn+rvG\nkn9kx3HxSPZopeRqAvXJmUSxplw0aU3zpRjQ2astjpigGPbDOelA4vM6kJr8fTNv\nUPdlqAcTHayy2PW8vbPAgwh3ZYYNfmMLQxNCVxqCAeQWIECNSu+CknR/AoGABrJK\nHpPYXr5a6M49nL7ZgY/eeO5JHywNTkKjmSlkVymS3fm6QizW+Nye3dQjS4745GJ9\nFxAWLNl+7NWmqAcjbS7s76XwSn4zRkJMjCrwVo46b3vStTcaIJ/FY+iaPv6HaU7i\nQ5LCVLTozKOBEOZcn38Js3qyaVIukKP1E5kMFl0CgYEAhhFyHpGh8xwdj1ck4Nl3\nOb7ASE+N8UlGiF93Pfgsz+uOHMHa8OkC0/sCBBpaTdiNzCH0r/RpijwAV1TRMrA/\n8bXNf5QibTKGP9Xo8JSpH0F+hFBmhT8p/wcULsKSctQZ/whWPlATQR31TOqq7H4m\n6l1/0zdtCSy+C+q45fGEgF0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "luckytruck@glassy-fort-706.iam.gserviceaccount.com",
+  "client_id": "104280439716272595828",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/luckytruck%40glassy-fort-706.iam.gserviceaccount.com"
+}
