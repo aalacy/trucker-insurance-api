@@ -2,8 +2,31 @@ module.exports = (app) => {
   var webConfig = require("../config/web.json");
   let express = require('express')
   let multer  = require('multer')
-  let router = express.Router()
-  let upload = multer({ dest: webConfig.rootDir+'/public/company/' })
+  let router = express.Router();
+  var path = require('path');
+  //  let upload = multer({ dest: webConfig.rootDir+'/public/company/' })
+  //let upload = multer({ dest: "http://3.13.68.92:3000/public/company/"})
+  
+  var stoorages = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // cb(null, 'public/company')
+        cb(null, 'public/company');
+    },
+    filename: function (req, file, cb) {
+        var ext;
+        if(path.extname(file.originalname)== ""){
+          ext = "."+file.mimetype;
+        }else{
+          ext = path.extname(file.originalname);
+        }
+        cb(null, file.fieldname + Date.now() + "-"+ext
+        );
+    }
+});
+
+let upload = multer({
+    storage: stoorages
+});
   let document = require('../models/Document')
   const vision = require('@google-cloud/vision')
   const client = new vision.ImageAnnotatorClient()
@@ -41,11 +64,19 @@ module.exports = (app) => {
 
     pdfApplication.get(uuid, 0, new model.Company()).then(location => {
 console.log('pdfApp:'+ JSON.stringify(location));
-      fs.readFile(location, function (err,data){
-       // console.log('FsData:'+ JSON.stringify(data));
-        res.contentType("application/pdf");
-        res.send(data);
-      });
+      if(req.body.email == undefined){
+        fs.readFile(location, function (err,data){
+          // console.log('FsData:'+ JSON.stringify(data));
+           res.contentType("application/pdf");
+           res.send(data);
+         });
+      }else{
+        res.send({
+          status: "Success",
+          data: JSON.stringify(location),
+          messages: "success"
+        })
+      }
 
     }).catch(err => {
       res.send({
@@ -258,6 +289,9 @@ console.log('profile'+ JSON.stringify(profile));
     if(req.query.uuid)uuid = req.query.uuid;
     else if(req.body.uuid)uuid = req.body.uuid;
     else if(req.cookies.uuid)uuid = req.cookies.uuid;
+    console.log("req.uuid",req.cookies.uuid);
+    console.log("req.body.uuid",req.body.uuid);
+
     
     if (uuid) {
 
@@ -294,7 +328,7 @@ let newObj ={
 
 
   router.all('/hubspot', async (req, res, next) => {
-
+    console.log("hubspot1")
     let uuid, error, log;
 
     if(req.query.uuid)uuid = req.query.uuid;
@@ -302,6 +336,7 @@ let newObj ={
     else if(req.cookies.uuid)uuid = req.cookies.uuid;
     
     if (!uuid) {
+      console.log("hubspot uuid",!uuid)
       res.send({
         status: "ERROR",
         data: 'uuid is empty',
@@ -309,16 +344,19 @@ let newObj ={
       });
       return;
     }
+    console.log("hubspot2")
 
 
       try{
         log = await new model.Company().updateHubspot(uuid);
+        console.log('Update hubspot',log)
         res.send({
           status: "OK",
           data: log,
           messages: []
         })
       }catch(e){
+        console.log("Update hubspot",e)
         res.send({
           status: "ERROR",
           data: e,
@@ -346,7 +384,11 @@ let newObj ={
     {name: 'rentalLeaseAgreement', maxCount: 1},
     {name: 'previouslyCompletedApplications', maxCount: 1},
     {name: 'insuranceRequirements', maxCount: 1},
-    ]), async (req, res, next) => {
+    
+    {name: 'imageSign', maxCount: 1},
+    
+    
+  ]), async (req, res, next) => {
     let doc = new document()
 
     let uuid,result;
@@ -368,6 +410,8 @@ let newObj ={
 
     res.cookie('uuid',uuid, { maxAge: 9000000, httpOnly: false });
     
+
+    
     let headersSent = false;
     let filesApproved = 0;
 
@@ -375,6 +419,7 @@ let newObj ={
 
     Object.keys(req.files).forEach(async groupName => {
       try{
+        console.log('.........'+ groupName)
             await new model.Company().add(uuid, groupName, req.files[groupName], false);
 
             if(!log[groupName])log[groupName] = {};
@@ -390,10 +435,12 @@ let newObj ={
               filename: 'fbbd26d530b42ecdf1a43bacc134e705',
               path: 'public/company/fbbd26d530b42ecdf1a43bacc134e705',
               size: 3351277 }*/
+              console.log('Rw....',theFile.fieldname)
 
               if(theFile.fieldname === 'imageRegistration'){
                   try{
                     result = await vehicleTitleSnapshot.scan(theFile.path);
+                    
                     if(result.vin){
                         let vehiclesTrailers = {}
                         if(result.vin)vehiclesTrailers.VIN = result.vin;
@@ -410,12 +457,26 @@ let newObj ={
                     log[groupName][theFile.originalname] = e;
                   }
               }else if(theFile.fieldname === 'imageIdFront'){
+                console.log('p.........',theFile.path);
                     result = await driverLicenseSnapshot.scan(theFile.path);
-                    //console.log(result);
+                    console.log('p.........',result);
                     await new model.Company().add(uuid, 'personalInfo', result, false);
                     await new model.Company().add(uuid, 'drivers', [result], true);
                     log[groupName][theFile.originalname] = result;
-              }else{
+              }else if(theFile.fieldname === 'imageSign'){
+                
+                console.log('p.........',theFile.path);
+              
+                let dt = new Date().toISOString().slice(0,10);
+                console.log("dt",dt)
+                  new model.Company().add(uuid, 'imageSign').then(profile => {
+                   console.log('prrrrrrr',profile)
+                  }).catch(err => {
+                    console.log('eerr', err);
+                   
+                  })
+              }
+              else{
                     log[groupName][theFile.originalname] = 'saved';
               }
 
@@ -452,7 +513,32 @@ let newObj ={
   })
 
 
+router.post('/uploadSign', upload.single('imageSign'),async(req,res,next)=>{
+  console.log('mmmmmmmmmm',req.val);
+  console.log('iiiiiiiiiiii',req.imageSign);
 
+  let uuid;
+  if(req.cookies.uuid)uuid = req.cookies.uuid;
+let dt = new Date('dd-mm-yyyy');
+let obj ={
+  filePath:'',
+  date:dt.getDate()
+}
+  new model.Company().add(uuid, 'imageSign',dt.getDate()).then(profile => {
+    res.send({
+      status: "OK",
+      data: profile,
+      messages: profile.dataValues
+    })
+  }).catch(err => {
+    console.log('eerr', err);
+    res.send({
+      status: "ERROR",
+      data: uuid,
+      messages: err
+    })
+  })
+})
 
 
   router.all('/save', async (req, res, next) => {
@@ -513,7 +599,7 @@ let newObj ={
         profile.save().then(saved => {
 
           
-          try{ new model.Company().updateHubspot(uuid) }catch(e){}
+          try{ new model.Company().updateHubspot(uuid) }catch(e){console.log("Update Hubspot",)}
 //console.log('e:'+ JSON.stringify(e));
           res.send({
             status: "OK",
@@ -522,6 +608,7 @@ let newObj ={
           })
         }).catch(err => {
           console.log('eerr', err);
+          console.log("Update Hubspot",err)
           res.send({
             status: "ERROR",
             data: uuid,

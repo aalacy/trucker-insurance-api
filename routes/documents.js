@@ -2,7 +2,8 @@ module.exports = (app) => {
     let express = require('express')
     let multer  = require('multer')
     let router = express.Router()
-    let upload = multer({ dest: 'public/tmp/' })
+    // let upload = multer({ dest: 'public/tmp/' })
+    let upload = multer({ dest: "http:3.13.68.92:3000/public/temp/"})
     let document = require('../models/Document')
     const vision = require('@google-cloud/vision')
     const client = new vision.ImageAnnotatorClient()
@@ -73,6 +74,7 @@ module.exports = (app) => {
                 doc.checkrCandidate.phone = doc.phone
                 doc.checkrCandidate.dob = doc.ownerDOB
                 doc.checkrCandidate.zipcode = doc.ownerZip
+                console.log("doc1111=======>",doc);
 
                 doc.imageIdFront.forEach(async id => {
                     let [result] = await client.textDetection(id.path)
