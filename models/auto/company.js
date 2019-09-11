@@ -43,25 +43,27 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Company.prototype.updateHubspot = async (uuid, key, val) => {
+    console.log('profileupdatehubspot:');
     return new Promise(async (resolve, reject) => {
-      
+      console.log('profileupdatehubspot:kkkkkkkkk');
+        
 
       let profile = await new Company().findByUUID(uuid);
       if(!profile){
-        console.log('profileupdatehubspot:'+profile);
+        console.log('profileupdatehubspot:',!profile);
         reject('the company not found by uuid')
         return
       }
+      
 
       let fullProfile = new Company().renderAllByType(profile);
-
+      console.log("USDOT Number",fullProfile);
       if(!fullProfile.businessStructureRaw || !fullProfile.businessStructureRaw["USDOT Number"]){
         reject("USDOT Number not found, can't update Hubspot")
         return
       }
 
-      //console.log(fullProfile.businessStructureRaw["USDOT Number"]);
-
+      
       const hubspot = new Hubspot({ 
         apiKey: config.hapikey,
         checkLimit: false // (Optional) Specify whether or not to check the API limit on each call. Default: true 
@@ -131,25 +133,33 @@ module.exports = (sequelize, DataTypes) => {
       //fullProfile.businessStructureRaw["USDOT Number"] = 'uuuuuuu';
 
       let hubspotCompany = await hubspot.companies.getByDomain(fullProfile.businessStructureRaw["USDOT Number"]+".dot").catch(err => {
+        console.log("hubspot Company",err)
         //reject(err)
         //return
       })
 
       let resp;
       if(!hubspotCompany || hubspotCompany.length === 0 || !hubspotCompany[0].companyId){
+        console.log("hubspotCompany",hubspotCompany);
+        console.log("hubspotCompany[0].companyId",hubspotCompany[0].companyId);
         //resolve(hubspotCompany);
         //reject('create new not yet implemented')
         properties.push({"name": "domain", "value": fullProfile.businessStructureRaw["USDOT Number"]+'.dot'});
         resp = await hubspot.companies.create(companyObj);
-        console.log('create!');
+        console.log('create!',resp);
       }else{
-        resp = await hubspot.companies.update(hubspotCompany[0].companyId, companyObj);
+        try{resp = await hubspot.companies.update(hubspotCompany[0].companyId, companyObj);
+          console.log("resp update",resp);
+          console.log('update!');
+        }
+        catch{ err => console.log("update err",err)}
+        console.log("resp update",resp);
         console.log('update!');
       }
 
 
       await pdfApplication.uploadToHubspot(uuid, resp.companyId, await new Company()).catch(err => {
-        console.log(err)
+        console.log('hubspotError',err)
       })
 
 
@@ -206,11 +216,12 @@ console.log('hubspotrespone:'+ JSON.stringify(resp));
       company.save().then(async companyData => {
 
         if(updateHubspot){
-          try{ await new Company().updateHubspot(uuid) }catch(e){}
+          try{ await new Company().updateHubspot(uuid) }catch(e){console.log("Update hubspot",updateHubspot)}
         }  
         resolve(companyData);
 
       }).catch(err => {
+        console.log("update hubspot ",err)
           reject(err)
           return
       })

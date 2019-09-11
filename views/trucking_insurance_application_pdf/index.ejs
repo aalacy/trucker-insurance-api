@@ -7,11 +7,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>LuckyTruck</title>
     <style>
+      .width-200 span{
+        width: 100%;
+        max-width: 280px;
+      }
+      .width-200-a span{
+        width: 100%;
+        max-width: 390px;
+      }
+      .width-200-b span{
+        width: 100%;
+        max-width: 350px;
+      }
+      .width-200-c span{
+        width: 100%;
+        max-width: 200px;
+      }
       body{
           margin: 0px;
           padding: 0px;
           font-size: 0.9rem;
           line-height: 1.5rem;
+          /* padding-left: 10px; */
       }
       .container_pdf_doc{
         width: 1024px;
@@ -81,37 +98,36 @@
 
         <p class="border-title p-2 ">General Information</p>
         <% console.log('com:',company_name) %>
-        <p class="">
-          Company Name<span class="border_bottom field_item " id="companyName"> <% company_name %></span> 
-          DBA<span class="border_bottom field_item " id="dba"><%= dba_name %></span>
-          Phone number<span class="border_bottom field_item " id="phoneNumber"><%= phone_number %></span>
+        <p class="width-200">
+          Company Name: <span class="border_bottom field_item " id="companyName"> <% company_name %></span> 
+          DBA: <span class="border_bottom field_item " id="dba"><%= dba_name %></span>
+          Phone number: <span class="border_bottom field_item" style="width:100%;max-width:110px;" id="phoneNumber"><%= phone_number %></span>
         </p>
 
-        <p class="">
-          Mailing address<span class="border_bottom field_item " id=""><%= mailing_address %></span> 
-          City<span class="border_bottom field_item " id=""><%= mailing_city %></span>
-          State<span class="border_bottom field_item " id=""><%= mailing_state %></span>
-          Zip<span class="border_bottom field_item " id=""><%= mailing_zip %></span>
+        <p class="width-200-a">
+          Mailing address: <span class="border_bottom field_item " id=""><%= mailing_address %></span> 
+          City: <span class="border_bottom field_item " id=""><%= mailing_city %></span>
+          State: <span class="border_bottom field_item " id=""><%= mailing_state %></span>
+          Zip: <span class="border_bottom field_item "  style="width:100%;max-width:425px;" id=""><%= mailing_zip %></span>
+        </p>
+        <p class="width-200-a">
+          Garaging address: <span class="border_bottom field_item " id=""><%= garaging_address %></span> 
+          City: <span class="border_bottom field_item " id=""><%= garaging_city %></span>
+          State: <span class="border_bottom field_item "  id=""><%= garaging_state %></span>
+          Zip: <span class="border_bottom field_item "   style="width:100%;max-width:425px;" id=""><%= garaging_zip %></span>
         </p>
 
-        <p class="">
-          Garaging address<span class="border_bottom field_item " id=""><%= garaging_address %></span> 
-          City<span class="border_bottom field_item " id=""><%= garaging_city %></span>
-          State<span class="border_bottom field_item " id=""><%= garaging_state %></span>
-          Zip<span class="border_bottom field_item " id=""><%= garaging_zip %></span>
+        <p class="width-200-b">
+          E-mail Address: <span class="border_bottom field_item " id=""><%= email_address %></span>
+          Business start date: <span class="border_bottom field_item " id=""><%= business_start_date %></span>
+          DOT Number: <span class="border_bottom field_item " style="width:100%;max-width:373px;"  id=""><%= dot_number %></span>
+          MC Number: <span class="border_bottom field_item " style="width:100%;max-width:373px;"  id=""><%= mc_number %></span>
         </p>
 
-        <p class="">
-          E-mail Address <span class="border_bottom field_item " id=""><%= email_address %></span>
-          Business start date <span class="border_bottom field_item " id=""><%= business_start_date %></span>
-          DOT Number <span class="border_bottom field_item " id=""><%= dot_number %></span>
-          MC Number <span class="border_bottom field_item " id=""><%= mc_number %></span>
-        </p>
-
-        <p class="">
-          Radius of travel <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
-          Current Carrier <span class="border_bottom field_item " id=""></span> 
-          Current ELD Provider <span class="border_bottom field_item " id=""><%= eldProvider %></span>
+        <p class="width-200-b">
+          Radius of travel: <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
+          Current Carrier: <span class="border_bottom field_item " style="width:100%;max-width:373px;" id=""></span> 
+          Current ELD Provider: <span class="border_bottom field_item " id=""><%= eldProvider %></span>
         </p>
 
         <p class="border-title p-2 ">Driver Information - attach schedule if over 5 drivers</p>
@@ -175,7 +191,7 @@
             </thead>
             <tbody>
               <% if(vehiclesTrailers.length > 0){ %>
-                <% JSON.parse(vehiclesTrailers).forEach(function(vehicle, index) { %>
+                <% vehiclesTrailers.forEach(function(vehicle, index) { %>
                   <% vehiclesTrailersLeft-- %>
                   <tr>
                     <td  scope="">

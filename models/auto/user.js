@@ -143,7 +143,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         admin: DataTypes.INTEGER,
         social: DataTypes.INTEGER,
-
+        role:DataTypes.STRING,
+        account_status:DataTypes.STRING,
     }, {
         passwordConfirm: null,
         oldPassword: null,
