@@ -15,8 +15,11 @@ module.exports = {
 
       let ret;
       try{
+        console.log('peet.........');
           ret = await client.textDetection(location);
+          console.log('kkk.........',ret);
         }catch(e){
+          console.log('lll.........',e);
           reject(e);
           return
         }

@@ -269,8 +269,12 @@ module.exports = {
         ejsOptions.owners = (fullProfile.owners)?fullProfile.owners:{owners: []};
 
         //{"question1": 
-        if(fullProfile.questions && (fullProfile.questions.question1 || fullProfile.questions.question2)){
-          ejsOptions.comments = fullProfile.questions.question1+"; "+fullProfile.questions.question2;
+        // if(fullProfile.questions && (fullProfile.questions.question1 || fullProfile.questions.question2)){
+        //   ejsOptions.comments = fullProfile.questions.question1+"; "+fullProfile.questions.question2;
+        // }
+
+        if(fullProfile.questions && fullProfile.questions.question1){
+          ejsOptions.comments = fullProfile.questions.question1+"."
         }
         
 
