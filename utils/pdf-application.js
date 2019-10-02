@@ -64,7 +64,8 @@ module.exports = {
       })
 
       //console.log('engagements of '+hubspotCompanyId, engagements);
-
+      console.log("engagment",engagements)
+      console.log("engagements.results",engagements.results)
       if(engagements && engagements.results && Array.isArray(engagements.results) && engagements.results.length){
        // console.log('!! inside if !!');
         for(let c = 0; c < engagements.results.length > c; c++){
@@ -170,7 +171,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
 
       let contents = fs.readFileSync(webConfig.rootDir+'/views/trucking_insurance_application_pdf/index.ejs').toString();
-      let logo = fs.readFileSync(webConfig.rootDir+'/views/trucking_insurance_application_pdf/logo.png');
+      let logo = fs.readFileSync(webConfig.rootDir+'/views/trucking_insurance_application_pdf/logo.jpg');
       
       let logo64 = Buffer(logo).toString('base64');
       

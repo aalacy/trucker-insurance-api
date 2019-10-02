@@ -328,7 +328,9 @@ let newObj ={
 
 
   router.all('/hubspot', async (req, res, next) => {
-    console.log("hubspot1")
+    console.log("hubspot1 req",req);
+    console.log("hubspot1 res",res);
+    console.log("hubspot1 next",next);   
     let uuid, error, log;
 
     if(req.query.uuid)uuid = req.query.uuid;
@@ -336,7 +338,7 @@ let newObj ={
     else if(req.cookies.uuid)uuid = req.cookies.uuid;
     
     if (!uuid) {
-      console.log("hubspot uuid",!uuid)
+      console.log("hubspot uuid is not found",!uuid)
       res.send({
         status: "ERROR",
         data: 'uuid is empty',
@@ -344,7 +346,7 @@ let newObj ={
       });
       return;
     }
-    console.log("hubspot2")
+    console.log("hubspot2 if uuid")
 
 
       try{
@@ -356,7 +358,7 @@ let newObj ={
           messages: []
         })
       }catch(e){
-        console.log("Update hubspot",e)
+        console.log("Update hubspot error",e)
         res.send({
           status: "ERROR",
           data: e,
@@ -384,7 +386,6 @@ let newObj ={
     {name: 'rentalLeaseAgreement', maxCount: 1},
     {name: 'previouslyCompletedApplications', maxCount: 1},
     {name: 'insuranceRequirements', maxCount: 1},
-    
     {name: 'imageSign', maxCount: 1},
     
     
@@ -615,7 +616,7 @@ let obj ={
             messages: err
           })
         })
-
+          console.log("saved.dataValues hubspot",saved.dataValues);
     }
 
   })

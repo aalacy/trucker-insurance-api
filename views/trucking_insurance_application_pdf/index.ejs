@@ -13,8 +13,14 @@
       }
       .width-200-a span{
         width: 100%;
+        max-width: 440px;
+      }
+
+      .width-200-d span{
+        width: 100%;
         max-width: 390px;
       }
+
       .width-200-b span{
         width: 100%;
         max-width: 350px;
@@ -23,6 +29,9 @@
         width: 100%;
         max-width: 200px;
       }
+     .pad-10{
+       padding-bottom: 10px;
+     }
       body{
           margin: 0px;
           padding: 0px;
@@ -63,7 +72,7 @@
 <!-- Page 1 -->
       <div class="container page_index">
 
-        <div class="mt-5 "><img src="<%= logo %>"/></div>
+        <div class="mt-5 "><img src="<%= logo %>" height="46px" width="269px"/></div>
 
         <div class="h4 my-3 ">Trucking Insurance Application</div>
 
@@ -104,30 +113,33 @@
           Phone number: <span class="border_bottom field_item" style="width:100%;max-width:110px;" id="phoneNumber"><%= phone_number %></span>
         </p>
 
-        <p class="width-200-a">
+        <p class="width-200-d">
           Mailing address: <span class="border_bottom field_item " id=""><%= mailing_address %></span> 
-          City: <span class="border_bottom field_item " id=""><%= mailing_city %></span>
-          State: <span class="border_bottom field_item " id=""><%= mailing_state %></span>
-          Zip: <span class="border_bottom field_item "  style="width:100%;max-width:425px;" id=""><%= mailing_zip %></span>
-        </p>
-        <p class="width-200-a">
+          City: <span class="border_bottom field_item "  style="width:100%;max-width:410px;"  id=""><%= mailing_city %></span>
+        </p>  
+        <p class="width-200-a"> State: <span class="border_bottom field_item " id=""><%= mailing_state %></span>
+          Zip: <span class="border_bottom field_item "  style="width:100%;max-width:435px;" id=""><%= mailing_zip %></span>
+      </p>
+        <p class="width-200-d">
           Garaging address: <span class="border_bottom field_item " id=""><%= garaging_address %></span> 
           City: <span class="border_bottom field_item " id=""><%= garaging_city %></span>
-          State: <span class="border_bottom field_item "  id=""><%= garaging_state %></span>
-          Zip: <span class="border_bottom field_item "   style="width:100%;max-width:425px;" id=""><%= garaging_zip %></span>
-        </p>
+        </p> <p class="width-200-a">    State: <span class="border_bottom field_item "  id=""><%= garaging_state %></span>
+          Zip: <span class="border_bottom field_item "   style="width:100%;max-width:435px;" id=""><%= garaging_zip %></span>
+       </p>
 
         <p class="width-200-b">
           E-mail Address: <span class="border_bottom field_item " id=""><%= email_address %></span>
           Business start date: <span class="border_bottom field_item " id=""><%= business_start_date %></span>
-          DOT Number: <span class="border_bottom field_item " style="width:100%;max-width:373px;"  id=""><%= dot_number %></span>
-          MC Number: <span class="border_bottom field_item " style="width:100%;max-width:373px;"  id=""><%= mc_number %></span>
+        </p> 
+        <p class="width-200-b">DOT Number: <span class="border_bottom field_item " style="width:100%;max-width:373px;"  id=""><%= dot_number %></span>
+          MC Number: <span class="border_bottom field_item " style="width:100%;max-width:390px;"  id=""><%= mc_number %></span>
         </p>
 
         <p class="width-200-b">
           Radius of travel: <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
           Current Carrier: <span class="border_bottom field_item " style="width:100%;max-width:373px;" id=""></span> 
-          Current ELD Provider: <span class="border_bottom field_item " id=""><%= eldProvider %></span>
+        </p>  
+        <p class="width-200-b"> Current ELD Provider: <span class="border_bottom field_item " id=""><%= eldProvider %></span>
         </p>
 
         <p class="border-title p-2 ">Driver Information - attach schedule if over 5 drivers</p>
@@ -140,28 +152,30 @@
                 <th scope="">State</th>
                 <th scope="">Driver's License Number</th>
                 <th scope="">CDL (yes or no)</th>
-                <th scope="">Years of Experience Using Scheduled Equipment</th>
+                <!-- <th scope="">Years of Experience Using Scheduled Equipment</th> -->
               </tr>
             </thead>
             <tbody>
-              
-              <% if(drivers.length > 0){ %>
-                <% drivers.forEach(function(driver, index) { %>
+                <% if(drivers.drivers != undefined){ %>
+              <% if(drivers.drivers.length > 0){ %>
+                <% drivers.drivers.forEach(function(driver, index) { %>
                   <% driversLeft-- %>
+                 
                   <tr>
                       <td scope="">
                           <!-- <%= index+1 %>. -->
                           <%= (driver.firstName || driver.lastName)?driver.firstName+" "+driver.lastName:'' %>
                       </td>
-                      <td><%= (driver.dateOfBirth)?driver.dateOfBirth:'' %></td>
+                      <!-- <td><%= (driver.dateOfBirth)?driver.dateOfBirth:'' %></td> -->
+                      <td><%= driver.dobM %>/<%= driver.dobD %>/<%= driver.dobY %></td>
                       <td><%= (driver.state)?driver.state:'' %></td>
                       <td><%= (driver.licenseNumber)?driver.licenseNumber:'' %></td>
-                      <td></td>
-                      <td><%= (driver.yearsOfExperience)?driver.yearsOfExperience:'' %></td>
+                      <td><%= (driver.CDL)?driver.CDL:'' %></td>
+                      <!-- <td><%= (driver.yearsOfExperience)?driver.yearsOfExperience:'' %></td> -->
                     </tr>
               <% }); %>
               <% } %>
-
+              <% } %>
               <% for(var i=0; i < drivers; i++) { %>
                 <tr>
                   <td  scope=""></td>
@@ -190,24 +204,46 @@
               </tr>
             </thead>
             <tbody>
-              <% if(vehiclesTrailers.length > 0){ %>
-                <% vehiclesTrailers.forEach(function(vehicle, index) { %>
+              <% if(vehiclesTrailers.vehicle != undefined){ %>  
+              <% if(vehiclesTrailers.vehicle.length > 0){ %>
+                <% vehiclesTrailers.vehicle.forEach(function(vehicle1, index) { %>
                   <% vehiclesTrailersLeft-- %>
                   <tr>
                     <td  scope="">
                       <!-- <%= index+1 %>. --> 
-                      <%= (vehicle.VIN)?vehicle.VIN:'' %>
+                      <%= (vehicle1.VIN)?vehicle1.VIN:'' %>
                     </td>
-                    <td><%= (vehicle.year)?vehicle.year:'' %></td>
-                    <td><%= (vehicle.make)?vehicle.make:'' %></td>
-                    <td><%= (vehicle.vehicleType)?vehicle.vehicleType:'' %></td>
-                    <td><%= (vehicle.zipCode)?vehicle.zipCode:'' %></td>
-                    <td><%= (vehicle.radiusOfTravel)?vehicle.radiusOfTravel:'' %></td>
-                    <td><%= (vehicle.currentValue)?vehicle.currentValue:'' %></td>
+                    <td><%= (vehicle1.year)?vehicle1.year:'' %></td>
+                    <td><%= (vehicle1.make)?vehicle1.make:'' %></td>
+                    <td><%= (vehicle1.vehicleType)?vehicle1.vehicleType:vehicle1.vehicleImage%></td>
+                    <td><%= (vehicle1.zipCode)?vehicle1.zipCode:'' %></td>
+                    <td><%= (vehicle1.radiusOfTravelVehicle)?vehicle1.radiusOfTravelVehicle:'' %></td>
+                    <td><%= (vehicle1.currentValue)?vehicle1.currentValue:'' %></td>
                   </tr>
                 <% }); %>
               <% } %>
+              <% } %>
 
+              <% if(vehiclesTrailers.trailer != undefined){ %>  
+              <% if(vehiclesTrailers.trailer.length > 0){ %>
+                <% vehiclesTrailers.trailer.forEach(function(trailer1, index) { %>
+                  <% vehiclesTrailersLeft-- %>
+                  <tr>
+                    <td  scope="">
+                      <!-- <%= index+1 %>. --> 
+                      <%= (trailer1.VIN)?trailer1.VIN:'' %>
+                    </td>
+                    <td><%= (trailer1.year)?trailer1.year:'' %></td>
+                    <td><%= (trailer1.make)?trailer1.make:'' %></td>
+                    <td><%= (trailer1.trailerType)?trailer1.trailerType:'' %></td>
+                    <td><%= (trailer1.zipCode)?trailer1.zipCode:'' %></td>
+                    <td><%= (trailer1.radiusOfTravelTrailer)?trailer1.radiusOfTravelTrailer:'' %></td>
+                    <td><%= (trailer1.currentValue)?trailer1.currentValue:'' %></td>
+                  </tr>
+                <% }); %>
+              <% } %>
+              <% } %>
+              
               <% for(var i=0; i < vehiclesTrailersLeft; i++) { %>
                   <tr>
                     <td  scope=""></td>
@@ -231,7 +267,7 @@
 <!-- Page 2 -->
       <div class="container page_index">
 
-          <div class="mt-5  d-none d-print-block"><img src="<%= logo %>"/></div>
+          <div class="mt-5  d-none d-print-block"><img src="<%= logo %>" height="46px" width="269px"/></div>
   
           <div class="h4 my-3  d-none d-print-block">Trucking Insurance Application</div>
   
@@ -278,13 +314,12 @@
               </thead>
               <tbody>
                 <% var a = owners %>
-                <% console.log("a =>>>>>>>>>>>",a) %>
                   <% if(a.owners.length > 0){ %>
                     <% a.owners.forEach(function(owner, index) { %>
                     <% ownersLeft-- %>
                     <tr>
                       <td  scope=""><%= owner.firstName %> <%= owner.lastName %></td>
-                      <td><%= owner.dateOfBirth %></td>
+                      <td><%= owner.dobM %>/<%= owner.dobD %>/<%= owner.dobY %> </td>
                       <td><%= owner.address %> <%= owner.state %></td>
                     </tr>
                     <% }); %>
@@ -352,7 +387,7 @@
 <!-- Page 3 -->
       <div class="container page_index">
 
-          <div class="mt-5  d-none d-print-block"><img src="<%= logo %>"/></div>
+          <div class="mt-5  d-none d-print-block"><img src="<%= logo %>" height="46px" width="269px"/></div>
 
           <div class="h4 my-3  d-none d-print-block">Trucking Insurance Application</div>
 

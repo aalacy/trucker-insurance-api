@@ -3,5 +3,4 @@ node_modules/.bin/sequelize db:migrate
 node_modules/.bin/sequelize model:generate --name UserData --attributes UserId:integer,firstName:string,lastName:string,zipCode:integer,age:integer,gender:integer,height:string,weight:string,lifeStyle:string,jobType:string,weeklyPhysicalActivity:string,goals:string
 node_modules/.bin/sequelize migration:create --name add-fields-to-user
 node_modules/.bin/sequelize migration:create --name add-facebookId-to-user
-
 node_modules/.bin/sequelize migration:create --name add-fDate-to-UserNutritionInputItem
