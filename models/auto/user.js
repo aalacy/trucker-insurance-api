@@ -3,7 +3,7 @@ let md5 = require('md5')
 let fs = require('fs')
 let stringHelper = require('../../helpers/string')
 let im = require('imagemagick');
-let webConfig = require('../../config/web.json')
+let webConfig = require('../../config/web.js')
 let sanitize = require("sanitize-filename");
 
 
@@ -476,6 +476,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     User.prototype.renderOne = (user) => {
+        console.log('user model', user);
         user = user.dataValues
 
 
@@ -620,6 +621,21 @@ module.exports = (sequelize, DataTypes) => {
                 reject(err)
             })
         })
+    }
+
+    User.prototype.checkSocial = async (data) => {
+        return new Promise((resolve, reject) => {
+            new User().findUser({email: data.email}).then(user => {
+                if (user == null) {
+                    reject({err: 'User not found'});
+                } else {
+                    resolve(user)
+                    return
+                }
+            }).catch(err => {
+                reject(err)
+            })
+        });
     }
 
     User.prototype.registerSimple = async (data) => {

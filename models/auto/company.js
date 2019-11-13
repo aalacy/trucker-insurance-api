@@ -152,7 +152,8 @@ module.exports = (sequelize, DataTypes) => {
           console.log("resp update",resp);
           console.log('update!');
         }
-        catch{ err => console.log("update err",err)}
+        catch (err) { 
+          console.log("update err",err)}
         console.log("resp update",resp);
         console.log('update!');
       }

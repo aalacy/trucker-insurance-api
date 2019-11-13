@@ -1,5 +1,5 @@
 module.exports = (app) => {
-  var webConfig = require("../config/web.json");
+  var webConfig = require("../config/web.js");
   let express = require('express')
   let multer  = require('multer')
   let router = express.Router();
