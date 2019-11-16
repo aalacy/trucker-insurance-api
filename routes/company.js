@@ -203,7 +203,7 @@ console.log('pdfApp:'+ JSON.stringify(location));
           messages: ['usdot is empty']
       })
     }
-console.log('Create'+ req.body);
+    console.log('Create'+ req.body);
     let usdot = (req.body.usdot)?req.body.usdot:req.query.usdot;
     let company = await companySnapshot.get(usdot);
     let uuid = await getNewUUID();

@@ -22,7 +22,7 @@ module.exports = {
                 reject("empty response from the server");
                 return;
               }
-console.log('snapshot:'+_this.parseHTML(body));
+              console.log('snapshot:'+_this.parseHTML(body));
               resolve(_this.parseHTML(body));
           }
       );
