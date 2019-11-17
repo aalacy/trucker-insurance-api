@@ -5,6 +5,11 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../../config/config.json')[env];
 const request = require('request');
 let pdfApplication = require('../../utils/pdf-application');
+const hubspot = new Hubspot({ 
+  apiKey: config.hapikey,
+  checkLimit: false // (Optional) Specify whether or not to check the API limit on each call. Default: true 
+});
+const fetch = require('node-fetch');
 
 module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
@@ -43,31 +48,22 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Company.prototype.updateHubspot = async (uuid, key, val) => {
-    console.log('profileupdatehubspot:');
+    console.log('profile update hubspot:');
     return new Promise(async (resolve, reject) => {
-      console.log('profileupdatehubspot:kkkkkkkkk');
         
-
       let profile = await new Company().findByUUID(uuid);
       if(!profile){
-        console.log('profileupdatehubspot:',!profile);
+        console.log('profile false updatehubspot:',!profile);
         reject('the company not found by uuid')
         return
       }
-      
 
       let fullProfile = new Company().renderAllByType(profile);
       console.log("USDOT Number",fullProfile);
-      if(!fullProfile.businessStructureRaw || !fullProfile.businessStructureRaw["USDOT Number"]){
+      if(!fullProfile.businessStructureRaw || !JSON.parse(fullProfile.businessStructureRaw)["USDOT Number"]){
         reject("USDOT Number not found, can't update Hubspot")
         return
       }
-
-      
-      const hubspot = new Hubspot({ 
-        apiKey: config.hapikey,
-        checkLimit: false // (Optional) Specify whether or not to check the API limit on each call. Default: true 
-      })
 
       let properties = [];
 
@@ -88,8 +84,6 @@ module.exports = (sequelize, DataTypes) => {
       if(fullProfile.businessStructureRaw){
 
         properties.push({"name": "dot_number", "value": fullProfile.businessStructureRaw["USDOT Number"]});
-
-
         
         if(fullProfile.businessStructureRaw["DBA Name"])properties.push({"name": "dba_name", "value": fullProfile.businessStructureRaw["DBA Name"]});
         if(fullProfile.businessStructureRaw["Legal Name"])properties.push({"name": "name", "value": fullProfile.businessStructureRaw["Legal Name"]});
@@ -132,14 +126,32 @@ module.exports = (sequelize, DataTypes) => {
 
       //fullProfile.businessStructureRaw["USDOT Number"] = 'uuuuuuu';
 
-      let hubspotCompany = await hubspot.companies.getByDomain(fullProfile.businessStructureRaw["USDOT Number"]+".dot").catch(err => {
-        console.log("hubspot Company",err)
+      // let hubspotCompany = await hubspot.companies.getByDomain().catch(err => {
+        // console.log("hubspot Company err",err)
         //reject(err)
         //return
-      })
+      // })
+      const companyRequestBody = {
+        "limit": 2,
+        "requestOptions": {
+        "properties": [
+            "domain",
+            "createdate",
+            "name",
+            "hs_lastmodifieddate"
+          ]
+        },
+        "offset": {
+          "isPrimary": true,
+          "companyId": 0
+        }
+      }
+      let hubspotCompany = await fetch(`https://api.hubapi.com/companies/v2/domains/1306514.dot/companies?hapikey=${config.hapikey}`, { method: 'POST', body: JSON.stringify(companyRequestBody), headers: {'Content-Type': 'application/json'} })
+                                  .then(res => res.json()) // expecting a json response
+                                  .then(json => json);
 
       let resp;
-      if(!hubspotCompany || hubspotCompany.length === 0 || !hubspotCompany[0].companyId){
+      if(!hubspotCompany || hubspotCompany.results.length === 0 || !hubspotCompany.results[0].companyId){
         console.log("hubspotCompany",hubspotCompany);
         console.log("hubspotCompany[0].companyId",hubspotCompany[0].companyId);
         //resolve(hubspotCompany);
@@ -148,7 +160,7 @@ module.exports = (sequelize, DataTypes) => {
         resp = await hubspot.companies.create(companyObj);
         console.log('create!',resp);
       }else{
-        try{resp = await hubspot.companies.update(hubspotCompany[0].companyId, companyObj);
+        try{resp = await hubspot.companies.update(hubspotCompany.results[0].companyId, companyObj);
           console.log("resp update",resp);
           console.log('update!');
         }
@@ -158,18 +170,15 @@ module.exports = (sequelize, DataTypes) => {
         console.log('update!');
       }
 
-
       await pdfApplication.uploadToHubspot(uuid, resp.companyId, await new Company()).catch(err => {
         console.log('hubspotError',err)
       })
-
 
       request.get('https://api.hubapi.com/crm-associations/v1/associations/'+resp.companyId+'/HUBSPOT_DEFINED/6?hapikey='+config.hapikey, async (error, res, body) => {
         if (!error) {
           //console.log(`statusCode: ${res.statusCode}`)
           //console.log(body)
           let obj = JSON.parse(body);
-          console.log('hubspot:'+obj);
           if(obj && Array.isArray(obj.results) && obj.results.length == 0){
             let dealsProp = [];
             dealsProp.push({"name": 'dealname', "value": 'auto company deal'});
@@ -186,8 +195,9 @@ module.exports = (sequelize, DataTypes) => {
               "properties": dealsProp
             };
             
+            console.log('deals', dealsObj);
             let dealLog = await hubspot.deals.create(dealsObj);
-           // console.log(dealLog);
+           console.log(dealLog);
           }
 
         }else{
@@ -217,12 +227,16 @@ console.log('hubspotrespone:'+ JSON.stringify(resp));
       company.save().then(async companyData => {
 
         if(updateHubspot){
-          try{ await new Company().updateHubspot(uuid) }catch(e){console.log("Update hubspot",updateHubspot)}
+          try{ 
+            await new Company().updateHubspot(uuid) 
+          }catch(e){
+            console.log("Update hubspot catch",e)
+          }
         }  
         resolve(companyData);
 
       }).catch(err => {
-        console.log("update hubspot ",err)
+        console.log("update hubspot error",err)
           reject(err)
           return
       })

@@ -193,7 +193,6 @@ console.log('pdfApp:'+ JSON.stringify(location));
       })
   })
 
-
   router.all('/create', async (req, res, next) => {
 
     if (!req.body.usdot && !req.query.usdot) {
@@ -217,7 +216,7 @@ console.log('pdfApp:'+ JSON.stringify(location));
       return;
     }
 
-console.log('companyCreate:' + JSON.stringify(company));
+    console.log('companyCreate:' + JSON.stringify(company));
     let businessStructure = {}
     if(company['Entity Type'])businessStructure.businessType = company['Entity Type'];
     if(company['MC/MX/FF Number(s)'])businessStructure.MC = company['MC/MX/FF Number(s)'];
@@ -226,10 +225,8 @@ console.log('companyCreate:' + JSON.stringify(company));
     await new model.Company().add(uuid, 'businessStructureRaw', company, true);
     
     res.cookie('uuid',uuid, { maxAge: 9000000, httpOnly: false });
-
-    
     new model.Company().findByUUID(uuid).then(profile => {
-console.log('profile'+ JSON.stringify(profile));
+      console.log('profile  print  '+ JSON.stringify(profile));
 
       res.send({
         status: "OK",
@@ -598,7 +595,6 @@ let obj ={
         profile.val = req.body.val;
         
         profile.save().then(saved => {
-
           
           try{ new model.Company().updateHubspot(uuid) }catch(e){console.log("Update Hubspot",)}
 //console.log('e:'+ JSON.stringify(e));

@@ -64,8 +64,8 @@ module.exports = {
       })
 
       //console.log('engagements of '+hubspotCompanyId, engagements);
-      console.log("engagment",engagements)
-      console.log("engagements.results",engagements.results)
+      // console.log("engagment",engagements)
+      // console.log("engagements.results",engagements.results)
       if(engagements && engagements.results && Array.isArray(engagements.results) && engagements.results.length){
        // console.log('!! inside if !!');
         for(let c = 0; c < engagements.results.length > c; c++){
