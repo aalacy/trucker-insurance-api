@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
 
       let fullProfile = new Company().renderAllByType(profile);
       console.log("USDOT Number",fullProfile);
-      if(!fullProfile.businessStructureRaw || !JSON.parse(fullProfile.businessStructureRaw)["USDOT Number"]){
+      if(!fullProfile.businessStructureRaw || !fullProfile.businessStructureRaw["USDOT Number"]){
         reject("USDOT Number not found, can't update Hubspot")
         return
       }
