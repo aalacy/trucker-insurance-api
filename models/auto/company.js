@@ -106,7 +106,7 @@ module.exports = (sequelize, DataTypes) => {
           });
         }
 
-        if(fullProfile.["Physical Address"]){
+        if(fullProfile["Physical Address"]){
           let tmp = new Company().parseAndAssignAddress(fullProfile.businessStructureRaw["Physical Address"], {}, 'garaging_');
           Object.keys(tmp).forEach(function(key) {
             properties.push({"name": key, "value": tmp[key]});
