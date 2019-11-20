@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && nodemon ./bin/www",
     "start": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && nodemon ./bin/www",
-    "pm2": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && pm2 start ./bin/www"
+    "pm2": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && pm2 start ./bin/www",
+    "pm2": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && node --inspect ./bin/www"
   },
   "dependencies": {
     "@google-cloud/vision": "^0.25.0",
