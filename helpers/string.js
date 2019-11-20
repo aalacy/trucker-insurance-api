@@ -12,13 +12,17 @@ module.exports = {
     createErrorResponse : (data, message) => {
 
         let messages = []
-        console.log(data)
+        console.log(data);
         if (Object.keys(data).length > 0) {
-            data.forEach(error => {
-                Object.values(error).forEach(err => {
-                    messages.push(err)
+            try {
+                data.forEach(error => {
+                    Object.values(error).forEach(err => {
+                        messages.push(err)
+                    })
                 })
-            })
+            } catch (err) {
+                console.log(err);
+            }
         }
 
         if (!message && messages.length > 0) {
