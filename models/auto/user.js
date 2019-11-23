@@ -6,7 +6,6 @@ let im = require('imagemagick');
 let webConfig = require('../../config/web.js')
 let sanitize = require("sanitize-filename");
 
-
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         firstName: {

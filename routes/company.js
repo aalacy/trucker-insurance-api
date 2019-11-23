@@ -171,6 +171,8 @@ console.log('pdfApp:'+ JSON.stringify(location));
 
   router.all('/search', async (req, res, next) => {
 
+    console.log(req);
+
       if (!req.body.keyword && !req.query.keyword) {
         return res.send({
             status: "ERROR",
