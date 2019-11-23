@@ -141,6 +141,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             validate: {}
         },
+        googleId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            validate: {}
+        },
         admin: DataTypes.INTEGER,
         social: DataTypes.INTEGER,
         role:DataTypes.STRING,
@@ -155,9 +160,6 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(models.Token);
         User.hasOne(models.UserData);
     }
-
-    
-
     
     User.prototype.getProfileImageLocation = (profileImage) => {
 
@@ -623,11 +625,53 @@ module.exports = (sequelize, DataTypes) => {
         })
     }
 
-    User.prototype.checkSocial = async (data) => {
+    User.prototype.checkGoogle = async (data) => {
         return new Promise((resolve, reject) => {
-            new User().findUser({email: data.email}).then(user => {
+            let userData = {}
+            Object.keys(data).forEach(key => {
+                if (key == 'name') return
+                if (key == 'id') {
+                    userData['googleId'] = data[key]
+                    delete data[key]
+                }
+                userData[key.replace(/(-|\_)([a-z])/g, function (g) {
+                    return g[1].toUpperCase()
+                })] = data[key]
+            })
+            new User().findUser({email: userData.email}).then(user => {
                 if (user == null) {
-                    reject({err: 'User not found'});
+                    let unsavedUser = new User()
+                    unsavedUser.setAttributes(userData)
+                    unsavedUser.social = 1
+                    unsavedUser.validate({fields: ['email', 'firstName', 'lastName', 'googleId']}).then(user => {
+                        user.save({validate: false}).then(user => {
+                            let uData = new sequelize.models.UserData()
+                            uData.setAttributes(userData)
+                            uData.UserId = user.id
+                            uData.save({validate: false}).then(async uData => {
+                                let token = await new sequelize.models.Token().addToken(user)
+                                new User().findUser({id: user.id}).then(user => {
+                                    resolve(user)
+                                }).catch(err => {
+                                    console.log(err)
+                                    reject(err)
+                                    return
+                                })
+                            }).catch(err => {
+                                console.log(err)
+                                reject(err)
+                                return
+                            })
+                        }).catch(err => {
+                            console.log(err)
+                            reject(err)
+                            return
+                        })
+                    }).catch(err => {
+                        console.log(err)
+                        reject(err)
+                        return
+                    })
                 } else {
                     resolve(user)
                     return
@@ -635,7 +679,7 @@ module.exports = (sequelize, DataTypes) => {
             }).catch(err => {
                 reject(err)
             })
-        });
+        })
     }
 
     User.prototype.registerSimple = async (data) => {
