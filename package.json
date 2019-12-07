@@ -54,6 +54,7 @@
     "tables": "^2.2.2",
     "tabletojson": "^1.0.4",
     "uuid": "^3.3.2",
+    "uuidv4": "^6.0.0",
     "vin-lite": "^3.0.1",
     "webshot": "^0.18.0"
   }

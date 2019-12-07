@@ -5,6 +5,7 @@ let stringHelper = require('../../helpers/string')
 let im = require('imagemagick');
 let webConfig = require('../../config/web.js')
 let sanitize = require("sanitize-filename");
+const { uuid } = require('uuidv4');
 
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
@@ -421,18 +422,13 @@ module.exports = (sequelize, DataTypes) => {
             }).catch(err => {
                 reject(err)
             })
-
-
         })
-
-
     }
 
 
     User.prototype.forgotPassword = async (email) => {
         return new Promise((resolve, reject) => {
 
-            
             User.findOne({
                 where: {
                     email: email
@@ -443,23 +439,15 @@ module.exports = (sequelize, DataTypes) => {
                     try{
 
                         // Field 'UserId' doesn't have a default value
-                        /*
-                        new sequelize.models.ResetPasswordCode().update(
-                            { status: 'inactive' }, 
-                            { where: { UserId: user.id, status: 'active' }}
-                        )*/
-
+                        const code = uuid();
                         sequelize.query(
-                            "UPDATE `ResetPasswordCodes` SET `status` = 'inactive' WHERE `UserId` = :UserId AND status = 'active'",
-                            { replacements: { UserId: user.id  }}
+                            'INSERT INTO ResetPasswordCodes (status, code, UserId, createdAt, updatedAt) VALUES ("active", :code, :UserId, NOW(), NOW())',
+                            { replacements: { UserId: user.id, code: code  }}
                         ).spread((results, metadata) => {
                             // Results will be an empty array and metadata will contain the number of affected rows.
-                          })
+                        })
 
-                        let so = await new sequelize.models.ResetPasswordCode().sendCode(user);
-                        if(!so || !so.code)reject(so);
-
-                        resolve("We've sent an email to "+user.email)
+                        resolve({status: 200, code})
                     }catch(err){
                         reject(err)
                     }
