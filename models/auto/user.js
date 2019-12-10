@@ -5,8 +5,7 @@ let stringHelper = require('../../helpers/string')
 let im = require('imagemagick');
 let webConfig = require('../../config/web.js')
 let sanitize = require("sanitize-filename");
-const { uuid } = require('uuidv4');
-
+const uuid = require('uuid/v4');
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         firstName: {
@@ -342,7 +341,7 @@ module.exports = (sequelize, DataTypes) => {
 
     }
 
-    User.prototype.resetPassword = async (email, code, newPassword) => {
+    User.prototype.resetPassword = async (code, _password, newPassword) => {
         return new Promise((resolve, reject) => {
 
             if(!newPassword){
@@ -354,59 +353,35 @@ module.exports = (sequelize, DataTypes) => {
                 "UPDATE `ResetPasswordCodes` SET `status` = 'expired' WHERE status = 'active' AND `createdAt` < NOW() - INTERVAL 1 HOUR"
             ).spread((results, metadata) => {
                 // Results will be an empty array and metadata will contain the number of affected rows.
-              })
+            })
 
             //resolve(email+" / "+code+" / "+newPassword);
-            sequelize.models.ResetPasswordCode.findOne({
-                where: {
-                    code: code,
-                    status: 'active',
-                }
-            }).then(async (_resetPasswordCode) => {
-                if (_resetPasswordCode && _resetPasswordCode.UserId) {
-
-                    try{
+            sequelize.query("SELECT * FROM `ResetPasswordCodes` WHERE status='active' AND code=:code", {replacements: { code: code}, type: sequelize.QueryTypes.SELECT})
+            .then(async (_resetPasswordCode) => {
+                if (_resetPasswordCode && _resetPasswordCode.length) {
+                    _resetPasswordCode = _resetPasswordCode[0];
+                    try {
 
                         User.findOne({where : {id : _resetPasswordCode.UserId}}).then(user => {
-                            // console.log(user)
-                            if (user.email != email) {
-                                reject('Emails doesn\'t match')
-                            }
-
-                            /*//this validation #1 doesn' work
-                            let test = new User()
-                            test.password = newPassword;
-                            test.passwordConfirm = test.password;
-                            */
-
-                           user.password = newPassword;
-                           user.passwordConfirm = user.password;
-
-                           //this validation #2 doesn' work
-                           user.validate({fields: ['password', 'passwordConfirm']}).then(_user => {
-                                user.password = _user.password;//hash
-                                //this validation #3 (on save) doesn' work, so disable it and manual check + hash
-
-                                if(user.password == newPassword){
-                                    user.password = md5(newPassword);//due to failed validation, not sure why
-                                }
-
+                            if (md5(_password) == user.password) {
+                                user.password = md5(newPassword);
                                 user.save({validate: false, fields: ['password']}).then(__user => {
 
-                                    _resetPasswordCode.status = 'used';
-                                    _resetPasswordCode.save();
+                                    sequelize.query(
+                                        "UPDATE `ResetPasswordCodes` SET `status` = 'used' WHERE code=:code", {replacements: {code}}
+                                    ).spread((results, metadata) => {
+                                        resolve("ok")
+                                    })
 
-                                    resolve("ok")
                                 }).catch(err => {
                                     console.log(err)
                                     reject(err)
                                     return
                                 })
-
-                            }).catch(err => {
-                                console.log('********',err);
-                                reject(err)
-                            })
+                            } else {
+                                reject("Old password does not match.")
+                                return
+                            }
                             
                         }).catch(err => {
                             reject(err)

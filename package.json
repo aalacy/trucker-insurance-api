@@ -6,7 +6,7 @@
     "dev": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && nodemon ./bin/www",
     "start": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && nodemon ./bin/www",
     "pm2": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && pm2 start ./bin/www",
-    "debug": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && node --inspect ./bin/www"
+    "debug": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && node --inspect ./bin/www"
   },
   "dependencies": {
     "@google-cloud/vision": "^0.25.0",
@@ -50,7 +50,7 @@
     "randomstring": "^1.1.5",
     "sanitize-filename": "^1.6.1",
     "sequelize": "^5.7.5",
-    "sequelize-cli": "^5.4.0",
+    "sequelize-cli": "^5.5.1",
     "tables": "^2.2.2",
     "tabletojson": "^1.0.4",
     "uuid": "^3.3.2",
