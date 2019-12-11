@@ -597,13 +597,11 @@ let obj ={
         profile.val = req.body.val;
         
         profile.save().then(saved => {
-          
-          try{ new model.Company().updateHubspot(uuid) }catch(e){console.log("Update Hubspot",)}
-//console.log('e:'+ JSON.stringify(e));
-          res.send({
-            status: "OK",
-            data: uuid,
-            messages: saved.dataValues
+          new model.Company().updateHubspot(uuid) 
+            res.send({
+              status: "OK",
+              data: uuid,
+              messages: saved.dataValues
           })
         }).catch(err => {
           console.log('eerr', err);
@@ -614,7 +612,6 @@ let obj ={
             messages: err
           })
         })
-          console.log("saved.dataValues hubspot",saved.dataValues);
     }
 
   })

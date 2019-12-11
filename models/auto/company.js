@@ -205,7 +205,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       
       })
-console.log('hubspotrespone:'+ JSON.stringify(resp));
+        console.log('hubspotrespone:'+ JSON.stringify(resp));
       resolve(resp);
     
     })
