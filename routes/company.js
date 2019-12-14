@@ -171,8 +171,6 @@ console.log('pdfApp:'+ JSON.stringify(location));
 
   router.all('/search', async (req, res, next) => {
 
-    console.log(req);
-
       if (!req.body.keyword && !req.query.keyword) {
         return res.send({
             status: "ERROR",
@@ -184,15 +182,22 @@ console.log('pdfApp:'+ JSON.stringify(location));
       let keyword = (req.body.keyword)?req.body.keyword:req.query.keyword;
       let so;
       if(!isNaN(keyword)){
-        so = await companySnapshot.get(keyword)
+        so = await companySnapshot.get(keyword).catch(err => console.log(err));
       }else{
-        so = await companySnapshot.search(keyword)
+        so = await companySnapshot.search(keyword).catch(err => console.log(err));
       }
-      res.send({
-          status: "OK",
-          data: so,
-          messages: []
-      })
+      if (so) {
+        res.send({
+            status: "OK",
+            data: so,
+            messages: []
+        })
+      } else {
+        res.send({
+            status: "Error",
+            messages: ["No search results"]
+        })
+      }
   })
 
   router.all('/create', async (req, res, next) => {
@@ -204,7 +209,6 @@ console.log('pdfApp:'+ JSON.stringify(location));
           messages: ['usdot is empty']
       })
     }
-    console.log('Create'+ req.body);
     let usdot = (req.body.usdot)?req.body.usdot:req.query.usdot;
     let company = await companySnapshot.get(usdot);
     let uuid = await getNewUUID();
@@ -218,25 +222,66 @@ console.log('pdfApp:'+ JSON.stringify(location));
       return;
     }
 
-    console.log('companyCreate:' + JSON.stringify(company));
     let businessStructure = {}
-    if(company['Entity Type'])businessStructure.businessType = company['Entity Type'];
-    if(company['MC/MX/FF Number(s)'])businessStructure.MC = company['MC/MX/FF Number(s)'];
-    if(company['Operation Classification'])businessStructure.businessClassification = company['Operation Classification'];
-    await new model.Company().add(uuid, 'businessStructure', businessStructure, false);
-    await new model.Company().add(uuid, 'businessStructureRaw', company, true);
-    
-    res.cookie('uuid',uuid, { maxAge: 9000000, httpOnly: false });
-    new model.Company().findByUUID(uuid).then(profile => {
-      console.log('profile  print  '+ JSON.stringify(profile));
+    if(company){
+      const name = company['Legal Name'];
+      const dotNumber = company['USDOT Number'];
+      const dba = company['DBA Name'];
+      const phoneNumber = company['Phone'];
+      const mailingAddress = {};
+      const garagingAddress = {};
+      const emailAddress = "";
+      const mcNumber = company['MC/MX/FF Number(s)'];
+      const currentCarrier = JSON.stringify(company['Carrier Operation']);
+      const travelRadius = "";
+      const currentEldProvider = [];
+      const cargoHauled = {};
+      const powerUnits =  company['Power Units'];
+      const businessType = '';
+      const businessStructure = '';
 
-      res.send({
-        status: "OK",
-        //data: new model.Company().renderAllByType(profile),
-        data:company, //b
-        messages: []
-      })
 
+      if(company["Mailing Address"]){
+        let tmp = new model.Company().parseAndAssignAddress(company["Mailing Address"], {}, '');
+        Object.keys(tmp).forEach(function(key) {
+          let _key = key.replace('address', 'street');
+          mailingAddress[_key] = tmp[key];
+        });
+      }
+
+      if(company["Physical Address"]){
+        let tmp = new model.Company().parseAndAssignAddress(company["Physical Address"], {}, '');
+        Object.keys(tmp).forEach(function(key) {
+          garagingAddress[key] = tmp[key];
+        });
+      }
+      const options = {
+        businessStructureRaw: company,
+        name,
+        dotNumber,
+        dba,
+        phoneNumber,
+        mailingAddress,
+        garagingAddress,
+        emailAddress,
+        mcNumber,
+        currentCarrier,
+        travelRadius,
+        currentEldProvider,
+        cargoHauled
+      }
+      await new model.Company().create(uuid, options );
+      
+      res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
+      new model.Company().findByUUID(uuid).then(profile => {
+        console.log('company profile in create '+ JSON.stringify(profile));
+
+        res.send({
+            status: "OK",
+            //data: new model.Company().renderAllByType(profile),
+            data:company, //b
+            messages: []
+          })
       }).catch(err => {
         console.log('Err:'+err);
         res.send({
@@ -245,21 +290,23 @@ console.log('pdfApp:'+ JSON.stringify(location));
           messages: err
         })
       })
-
-
+    } else {
+      res.send({
+        status: "ERROR",
+        data: 'can not create new company',
+        messages: 'can not create new company'
+      })
+    }
   })
 
 
-  async function getProfile(uuid, key){
+  async function getProfile(uuid){
     return new Promise((resolve, reject) => {
-      
-      new model.Company().findExact(uuid, key).then(profile => {
-        console.log('profile1'+ JSON.stringify(profile));
+      new model.Company().findByUUID(uuid).then(profile => {
           resolve(profile)
       }).catch(err => {
           resolve(false)
       })
-
     })
   }
 
@@ -268,7 +315,7 @@ console.log('pdfApp:'+ JSON.stringify(location));
 
       uuid = uuidv4();
       new model.Company().findByUUID(uuid).then(profile => {
-          if(profile.length > 1){
+          if(profile){
             getNewUUID(attemp + 1)
           }else{
             resolve(uuid)
@@ -288,31 +335,25 @@ console.log('pdfApp:'+ JSON.stringify(location));
     if(req.query.uuid)uuid = req.query.uuid;
     else if(req.body.uuid)uuid = req.body.uuid;
     else if(req.cookies.uuid)uuid = req.cookies.uuid;
-    console.log("req.uuid",req.cookies.uuid);
-    console.log("req.body.uuid",req.body.uuid);
-
     
     if (uuid) {
-
-new model.Company().findByUUID(uuid).then(profile => {
-console.log('profilCurrent:' + JSON.stringify(profile));
-let newObj ={
-  a:new model.Company().renderAllByType(profile),
-  b:uuid,
-}
-          res.send({
-            status: "OK",
-            data: newObj,
-            messages: []
-          })
-
-        }).catch(err => {
-          res.send({
-            status: "ERROR",
-            data: 'find by uuid',
-            messages: err
-          })
+      new model.Company().findByUUID(uuid).then(company => {
+        console.log('profile Current in /current:' + JSON.stringify(company));
+        res.send({
+          status: "OK",
+          data: {
+            company,
+            uuid,
+          },
+          messages: []
         })
+    }).catch(err => {
+      res.send({
+        status: "ERROR",
+        data: 'find by uuid',
+        messages: err
+      })
+    })
 
     }else{
       res.send({
@@ -541,78 +582,36 @@ let obj ={
 })
 
 
-  router.all('/save', async (req, res, next) => {
-
-    if(!req.body.key || !req.body.val){
-      res.send({
-        status: "ERROR",
-        data: 'key and val required',
-        messages: []
-      })
-      return;
-    }
+  router.post('/save', async (req, res, next) => {
 
     let profile;
-    let uuid;
 
-    if(req.query.uuid)uuid = req.query.uuid;
-    else if(req.body.uuid)uuid = req.body.uuid;
-    else if(req.cookies.uuid)uuid = req.cookies.uuid;
-    
-    if (uuid) {
-        profile = await getProfile(uuid, req.body.key);
-        console.log('Save:' + JSON.stringify(profile));
-    }else{
-        uuid = await getNewUUID();
+    const { data } = req.body;
+    let uuid = data.uuid;
+    if (!uuid) {
+      const { uuid } = req.cookie;
     }
 
-    res.cookie('uuid',uuid, { maxAge: 9000000, httpOnly: false });
-
-    if(!profile){//'{"a": 11, "b": 5}'
-        new model.Company().add(uuid, req.body.key, req.body.val).then(profile => {
-          res.send({
-            status: "OK",
-            data: uuid,
-            messages: profile.dataValues
-          })
-        }).catch(err => {
-          console.log('eerr', err);
-          res.send({
-            status: "ERROR",
-            data: uuid,
-            messages: err
-          })
-        })
-    }else{
-
-        /*
-        //problem with included arrays, objects, skip for now
-        if(typeof req.body.val === 'string'){
-            let obj = JSON.parse(req.body.val);
-            Object.keys(obj).forEach(function(key) {
-              let val = obj[key];
-
-            });
-        }*/
-        profile.val = req.body.val;
-        
-        profile.save().then(saved => {
-          new model.Company().updateHubspot(uuid) 
-            res.send({
-              status: "OK",
-              data: uuid,
-              messages: saved.dataValues
-          })
-        }).catch(err => {
-          console.log('eerr', err);
-          console.log("Update Hubspot",err)
-          res.send({
-            status: "ERROR",
-            data: uuid,
-            messages: err
-          })
-        })
+    if (!uuid) {
+      uuid = await getNewUUID();
     }
+
+    res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
+
+    new model.Company().create(uuid, data).then(profile => {
+      res.send({
+        status: "OK",
+        data: uuid,
+        messages: profile.dataValues
+      })
+    }).catch(err => {
+      console.log('err in save company', err);
+      res.send({
+        status: "ERROR",
+        data: uuid,
+        messages: err
+      })
+    })
 
   })
 

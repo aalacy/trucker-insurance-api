@@ -14,8 +14,30 @@ const fetch = require('node-fetch');
 module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
     uuid: DataTypes.STRING,
-    key: DataTypes.STRING,
-    val: DataTypes.JSON
+    businessStructureRaw: DataTypes.JSON,
+    name: DataTypes.STRING,
+    dotNumber: DataTypes.STRING,
+    dotNumber: DataTypes.STRING,
+    dba: DataTypes.STRING,
+    phoneNumber: DataTypes.STRING,
+    mailingAddress: DataTypes.JSON,
+    garagingAddress: DataTypes.JSON,
+    emailAddress: DataTypes.STRING,
+    mcNumber: DataTypes.STRING,
+    travelRadius: DataTypes.STRING,
+    currentCarrier: DataTypes.STRING,
+    currentEldProvider: DataTypes.JSON,
+    cargoHauled: DataTypes.JSON,
+    cargoGroup: DataTypes.JSON,
+    ownerName: DataTypes.STRING,
+    businessStructure: DataTypes.STRING,
+    businessType: DataTypes.STRING,
+    driverInformationList: DataTypes.JSON,
+    ownerInformationList: DataTypes.JSON,
+    vehicleInformationList: DataTypes.JSON,
+    comments: DataTypes.TEXT,
+    attachmentList: DataTypes.JSON,
+    signSignature: DataTypes.JSON
   }, {});
   Company.associate = function(models) {
     // associations can be defined here
@@ -23,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Company.prototype.findByUUID = async (uuid) => {
     return new Promise((resolve, reject) => {
-      Company.findAll({
+      Company.findOne({
             where: {"uuid" : uuid},
         }).then(company => {
             resolve(company)
@@ -59,13 +81,19 @@ module.exports = (sequelize, DataTypes) => {
       }
 
       let fullProfile = new Company().renderAllByType(profile);
-      console.log("USDOT Number",fullProfile);
-      if(!fullProfile.businessStructureRaw || !fullProfile.businessStructureRaw["USDOT Number"]){
-        reject("USDOT Number not found, can't update Hubspot")
+      let businessStructureRaw = {};
+      try {
+       businessStructureRaw = JSON.parse(fullProfile.businessStructureRaw);
+      } catch {
+
+      }
+      if(!fullProfile.businessStructureRaw || !businessStructureRaw["USDOT Number"]){
+        reject("USDOT Number not found, can't update Salesforce")
         return
       }
 
       let properties = [];
+      let accountWrapper = {}
 
       /* add fields to update */
 
@@ -81,35 +109,33 @@ module.exports = (sequelize, DataTypes) => {
         if(fullProfile.personalInfo["address"])properties.push({"name": "address", "value": fullProfile.personalInfo["address"]});
       }
 
-      if(fullProfile.businessStructureRaw){
+      if(businessStructureRaw){
+        accountWrapper.name = businessStructureRaw['Legal Name'];
+        accountWrapper.dotNumber = businessStructureRaw['USDOT Number'];
+        accountWrapper.dba = businessStructureRaw['DBA Name'];
+        accountWrapper.phoneNumber = businessStructureRaw['Phone'];
+        accountWrapper.mailingAddress = {};
+        accountWrapper.garagingAddress = {};
+        accountWrapper.emailAddress = "";
+        accountWrapper.mcNumber = businessStructureRaw['MC/MX/FF Number(s)'];
+        accountWrapper.travelRadius = "";
+        accountWrapper.currentCarrier = JSON.stringify(businessStructureRaw['Carrier Operation']);
+        accountWrapper.currentEldProvider = "";
+        accountWrapper.cargoHauled = "";
 
-        properties.push({"name": "dot_number", "value": fullProfile.businessStructureRaw["USDOT Number"]});
-        
-        if(fullProfile.businessStructureRaw["DBA Name"])properties.push({"name": "dba_name", "value": fullProfile.businessStructureRaw["DBA Name"]});
-        if(fullProfile.businessStructureRaw["Legal Name"])properties.push({"name": "name", "value": fullProfile.businessStructureRaw["Legal Name"]});
-        if(fullProfile.businessStructureRaw["Phone"])properties.push({"name": "phone", "value": fullProfile.businessStructureRaw["Phone"]});
-        if(fullProfile.businessStructureRaw["Drivers"])properties.push({"name": "total_drivers", "value": fullProfile.businessStructureRaw["Drivers"]});
-        if(fullProfile.businessStructureRaw["Power Units"])properties.push({"name": "number_of_power_units", "value": fullProfile.businessStructureRaw["Power Units"]});
-        if(fullProfile.businessStructureRaw["MCS-150 Form Date"])properties.push({"name": "mcs150_date", "value": fullProfile.businessStructureRaw["MCS-150 Form Date"]});
-        if(fullProfile.businessStructureRaw["MCS-150 Mileage (Year)"])properties.push({"name": "mcs150_mileage_year", "value": fullProfile.businessStructureRaw["MCS-150 Mileage (Year)"]});
 
-        /*
-        if(fullProfile.eldProvider["eldProvider"]){
-          properties.push({"name": 'eldProvider', "value": fullProfile.eldProvider["eldProvider"].join(', ')});
-        }*/
-
-        if(fullProfile.businessStructureRaw["Mailing Address"]){
-          let tmp = new Company().parseAndAssignAddress(fullProfile.businessStructureRaw["Mailing Address"], {}, 'mailing_');
+        if(businessStructureRaw["Mailing Address"]){
+          let tmp = new Company().parseAndAssignAddress(businessStructureRaw["Mailing Address"], {}, '');
           Object.keys(tmp).forEach(function(key) {
             let _key = key.replace('address', 'street');
-            properties.push({"name": _key, "value": tmp[key]});
+            accountWrapper.mailingAddress[_key] = tmp[key];
           });
         }
 
-        if(fullProfile["Physical Address"]){
-          let tmp = new Company().parseAndAssignAddress(fullProfile.businessStructureRaw["Physical Address"], {}, 'garaging_');
+        if(businessStructureRaw["Physical Address"]){
+          let tmp = new Company().parseAndAssignAddress(businessStructureRaw["Physical Address"], {}, '');
           Object.keys(tmp).forEach(function(key) {
-            properties.push({"name": key, "value": tmp[key]});
+            accountWrapper.garagingAddress[key] = tmp[key];
           });
         }
       }
@@ -209,6 +235,32 @@ module.exports = (sequelize, DataTypes) => {
       resolve(resp);
     
     })
+  }
+
+  Company.prototype.create = async (uuid, options) =>{
+    return new Promise(async (resolve, reject) => {
+      let company = await new Company().findByUUID(uuid);
+      if(!company){ // create new company record
+        company = new Company();
+        company.uuid = uuid;
+        Object.keys(options).forEach(function(key) {
+          company[key] = options[key];
+        });
+        const companyData = await company.save()
+                                        .catch(err => {
+                                          reject(err);
+                                        });
+        resolve('Ok');
+      } else { // update company based on UUID
+        await Company.update(
+           options,
+           {where: {uuid} },
+        ).catch(err => {
+          reject(err);
+        })
+        resolve('Ok');
+      }
+    });
   }
   
 

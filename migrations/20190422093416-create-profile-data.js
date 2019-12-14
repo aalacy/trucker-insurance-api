@@ -11,10 +11,76 @@ module.exports = {
       uuid: {
         type: Sequelize.STRING
       },
-      key: {
+      businessStructureRaw: {
+        type: Sequelize.JSON
+      },
+      name: {
         type: Sequelize.STRING
       },
-      val: {
+      dotNumber: {
+        type: Sequelize.STRING
+      },
+      dba: {
+        type: Sequelize.STRING
+      },
+      phoneNumber: {
+        type: Sequelize.STRING
+      },
+      mailingAddress: {
+        type: Sequelize.JSON
+      },
+      garagingAddress: {
+        type: Sequelize.JSON
+      },
+      emailAddress: {
+        type: Sequelize.STRING
+      },
+      powerUnits: {
+        type: Sequelize.STRING
+      },
+      mcNumber: {
+        type: Sequelize.STRING
+      },
+      travelRadius: {
+        type: Sequelize.STRING
+      },
+      currentCarrier: {
+        type: Sequelize.STRING
+      },
+      currentEldProvider: {
+        type: Sequelize.JSON
+      },
+      cargoHauled: {
+        type: Sequelize.JSON
+      },
+      cargoGroup: {
+        type: Sequelize.JSON
+      },
+      ownerName: {
+        type: Sequelize.STRING
+      },
+      businessStructure: {
+        type: Sequelize.STRING
+      },
+      businessType: {
+        type: Sequelize.STRING
+      },
+      driverInformationList: {
+        type: Sequelize.JSON
+      },
+      ownerInformationList: {
+        type: Sequelize.JSON
+      },
+      vehicleInformationList: {
+        type: Sequelize.JSON
+      },
+      comments: {
+        type: Sequelize.TEXT
+      },
+      attachmentList: {
+        type: Sequelize.JSON
+      },
+      signSignature: {
         type: Sequelize.JSON
       },
       createdAt: {

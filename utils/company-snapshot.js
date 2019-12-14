@@ -8,23 +8,23 @@ module.exports = {
     return new Promise((resolve, reject) => {
       //console.log("https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string="+usdot);
       let _this = this;
-      request(
-          { headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36'
-          },
-          uri: "https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string="+usdot },
-          function(error, response, body) {
-              if(error){
-                reject("Got error: " + error);
-                return;
-              }
-              if(!body){
-                reject("empty response from the server");
-                return;
-              }
-              console.log('snapshot:'+_this.parseHTML(body));
-              resolve(_this.parseHTML(body));
-          }
+      request({ 
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36'
+        },
+        uri: "https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string="+usdot },
+        function(error, response, body) {
+            if(error){
+              reject("Got error: " + error);
+              return;
+            }
+            if(!body){
+              reject("empty response from the server");
+              return;
+            }
+            console.log('snapshot:'+_this.parseHTML(body));
+            resolve(_this.parseHTML(body));
+        }
       );
 
     })
@@ -34,7 +34,8 @@ module.exports = {
       //console.log("https://safer.fmcsa.dot.gov/keywordx.asp?searchstring=%2A"+encodeURIComponent(name)+"%2A");
       let _this = this;
       request(
-          { headers: {
+          { 
+            headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36'
           },
           uri: "https://safer.fmcsa.dot.gov/keywordx.asp?searchstring=%2A"+encodeURIComponent(name)+"%2A" },
