@@ -341,7 +341,7 @@ module.exports = (sequelize, DataTypes) => {
 
     }
 
-    User.prototype.resetPassword = async (code, _password, newPassword) => {
+    User.prototype.resetPassword = async (code, newPassword) => {
         return new Promise((resolve, reject) => {
 
             if(!newPassword){
@@ -355,7 +355,6 @@ module.exports = (sequelize, DataTypes) => {
                 // Results will be an empty array and metadata will contain the number of affected rows.
             })
 
-            //resolve(email+" / "+code+" / "+newPassword);
             sequelize.query("SELECT * FROM `ResetPasswordCodes` WHERE status='active' AND code=:code", {replacements: { code: code}, type: sequelize.QueryTypes.SELECT})
             .then(async (_resetPasswordCode) => {
                 if (_resetPasswordCode && _resetPasswordCode.length) {
@@ -363,26 +362,20 @@ module.exports = (sequelize, DataTypes) => {
                     try {
 
                         User.findOne({where : {id : _resetPasswordCode.UserId}}).then(user => {
-                            if (md5(_password) == user.password) {
-                                user.password = md5(newPassword);
-                                user.save({validate: false, fields: ['password']}).then(__user => {
+                            user.password = md5(newPassword);
+                            user.save({validate: false, fields: ['password']}).then(__user => {
 
-                                    sequelize.query(
-                                        "UPDATE `ResetPasswordCodes` SET `status` = 'used' WHERE code=:code", {replacements: {code}}
-                                    ).spread((results, metadata) => {
-                                        resolve("ok")
-                                    })
-
-                                }).catch(err => {
-                                    console.log(err)
-                                    reject(err)
-                                    return
+                                sequelize.query(
+                                    "UPDATE `ResetPasswordCodes` SET `status` = 'used' WHERE code=:code", {replacements: {code}}
+                                ).spread((results, metadata) => {
+                                    resolve("ok")
                                 })
-                            } else {
-                                reject("Old password does not match.")
+
+                            }).catch(err => {
+                                console.log(err)
+                                reject(err)
                                 return
-                            }
-                            
+                            })
                         }).catch(err => {
                             reject(err)
                         })
