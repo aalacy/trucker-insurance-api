@@ -84,8 +84,8 @@ module.exports = (sequelize, DataTypes) => {
       let businessStructureRaw = {};
       try {
        businessStructureRaw = JSON.parse(fullProfile.businessStructureRaw);
-      } catch {
-
+      } catch (e) {
+        console.log(e)
       }
       if(!fullProfile.businessStructureRaw || !businessStructureRaw["USDOT Number"]){
         reject("USDOT Number not found, can't update Salesforce")

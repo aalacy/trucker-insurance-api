@@ -4,10 +4,24 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
 <style type="text/css">
+  html {
+    background: gray;
+  }
+
+  body {
+    font-family:Arial, Helvetica, sans-serif;
+    width:560px; 
+    margin:0 auto;
+    padding:20px;
+    background: white;
+  }
 @media print {
     body{
+      font-family:Arial, Helvetica, sans-serif;
         padding:30px;
-        margin:10px;
+        margin:0 auto;
+        width: 560px;
+        background: white;
     }
    
 }
@@ -42,11 +56,20 @@ table {
 }
 
 .blue-heading {
-  font-style: normal;  font-weight: bold;    font-size:17px;    line-height:17px; color: white; background-color: #5f98f8;     padding: 0.5rem 1rem 0.5rem 0.25rem;
+  font-style: normal;  
+  font-weight: bold;    
+  font-size:12px;    
+  line-height:13px; color: white; 
+  background-color: #5f98f8;     
+  padding: 0.5rem 1rem 0.5rem 0.25rem;
 }
 
 .text-td {
-  font-style: normal;  font-size:15px;    line-height:15px; color: black; padding: 0.75rem;
+  font-style: normal;  
+  font-size:11px;    
+  line-height:12px; 
+  color: black; 
+  padding: 0.75rem;
 }
 
 .general .text-td div {
@@ -59,16 +82,17 @@ table {
 
 .first-section-td {
   font-style: normal; 
-  font-size:13px;    
-  line-height:13px; 
+  font-size:11px;    
+  line-height:11px; 
   color: black;  
   width: 50%;   
-  padding: 0 1rem 0 0.1rem;
+  padding: 0 0.5rem 0 0.1rem;
 }
 
 ul {
   list-style: none;
   padding-left: 1rem;
+  margin: 0.5rem;
 }
 
 ul li::before {
@@ -93,12 +117,11 @@ ul li::before {
 </style>
 </head>
 
-<body style="font-family:Arial, Helvetica, sans-serif; margin:10px; padding:0px;" >
-<div style="width:100%; margin:0 auto;">
-  <div>
+<body>
+ 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td align="center" valign="middle" style="font-style: normal;  font-weight: bold;    font-size:40px;    line-height:100px;       color: #5f98f8;">Trucking Insurance Application</td>
+        <td align="center" valign="middle" style="font-style: normal;  font-weight: bold;    font-size:25px;    line-height:50px;       color: #5f98f8;">Trucking Insurance Application</td>
       </tr>
       <tr>
         <td align="right" valign="middle" class="text-td">Policy Term From:<div class="text-underline">2019-12-12</div>&nbsp;<span>To:</span>
@@ -138,7 +161,7 @@ ul li::before {
         </td>
       </tr>
     </table>
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="padding-top: 20px;">
       <tr>
         <td align="left" valign="middle" class="blue-heading">General Information
         </td>
@@ -152,8 +175,8 @@ ul li::before {
       </tr>
       <tr>
         <td align="left" valign="middle" class="text-td " style="width: 30%">Mailing address<div class="text-underline"></div></td>
-        <td align="left" valign="middle" class="text-td" style="width: 25%">City<div class="text-underline"></div></td>
-        <td align="left" valign="middle" class="text-td" style="width: 25%">State<div class="text-underline"></div></td>
+        <td align="left" valign="middle" class="text-td" style="width: 15%">City<div class="text-underline"></div></td>
+        <td align="left" valign="middle" class="text-td" style="width: 15%">State<div class="text-underline"></div></td>
         <td align="left" valign="middle" class="text-td" style="width: 20%">Zip<div class="text-underline"></div></td>
       </tr>
       <tr>
@@ -185,24 +208,25 @@ ul li::before {
     <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-border">
       <thead>
         <tr>
-          <td align="center" valign="middle" style="width: 20%">Name</td>
-          <td align="center" valign="middle" style="width: 10%">Date of Birth</td>
-          <td align="center" valign="middle" style="width: 10%">State</td>
-          <td align="center" valign="middle" style="width: 20%">Driver’s License Number</td>
-          <td align="center" valign="middle" style="width: 10%">Date of Hire </td>
-          <td align="center" valign="middle" style="width: 10%">CDL (yes or no)</td>
-          <td align="center" valign="middle" style="width: 20%">Years of Experience Using Scheduled Equipment</td>
+          <td align="center" valign="middle" class="text-td" style="width: 20%">Name</td>
+          <td align="center" valign="middle" class="text-td" style="width: 10%">Date of Birth</td>
+          <td align="center" valign="middle" class="text-td" style="width: 10%">State</td>
+          <td align="center" valign="middle" class="text-td" style="width: 20%">Driver’s License Number</td>
+          <td align="center" valign="middle" class="text-td" style="width: 10%">Date of Hire </td>
+          <td align="center" valign="middle" class="text-td" style="width: 10%">CDL (yes or no)</td>
+          <td align="center" valign="middle" class="text-td" style="width: 20%">Years of Experience Using Scheduled Equipment</td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td align="center" valign="middle">Name</td>
-          <td align="center" valign="middle">Date of Birth</td>
-          <td align="center" valign="middle">State</td>
-          <td align="center" valign="middle">Driver’s License Number</td>
-          <td align="center" valign="middle">Date of Hire </td>
-          <td align="center" valign="middle">CDL (yes or no)</td>
-          <td align="center" valign="middle">Years of Experience Using Scheduled Equipment</td>
+          <td align="center" class="text-td" valign="middle">Name</td>
+          <td align="center" class="text-td" valign="middle">Date of Birth</td>
+          <td align="center" class="text-td" valign="middle">State</td>
+          <td align="center" class="text-td" valign="middle">Driver’s License Number</td>
+          <td align="center" class="text-td" valign="middle">Date of Hire </td>
+          <td align="center" class="text-td" valign="middle">CDL (yes or no)</td>
+          <td align="center" class="text-td"  
+          valign="middle">Years of Experience Using Scheduled Equipment</td>
         </tr>
       </tbody>
     </table>
@@ -237,6 +261,6 @@ ul li::before {
         </tr>
       </tbody>
     </table>
-</div>
+
 </body>
 </html>

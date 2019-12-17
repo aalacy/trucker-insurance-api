@@ -4,6 +4,8 @@ module.exports = (app) => {
   let multer  = require('multer')
   let router = express.Router();
   var path = require('path');
+  var pdf = require('html-pdf');
+  
   //  let upload = multer({ dest: webConfig.rootDir+'/public/company/' })
   //let upload = multer({ dest: "http://3.13.68.92:3000/public/company/"})
   
@@ -47,6 +49,15 @@ let upload = multer({
   //UPDATE `test` SET `value` = JSON_SET(`value`, '$."key 1"', 'value 1', '$.c', '[true, false]') WHERE `key` = 'first'
 
   router.all('/pdf', async (req, res, next) => {
+
+    var html = fs.readFileSync(path.join(__dirname, "", "pdf.html"), 'utf8');
+    var options = { format: 'Letter' };
+     
+    pdf.create(html, options).toFile('./application.pdf', function(err, res) {
+      if (err) return console.log(err);
+      console.log(res); // { filename: '/app/businesscard.pdf' }
+    });
+    return;
 
     let uuid;
     if(req.query.uuid)uuid = req.query.uuid;
