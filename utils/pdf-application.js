@@ -325,8 +325,8 @@ module.exports = {
             ejsOptions.radiusOfTravel += parseInt(trailer.radiusOfTravelVehicle);
             ejsOptions.vehiclesTrailers.push(trailer);
           })
+        	ejsOptions.radiusOfTravel /= vehileList.trailer.length;
         }
-        ejsOptions.radiusOfTravel /= vehileList.trailer.length;
       }
 
       if(ejsOptions.vehiclesTrailers.length < 10) {
