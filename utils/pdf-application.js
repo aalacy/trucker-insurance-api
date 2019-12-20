@@ -266,7 +266,10 @@ module.exports = {
 
       if(fullProfile.cargoHauled){
         try {
-          let cargoHauled = JSON.parse(fullProfile.cargoHauled);
+          let cargoHauled = fullProfile.cargoHauled;
+          if (fullProfile.vehicleInformationList.constructor !== Object) {
+          	cargoHauled = JSON.parse(fullProfile.cargoHauled);
+          }
           Object.keys(cargoHauled).forEach(groupName => {
               let str = groupName+": "+ cargoHauled[groupName].join(', ');
               ejsOptions.cargoHauled.push(str);
@@ -304,7 +307,7 @@ module.exports = {
       
       if (fullProfile.vehicleInformationList) {
       	let vehileList = fullProfile.vehicleInformationList;
-      	if (!Array.isArray(fullProfile.vehicleInformationList)) {
+      	if (fullProfile.vehicleInformationList.constructor !== Object) {
         	vehileList = JSON.parse(fullProfile.vehicleInformationList);
     	}
         try {
