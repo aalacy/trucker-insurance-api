@@ -29,10 +29,6 @@ module.exports = {
           siteType:'html'
         };
 
-        //console.log(pdfLocation);
-        //resolve(pdfLocation);
-        
-        
         if (fs.existsSync(pdfLocation)) {
             fs.unlinkSync(pdfLocation)
         }
@@ -222,7 +218,7 @@ module.exports = {
 
       if(fullProfile.currentEldProvider){
         try {
-	      	if (!Array.isArray(fullProfile.mailingAddress)) {
+	      	if (!Array.isArray(fullProfile.currentEldProvider)) {
 	        	ejsOptions.eldProvider = JSON.parse(fullProfile.currentEldProvider).join(', ');
 	    	} else {
 	    		ejsOptions.eldProvider = fullProfile.currentEldProvider.join(', ');
@@ -241,7 +237,7 @@ module.exports = {
       if(fullProfile.mailingAddress){
         try {
         	let mailing_address = fullProfile.mailingAddress;
-	      	if (!Array.isArray(fullProfile.mailingAddress)) {
+	      	if (fullProfile.mailingAddress.constructor !== Object) {
 	        	mailing_address = JSON.parse(fullProfile.mailingAddress);
 	    	}
           ejsOptions.mailing_address = mailing_address.address;
@@ -254,7 +250,7 @@ module.exports = {
       if(fullProfile.garagingAddress){
         try {
         	let garaging_address = fullProfile.garagingAddress;
-	      	if (!Array.isArray(fullProfile.garagingAddress)) {
+	      	if (fullProfile.garagingAddress.constructor !== Object) {
 	        	garaging_address = JSON.parse(fullProfile.garagingAddress);
 	    	}
           	ejsOptions.garaging_address = garaging_address.address;
@@ -286,10 +282,10 @@ module.exports = {
  	 		ejsOptions.drivers = [];
  	 	}
 
- 	 	if (fullProfile.ownersInformationList) {
- 	 		ejsOptions.owners	= fullProfile.ownersInformationList;
-      		if (!Array.isArray(fullProfile.ownersInformationList)) {
-     	 		ejsOptions.owners = JSON.parse(fullProfile.ownersInformationList);
+ 	 	if (fullProfile.ownerInformationList) {
+ 	 		ejsOptions.owners	= fullProfile.ownerInformationList;
+      		if (!Array.isArray(fullProfile.ownerInformationList)) {
+     	 		ejsOptions.owners = JSON.parse(fullProfile.ownerInformationList);
       		}
  	 	} else {
  	 		ejsOptions.owners = [];
@@ -297,13 +293,17 @@ module.exports = {
 
       ejsOptions.comments = fullProfile.comments;
 
-      //start tmp
       if(ejsOptions.drivers.length < 3) {
         for (var i = 0; i < 3; i++) {
           ejsOptions.drivers.push({});
         }
       }
-      //end tmp
+
+      if(ejsOptions.owners.length < 3) {
+        for (var i = 0; i < 3; i++) {
+          ejsOptions.owners.push({});
+        }
+      }
       
       if (fullProfile.vehicleInformationList) {
       	let vehileList = fullProfile.vehicleInformationList;
@@ -311,17 +311,16 @@ module.exports = {
         	vehileList = JSON.parse(fullProfile.vehicleInformationList);
     	}
         try {
-          if(Array.isArray(vehileList.vehicle)){
+          if(vehileList.vehicle.length){
              vehileList.vehicle.map(vehicle => {
                 ejsOptions.radiusOfTravel += parseInt(vehicle.radiusOfTravelVehicle);
                 ejsOptions.vehiclesTrailers.push(vehicle);
              })
-
           }
           ejsOptions.radiusOfTravel /= vehileList.vehicle.length;
         } catch (e) {}
         
-        if(Array.isArray(vehileList.trailer)){
+        if(vehileList.trailer.length){
           vehileList.trailer.map(trailer => {
             ejsOptions.radiusOfTravel += parseInt(trailer.radiusOfTravelVehicle);
             ejsOptions.vehiclesTrailers.push(trailer);

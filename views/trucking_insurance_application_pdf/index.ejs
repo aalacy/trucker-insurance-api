@@ -157,9 +157,8 @@
 	          </table>
 
 	        <p class="border-title p-2 ">General Information</p>
-	        <% console.log('com:',company_name) %>
 	        <p class="width-200">
-	          <div style="padding-top: 5px; display: inline-block;"> Company Name:</div> <span class="border_bottom field_item " id="companyName"> <% company_name %></span> 
+	          <div style="padding-top: 5px; display: inline-block;"> Company Name:</div> <span class="border_bottom field_item " id="companyName"> <%=company_name %></span> 
 	          DBA: <span class="border_bottom field_item " id="dba"><%= dba_name %></span>
 	          Phone number: <span class="border_bottom field_item" style="width:100%;max-width:110px;" id="phoneNumber"><%= phone_number %></span>
 	        </p>
@@ -186,7 +185,7 @@
 	        </p>
 	        <p class="width-200-b">
 	          Radius of travel: <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
-	          Current Carrier: <span class="border_bottom field_item " style="width:100%;max-width:173px;" id=""></span> 
+	          Current Carrier: <span class="border_bottom field_item " style="width:100%;max-width:173px;" id=""><%= currentCarrier %></span> 
 	           Current ELD Provider: <span class="border_bottom field_item " style="width:100%;min-width:173px;" id=""><%= eldProvider %></span>
 	        </p>  
 	        <p class="border-title p-2 ">Driver Information - attach schedule if over 5 drivers</p>
