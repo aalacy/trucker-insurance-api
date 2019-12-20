@@ -1,0 +1,567 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<title>Untitled Document</title>
+<style type="text/css">
+  body {
+    font-family:Arial, Helvetica, sans-serif;
+    margin: 0px;
+    padding: 0px;
+    font-size: 0.9rem;
+    line-height: 1.5rem;
+  }
+
+  .container_pdf_doc{
+    width: 1024px;
+    margin: 0px auto;
+    background-color:white;
+  }
+
+  .container {
+    position: relative;
+  }
+
+/*  .container {
+    padding:30px;
+    min-height: 680px;
+  }*/
+
+  table {
+    border-collapse: collapse;
+  }
+
+.blue-heading {
+  font-style: normal;  
+  font-size:12px;    
+  line-height:14px; 
+  color: white; 
+  font-weight: bold;
+  background-color: #5f98f8;     
+  padding: 0.25rem;
+}
+
+.page {
+   background: #12f8f8;
+  font-size:10px; 
+  color: white;
+  width: 30px;
+}
+
+.footer {
+  font-style: italic;  
+  font-size:12px;   
+  font-weight: bold; 
+  line-height:15px; 
+  color: white; 
+  background-color: #5f98f8; 
+  padding: 5px 0 5px 0;
+  text-align: valign;
+}
+
+.pageFooter {
+   position: absolute;
+  bottom: 0;
+}
+
+.text-td {
+  font-style: normal;  
+  font-size:10px;    
+  line-height:12px; 
+  color: black; 
+  padding: 0.5rem;
+}
+
+.general .text-td div {
+  margin-left: 10px;
+}
+
+/*#general-table .text-underline {
+  padding-right: 35px;
+}*/
+
+.text-td-small {
+  font-style: normal;  
+  font-size:9px;    
+  line-height:10px; 
+  color: black; 
+  padding: 0.25rem;
+}
+
+.text-underline {
+  border-bottom: 1px solid; padding: 0 1rem 0 1rem; display: inline-block;
+}
+
+.page_index{
+  page-break-after: always;
+}
+
+.first-section-td {
+  font-style: normal; 
+  font-size:10px;    
+  line-height:10px; 
+  color: black;  
+  width: 50%;   
+  padding: 0.15rem;
+}
+
+ul {
+  list-style: none;
+  padding-left: .75rem;
+  margin: 0.25rem;
+}
+
+ul li::before {
+  content: "\2022";
+  color: #5f98f8;
+  font-weight: bold;
+  display: inline-block; 
+  width: 1em;
+  margin-left: -1em;
+}
+
+.table-border td, .table-border th {
+  border: 1px solid #ddd;
+  padding: 3px;
+}
+
+.table td, .table th {
+    padding: 1rem;
+}
+
+.table-border thead td {
+  color: #5f98f8;
+  font-weight: bold;
+}
+
+</style>
+</head>
+
+<body>
+  <div class="container_pdf_doc">
+    <div class="container page_index">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center" valign="middle" style="font-style: normal;  font-weight: bold;    font-size:35px;    line-height:20px;   padding-bottom: 20px; padding-top: 30px;     color: #5f98f8;">Trucking Insurance Application</td>
+        </tr>
+        <tr>
+          <td align="right" valign="middle" class="text-td">Policy Term From:<div class="text-underline"> <%=policy_term_from %></div>&nbsp;<span>To:</span>
+            <div class="text-underline"><%=policy_term_to %></div></td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">Providing Any of the Following Documents Will Enable us to Get You The Cheapest Quotes in the Least Amount of Time!
+          </td>
+        </tr>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>Any Previously Completed Applications</li></ul>
+          </td>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>Insurance Requirements Documentation</li></ul>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>Picture of Driver(s) License and Registration(s)</li></ul>
+          </td>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>Schedule of vehicles and drivers</li></ul>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>MVR report</li></ul>
+          </td>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>IFTA – all 4 quarters</li></ul>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>Loss Runs (3-5 years as Applicable)</li></ul>
+          </td>
+          <td align="left" valign="middle" class="first-section-td"><ul><li>A copy of rental/lease agreement for leased vehicles</li></ul>
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">General Information
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" id="general-table">
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>Company Name </span> <span class="text-underline"><%=company_name %> </span>
+            <span>DBA</span> <span class="text-underline"><%=dba_name %> </span>
+            <span>Phone number</span> <span class="text-underline"><%=phone_number %>  </span>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="text-td-small">
+            <span>Mailing address </span> <span class="text-underline"><%=mailing_address %></span>
+            <span>City</span> <span class="text-underline"><%=mailing_city %></span>
+            <span>State</span> <span class="text-underline"><%=mailing_state %></span>
+            <span>Zip</span> <span class="text-underline"><%=mailing_zip %></span>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="text-td-small">
+            <span>Garaging address</span> <span class="text-underline"><%=garaging_address %></span>
+            <span>City</span> <span class="text-underline"> <%=garaging_city %></span>
+            <span>State</span> <span class="text-underline"><%=garaging_state %> </span>
+            <span>Zip</span> <span class="text-underline"><%=garaging_zip %> </span>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="text-td-small">
+            <span>E-mail address</span> <span class="text-underline"><%=email_address %> </span>
+            <span>Business start date</span> <span class="text-underline"><%=business_start_date %> </span>
+            <span>Dot Number</span> <span class="text-underline"> <%=dot_number %> </span>
+            <span>MC number</span> <span class="text-underline"><%=mc_number %>  </span>
+          </td>
+        </tr>
+        <tr>
+          <td align="left" valign="middle" class="text-td-small">
+            <span>Radius of travel</span> <span class="text-underline"><%=radiusOfTravel %>  </span>
+            <span>Current Carrier</span> <span class="text-underline"> <%=currentCarrier %> </span>
+            <span>Current ELD Provider</span> <span class="text-underline"> <%=eldProvider %> </span>
+          </td>
+        </tr>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">Driver information – attach schedule if over 5 drivers
+          </td>
+        </tr>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-border">
+        <thead>
+          <tr>
+            <td align="center" valign="middle" class="text-td" style="width: 20%">Name</td>
+            <td align="center" valign="middle" class="text-td" style="width: 10%">Date of Birth</td>
+            <td align="center" valign="middle" class="text-td" style="width: 10%">State</td>
+            <td align="center" valign="middle" class="text-td" style="width: 20%">Driver’s License Number</td>
+            <td align="center" valign="middle" class="text-td" style="width: 10%">Date of Hire </td>
+            <td align="center" valign="middle" class="text-td" style="width: 10%">CDL (yes or no)</td>
+            <td align="center" valign="middle" class="text-td" style="width: 20%">Years of Experience Using Scheduled Equipment</td>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(drivers.length > 0){ %>
+            <% drivers.forEach(function(driver, index) { %>
+              <% if (Object.keys(driver).length === 0 && driver.constructor === Object) { %>
+                <tr>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                </tr>
+              <% }  else { %>
+                <tr>
+                  <td align="left" class="text-td-small" valign="middle"><%=driver.firstName+" "+driver.lastName%></td>
+                  <td align="left" class="text-td-small" valign="middle"><%= driver.dobM %>/<%= driver.dobD %>/<%= driver.dobY %></td>
+                  <td align="left" class="text-td-small" valign="middle"><%= driver.state %></td>
+                  <td align="left" class="text-td-small" valign="middle"><%= driver.licenseNumber %></td>
+                  <td align="left" class="text-td-small" valign="middle"><%= driver.dohM %>/<%= driver.dohD %>/<%= driver.dohY %></td>
+                  <td align="left" class="text-td-small" valign="middle"><%= driver.CDL != "" ? "YES" : "NO" %></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                </tr>
+              <% } %>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">Vehicle and Trailer Information– attach schedule if over 10 vehicles/trailers
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-border">
+        <thead>
+          <tr>
+            <td align="center" valign="middle" class="text-td"  style="width: 20%">VIN</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 5%">Year</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 5%">Make</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 20%">Vehicle/Trailer Type</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 10%">Garaging ZipCode</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 30%">Maximum Distance traveled from Garaging Location (Radius)</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 10%">Current Value</td>
+          </tr>
+        </thead>
+        <tbody style="font-size: 12px">
+          <% if(vehiclesTrailers.length > 0){ %>
+            <% vehiclesTrailers.forEach(function(vehicle, index) { %>
+              <% if (Object.keys(vehicle).length === 0 && vehicle.constructor === Object) { %>
+                <tr>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                  <td align="left" class="text-td-small" valign="middle"></td>
+                </tr>
+              <% }  else { %>
+                <tr>
+                  <td align="left" class="text-td-small" valign="middle"><%=vehicle.VIN%></td>
+                  <td align="left" class="text-td-small" valign="middle"><%=vehicle.year%></td>
+                  <td align="left" class="text-td-small" valign="middle"><%=vehicle.make%></td>
+                  <td align="left" class="text-td-small"  valign="middle"><%=vehicle.vehicleType%></td>
+                  <td align="left" class="text-td-small" valign="middle"><%=vehicle.zipCode%></td>
+                  <td align="left" class="text-td-small" valign="middle"><%=vehicle.radiusOfTravelVehicle%></td>
+                  <td align="left" class="text-td-small" valign="middle"><%=vehicle.currentValue%></td>
+                </tr>
+              <% } %>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" class="pageFooter">
+        <tr>
+          <td align="left" class="footer" valign="middle" style="width: 20px; padding-right: 8px;"><img src="<%= logo %>" height="25px" width="25px"/></td>
+          <td align="left" class="footer" valign="middle">LuckyTruck</td>
+          <td align="center" class="page" valign="middle">1</td>
+        </tr>
+      </table>
+    </div>
+
+   <div class="container page_index">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center" valign="middle" style="font-style: normal;  font-weight: bold;    font-size:25px;    line-height:20px;   padding-bottom: 10px;     color: #5f98f8;">Trucking Insurance Application</td>
+        </tr>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">Liability and Cargo Coverage
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-border">
+        <thead>
+          <tr>
+            <td align="center" valign="middle" class="text-td"  style="width: 20%">Type of Cargo Hauled </td>
+            <td align="center" valign="middle" class="text-td"  style="width: 5%">% of Total Cargo</td>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(cargoHauled.length > 0){ %>
+            <% cargoHauled.forEach(function(cargo, index) { %>
+              <tr>
+                <td class="text-td-small" style="line-height: 15px;">
+                  <%=cargo %>
+                </td>
+                <td class="text-td-small" style="line-height: 15px;">
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">Owner, Partner and Managers Information
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-border">
+        <thead>
+          <tr>
+            <td align="center" valign="middle" class="text-td"  style="width: 20%">Full Name</td>
+            <td align="center" valign="middle" class="text-td"  style="width: 5%">Date of Birth </td>
+            <td align="center" valign="middle" class="text-td"  style="width: 5%">Mailing Address
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(owners.length > 0){ %>
+            <% owners.forEach(function(owner, index) { %>
+              <tr>
+                <td class="text-td-small" style="line-height: 15px;">
+                  <%=owner.firstName + ' ' + owner.lastName%>
+                </td>
+                <td class="text-td-small" style="line-height: 15px;">
+                  <%=owner.dobM %>.<%=owner.dobD %>.<%=owner.dobY %>
+                </td>
+                <td class="text-td-small" style="line-height: 15px;">
+                  <%=owner.address%>, <%=owner.city%>, <%=owner.state%> <%=owner.zip%>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px">
+        <tr>
+          <td align="left" valign="middle" class="blue-heading">Additional Questions
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>Do you pull double trailers?</span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">Do you pull triple trailers?</span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">Do you plan on adding additional drivers?</span> <span class="text-underline"></span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>What BI & PD Limits are you looking for?</span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">What cargo Coverage limits are you looking for?</span> <span class="text-underline"> </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>If plan to hire, what are the minimum Years of Commercial Driving experience required?</span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">CDL years required?</span> <span class="text-underline"> </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>If plan to hire, are vehicles owner-driven only? </span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">Do you order MVRs on all drivers prior to Hiring?</span> <span class="text-underline"> </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>Do you Agree to report all newly hired operators?</span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">Do you lease your authority?</span> <span class="text-underline"> </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>Do you operate as a subsidiary of a different Company?</span> <span class="text-underline"> </span>
+            <span style="margin-left: 5px;">Have you ever changed your operating name ?</span> <span class="text-underline"> </span>
+          </td>
+        </tr>
+        <tr style="margin-bottom: 50px;">
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>Does our policy cover all vehicles owned operated or leased to the Business?</span> <span class="text-underline"> </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>Comments</span> <span class="text-underline"><%=comments%></span>
+          </td>
+        </tr>
+        
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0"  class="pageFooter">
+        <tr>
+          <tr>
+            <td align="left"class="footer" valign="middle" style="width: 20px; padding-right: 8px;"><img src="<%= logo %>" height="25px" width="25px"/></td>
+            <td align="left" class="footer" valign="middle">LuckyTruck</td>
+            <td align="center" class="page" valign="middle">2</td>
+          </tr>
+      </table>
+    </div>
+
+    <div class="container page_index">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center" valign="middle" style="font-style: normal;  font-weight: bold;    font-size:25px;    line-height:20px;   padding-bottom: 40px;     color: #5f98f8;">Trucking Insurance Application</td>
+        </tr>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" >
+        <tr>
+          <td class="text-td-small" style="line-height: 15px; text-align: justify;">
+            No coverage is bound until the Company (Lucky Trucking!, Inc. DBA Lucky Truck) advises the Applicant or its
+            representative that a policy will be issued and then only as of the policy effective date and in accordance with all
+            policy terms. The Applicant acknowledges that the Applicant's Representative named below is acting as
+            Applicant's agent and not on behalf of the Company. The Applicant's Representative has no authority to bind
+            coverage, may not accept any funds for the Company, and may not modify or interpret the terms of the policy.
+            The Applicant agrees that the foregoing statements and answers are true and correct. The Applicant requests the
+            Company to rely on its statements and answers in issuing any policy or subsequent renewal. The Applicant agrees
+            that if its statements and answers are materially false, the Company may deny a claim on any policy or
+            subsequent renewal it may issue. If any jurisdiction in which the Applicant intends to operate or the Federal
+            Highway Administration requires a special endorsement to be attached to the policy which increases the
+            Company's liability, the Applicant agrees to reimburse the Company in accordance with the terms of that
+            endorsement. The Applicant agrees that any inspection of autos, vehicles, equipment, premises, operations, or
+            inspection of any other matter relating to insurance that may be provided by the Company, is made for the use
+            and benefit of the Company only, and is not to be relied upon by the Applicant or any other party in any respect.
+            The Applicant understands that an inquiry may be made into the character, finances, driving records, and other
+            personal and business background information the Company deems necessary in determining whether to bind or
+            maintain coverage. Upon written request, additional information will be provided to the Applicant regarding any
+            investigation. The Applicant represents that she/he has completed all relevant sections of this Application prior
+            to execution and that the Applicant has personally signed below (or if Applicant is a Corporation, a corporate
+            officer has signed below).
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+          <td class="text-td-small" style="line-height: 15px;">
+            <span>If premium is financed, Please list provider</span> <span class="text-underline" style="padding-right: 250px;"></span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td" style="line-height: 15px; text-align: justify; color: #5f98f8; font-weight: bold;">
+            A PERSON WHO KNOWINGLY AND WITH INTENT TO INJURE, DEFRAUD, OR DECEIVE AN INSURANCE COMPANY FILES A CLAIM CONTAINING FALSE, INCOMPLETE, OR MISLEADING INFORMATION MAY BE PROSECUTED UNDER STATE LAW. 
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 50px;">
+        <tr>
+          <td class="text-td" style="line-height: 15px;">
+            <span class="text-underline" style="padding-right: 150px;"></span>
+            <div style="margin-top: 5px;">Witness</div> 
+          </td>
+          <td class="text-td" style="line-height: 15px;">
+            <span class="text-underline" style="padding-right: 150px;"></span>
+            <div style="margin-top: 5px;">Applicant’s signature</div> 
+          </td>
+          <td class="text-td" style="line-height: 15px;">
+            <span class="text-underline" style="padding-right: 150px;"></span>
+            <div style="margin-top: 5px;">Date</div> 
+          </td>
+        </tr>
+      </table>
+
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 40px; border: 1px solid #5f98f8;">
+        <tr>
+          <td class="text-td" style="line-height: 15px; color: #5f98f8; font-weight: bold;">
+            Request to Company General Agent:
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td" style="line-height: 15px;">
+            <span style="width: 10px; height: 10px; background: lightgray; display: inline-block;"></span>
+            <span style="margin-right: 40px">Please quote</span>
+            <span style="width: 10px; height: 10px; background: lightgray; display: inline-block;"></span>
+            <span>
+              Please bind at the earliest possible date and issue policy
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-td" style="line-height: 15px;">
+            <span style="width: 10px; height: 10px; background: lightgray; display: inline-block;"></span>
+            <span>Please issue policy effective</span> <span class="text-underline" style="padding-right: 100px;"> </span>
+            <span>Coverage was bound by </span> <span class="text-underline"  style="padding-right: 100px;"> </span>
+          </td>
+        </tr>
+      </table>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0"  class="pageFooter">
+        <tr>
+          <tr>
+            <td align="left" class="footer" valign="middle" style="width: 20px; padding-right: 8px;"><img src="<%= logo %>" height="25px" width="25px"/></td>
+            <td align="left" class="footer" valign="middle">LuckyTruck</td>
+            <td align="center" class="page" valign="middle">3</td>
+          </tr>
+      </table>
+    </div>
+</body>
+</html>

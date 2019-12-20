@@ -171,12 +171,13 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
 
       let contents = fs.readFileSync(webConfig.rootDir+'/views/trucking_insurance_application_pdf/index.ejs').toString();
-      let logo = fs.readFileSync(webConfig.rootDir+'/views/trucking_insurance_application_pdf/logo.jpg');
+      let logo = fs.readFileSync(webConfig.rootDir+'/views/trucking_insurance_application_pdf/mini_logo.png');
       
       let logo64 = Buffer(logo).toString('base64');
       
       let ejsOptions = {
         logo: 'data:image/jpg;base64,'+logo64,
+        signSignature: '',
         company_name: "",
         dba_name: "",
         phone_number: "",
@@ -206,107 +207,107 @@ module.exports = {
         eldProvider: "",
         comments: "",
         radiusOfTravel: 0,
+        currentCarrier: ""
       }
 
-      
       let profile = await companyModel.findByUUID(uuid);
       if(!profile){
         
         reject('the company not found by uuid')
         return
       }
-      console.log('getHTML:'+ JSON.stringify(profile));
-      let fullProfile = companyModel.renderAllByType(profile);
+      const fullProfile = profile; 
 
-      console.log('FullProfile:'+ JSON.stringify(fullProfile));
-        if(fullProfile.eldProvider && Array.isArray(fullProfile.eldProvider.eldProvider)){
-          ejsOptions.eldProvider = fullProfile.eldProvider.eldProvider.join(', ');
-        }
+      ejsOptions.signSignature = fullProfile.signSignature.imageSign;
 
-        if(fullProfile.businessStructure){
-          if(fullProfile.businessStructure["MC"]){
-              ejsOptions.mc_number = fullProfile.businessStructure["MC"];
-          }
-        }
-        // console.log('bsa:'+ JSON.stringify(fullProfile.businessStructureRaw));
-        // console.log('DBA Name:'+JSON.stringify(fullProfile.businessStructureRaw["Legal Name"]));
-        if(fullProfile.businessStructureRaw){
+      if(fullProfile.currentEldProvider){
+        try {
+          ejsOptions.eldProvider = JSON.parse(fullProfile.currentEldProvider).join(', ');
+        } catch (e) {}
+      }
 
-            let accidents = 0;
-            if(fullProfile.businessStructureRaw["Crashes"] && fullProfile.businessStructureRaw["Crashes"]["US"] && fullProfile.businessStructureRaw["Crashes"]["US"]["Crashes"]){
-              accidents += parseInt(fullProfile.businessStructureRaw["Crashes"]["US"]["Crashes"]["Total"], 10);
-            }
-  
-            if(fullProfile.businessStructureRaw["Crashes"] && fullProfile.businessStructureRaw["Crashes"]["Canada"] && fullProfile.businessStructureRaw["Crashes"]["Canada"]["Crashes"]){
-              accidents += parseInt(fullProfile.businessStructureRaw["Crashes"]["Canada"]["Crashes"]["Total"], 10);
-            }
-  
-            if(accidents)ejsOptions.accidents = 'YES: '+accidents;
-            console.log('name:'+fullProfile.businessStructureRaw["DBA Name"]);
-            if(fullProfile.businessStructureRaw["Email Address"])ejsOptions.email_address = fullProfile.businessStructureRaw["Email Address"];
-            if(fullProfile.businessStructureRaw["DBA Name"])ejsOptions.dba_name = fullProfile.businessStructureRaw["DBA Name"];
-            if(fullProfile.businessStructureRaw["Phone"])ejsOptions.phone_number = fullProfile.businessStructureRaw["Phone"];
-            if(fullProfile.businessStructureRaw["Legal Name"])ejsOptions.company_name = fullProfile.businessStructureRaw["LegalName"];
-            if(fullProfile.businessStructureRaw["USDOT Number"])ejsOptions.dot_number = fullProfile.businessStructureRaw["USDOT Number"];
-  
-            if(fullProfile.businessStructureRaw["Mailing Address"]){
-              ejsOptions = companyModel.parseAndAssignAddress(fullProfile.businessStructureRaw["Mailing Address"], ejsOptions, 'mailing_');
-            }
-  
-            if(fullProfile.businessStructureRaw["Physical Address"]){
-              ejsOptions = companyModel.parseAndAssignAddress(fullProfile.businessStructureRaw["Physical Address"], ejsOptions, 'garaging_');
-            }
-        }
+      ejsOptions.mc_number = fullProfile.mcNumber;
+      ejsOptions.email_address = fullProfile.emailAddress;
+      ejsOptions.dba_name = fullProfile.dba;
+      ejsOptions.phone_number = fullProfile.phoneNumber;
+      ejsOptions.company_name = fullProfile.name;
+      ejsOptions.dot_number = fullProfile.dotNumber;
+      ejsOptions.currentCarrier = fullProfile.currentCarrier;
+      
+      if(fullProfile.mailingAddress){
+        try {
+          const mailing_address = JSON.parse(fullProfile.mailingAddress);
+          ejsOptions.mailing_address = mailing_address.address;
+          ejsOptions.mailing_zip = mailing_address.zip;
+          ejsOptions.mailing_city = mailing_address.city;
+          ejsOptions.mailing_state = mailing_address.state;
+        } catch (e) {}
+      }
 
-        if(fullProfile.cargoHauled && fullProfile.cargoHauled.haulType){
+      if(fullProfile.garagingAddress){
+        try {
+          const garaging_address = JSON.parse(fullProfile.garagingAddress);
+          ejsOptions.garaging_address = garaging_address.address;
+          ejsOptions.garaging_zip = garaging_address.zip;
+          ejsOptions.garaging_city = garaging_address.city;
+          ejsOptions.garaging_state = garaging_address.state;
+        } catch (e) {}
+      }
 
-          Object.keys(fullProfile.cargoHauled.haulType).forEach(async groupName => {
-              let str = groupName+": "+fullProfile.cargoHauled.haulType[groupName].join(', ');
+      if(fullProfile.cargoHauled){
+        try {
+          let cargoHauled = JSON.parse(fullProfile.cargoHauled);
+          Object.keys(cargoHauled).forEach(groupName => {
+              let str = groupName+": "+ cargoHauled[groupName].join(', ');
               ejsOptions.cargoHauled.push(str);
           });
+        } catch (e) {}
+      }
+
+      ejsOptions.drivers = (fullProfile.driverInformationList)? JSON.parse(fullProfile.driverInformationList):[];
+      ejsOptions.owners = (fullProfile.ownersInformationList)? JSON.parse(fullProfile.ownersInformationList): [];
+
+      ejsOptions.comments = fullProfile.comments;
+
+      //start tmp
+      if(ejsOptions.drivers.length < 3) {
+        for (var i = 0; i < 3; i++) {
+          ejsOptions.drivers.push({});
         }
+      }
+      //end tmp
+      
+      if (fullProfile.vehicleInformationList) {
+        const vehileList = JSON.parse(fullProfile.vehicleInformationList);
+        try {
+          if(Array.isArray(vehileList.vehicle)){
+             vehileList.vehicle.map(vehicle => {
+                ejsOptions.radiusOfTravel += parseInt(vehicle.radiusOfTravelVehicle);
+                ejsOptions.vehiclesTrailers.push(vehicle);
+             })
 
-        ejsOptions.drivers = (fullProfile.drivers)?fullProfile.drivers:[];
-        ejsOptions.owners = (fullProfile.owners)?fullProfile.owners:{owners: []};
-
-        //{"question1": 
-        // if(fullProfile.questions && (fullProfile.questions.question1 || fullProfile.questions.question2)){
-        //   ejsOptions.comments = fullProfile.questions.question1+"; "+fullProfile.questions.question2;
-        // }
-
-        if(fullProfile.questions && fullProfile.questions.question1){
-          ejsOptions.comments = fullProfile.questions.question1+"."
-        }
-        
-
-
-        //start tmp
-        if(ejsOptions.drivers.length < 3)ejsOptions.drivers.push({});
-        if(ejsOptions.drivers.length < 3)ejsOptions.drivers.push({});
-        if(ejsOptions.drivers.length < 3)ejsOptions.drivers.push({});
-        //end tmp
-        
-        //console.log(ejsOptions.drivers);
-
-        if(fullProfile.vehiclesTrailers){
-          ejsOptions.vehiclesTrailers = fullProfile.vehiclesTrailers;
-
-          if(Array.isArray(fullProfile.vehiclesTrailers)){
-            for(let c = 0; c < fullProfile.vehiclesTrailers.length; c++){
-                if(fullProfile.vehiclesTrailers[c].radiusOfTravel && fullProfile.vehiclesTrailers[c].radiusOfTravel > ejsOptions.radiusOfTravel){
-                  ejsOptions.radiusOfTravel = fullProfile.vehiclesTrailers[c].radiusOfTravel;
-                }
-            }
           }
-          
+          ejsOptions.radiusOfTravel /= vehileList.vehicle.length;
+        } catch (e) {}
+        
+        if(Array.isArray(vehileList.trailer)){
+          vehileList.trailer.map(trailer => {
+            ejsOptions.radiusOfTravel += parseInt(trailer.radiusOfTravelVehicle);
+            ejsOptions.vehiclesTrailers.push(trailer);
+          })
         }
-       // console.log('ejsOpttions:'+ JSON.parse(ejsOptions));
-        console.log('ejsOpttions2:'+ JSON.stringify(ejsOptions));
-        html = ejs.render(contents, ejsOptions);
+        ejsOptions.radiusOfTravel /= vehileList.trailer.length;
+      }
 
-        resolve(html);
+      if(ejsOptions.vehiclesTrailers.length < 10) {
+        for (var i = 0; i < 10; i++) {
+          ejsOptions.vehiclesTrailers.push({});
+        }
+      }
+     // console.log('ejsOpttions:'+ JSON.parse(ejsOptions));
+      html = ejs.render(contents, ejsOptions);
 
-
-    })
-  },
+      resolve(html);
+    });
+  }
 };

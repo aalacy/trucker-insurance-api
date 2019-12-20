@@ -50,14 +50,14 @@ let upload = multer({
 
   router.all('/pdf', async (req, res, next) => {
 
-    var html = fs.readFileSync(path.join(__dirname, "", "pdf.html"), 'utf8');
-    var options = { format: 'Letter' };
+    // var html = fs.readFileSync(path.join(__dirname, "", "pdf.html"), 'utf8');
+    // var options = { format: 'A4' };
      
-    pdf.create(html, options).toFile('./application.pdf', function(err, res) {
-      if (err) return console.log(err);
-      console.log(res); // { filename: '/app/businesscard.pdf' }
-    });
-    return;
+    // pdf.create(html, options).toFile('./application.pdf', function(err, res) {
+    //   if (err) return console.log(err);
+    //   console.log(res); // { filename: '/app/businesscard.pdf' }
+    // });
+    // return;
 
     let uuid;
     if(req.query.uuid)uuid = req.query.uuid;
@@ -74,7 +74,7 @@ let upload = multer({
     }
 
     pdfApplication.get(uuid, 0, new model.Company()).then(location => {
-console.log('pdfApp:'+ JSON.stringify(location));
+      console.log('pdfApp:'+ JSON.stringify(location));
       if(req.body.email == undefined){
         fs.readFile(location, function (err,data){
           // console.log('FsData:'+ JSON.stringify(data));
@@ -243,7 +243,7 @@ console.log('pdfApp:'+ JSON.stringify(location));
       const garagingAddress = {};
       const emailAddress = "";
       const mcNumber = company['MC/MX/FF Number(s)'];
-      const currentCarrier = JSON.stringify(company['Carrier Operation']);
+      const currentCarrier = company['Carrier Operation'].split(' ').join(',');
       const travelRadius = "";
       const currentEldProvider = [];
       const cargoHauled = {};
