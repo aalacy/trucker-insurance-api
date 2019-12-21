@@ -216,7 +216,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       "ownerInformation": formatOwnerInfoList(parseJsonFromArray(profile.ownerInformationList)),
       "driverInformationList": formatDriverInfoList(parseJsonFromArray(profile.driverInformationList)),
-      "vehicleInformationList": formatVehicleInformationList(parseJsonFromArray(profile.vehicleInformationList)),
+      "vehicleInformationList": formatVehicleInformationList(parseJsonFromObject(profile.vehicleInformationList)),
       "comments": profile.comments,
       "attachmentList": attachmentList
     };
