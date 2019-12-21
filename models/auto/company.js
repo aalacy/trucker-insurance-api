@@ -410,16 +410,16 @@ module.exports = (sequelize, DataTypes) => {
                                         });
         resolve('Ok');
       } else { // update company based on UUID
-        if (options.signSignature) {
-          await new Company().updateSalesforce(uuid);
-        }
-
         await Company.update(
            options,
            {where: {uuid} },
         ).catch(err => {
           reject(err);
         })
+
+        if (options.signSignature) {
+          await new Company().updateSalesforce(uuid);
+        }
         resolve('Ok');
       }
     });
