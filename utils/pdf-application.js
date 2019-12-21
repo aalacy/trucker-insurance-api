@@ -219,10 +219,10 @@ module.exports = {
       if(fullProfile.currentEldProvider){
         try {
 	      	if (!Array.isArray(fullProfile.currentEldProvider)) {
-	        	ejsOptions.eldProvider = JSON.parse(fullProfile.currentEldProvider).join(', ');
-	    	} else {
-	    		ejsOptions.eldProvider = fullProfile.currentEldProvider.join(', ');
-	    	}
+  	        	ejsOptions.eldProvider = JSON.parse(fullProfile.currentEldProvider).join(', ');
+  	    	} else {
+  	    		ejsOptions.eldProvider = fullProfile.currentEldProvider.join(', ');
+  	    	}
         } catch (e) {}
       }
 
@@ -232,7 +232,13 @@ module.exports = {
       ejsOptions.phone_number = fullProfile.phoneNumber;
       ejsOptions.company_name = fullProfile.name;
       ejsOptions.dot_number = fullProfile.dotNumber;
-      ejsOptions.currentCarrier = fullProfile.currentCarrier;
+      try {
+        if (!Array.isArray(fullProfile.currentCarrier)) {
+            ejsOptions.currentCarrier = JSON.parse(fullProfile.currentCarrier).join(', ');
+        } else {
+          ejsOptions.currentCarrier = fullProfile.currentCarrier.join(', ');
+        }
+      } catch (e) {}
       
       if(fullProfile.mailingAddress){
         try {

@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     emailAddress: DataTypes.STRING,
     mcNumber: DataTypes.STRING,
     travelRadius: DataTypes.STRING,
-    currentCarrier: DataTypes.STRING,
+    currentCarrier: DataTypes.JSON,
     currentEldProvider: DataTypes.JSON,
     cargoHauled: DataTypes.JSON,
     cargoGroup: DataTypes.JSON,
@@ -68,6 +68,163 @@ module.exports = (sequelize, DataTypes) => {
             reject(err)
         })
     })
+  }
+
+  const parseJsonFromObject = (obj) => {
+    if (obj.constructor !== Object) {
+      try {
+        return JSON.parse(obj);
+      } catch (e) {}
+    } else {
+      return obj;
+    }
+  }
+
+  const parseJsonFromArray = (arr) => {
+    if (!Array.isArray(arr)) {
+      try {
+        return JSON.parse(arr);
+      } catch (e) {}
+    } else {
+      return arr;
+    }
+  }
+
+  const formatKeysOfCargoHauled = (obj) => {
+    return {
+      "misc" : obj["Misc."],
+      "buildingSupplies": obj["Building Supplies"],
+      "machineryEquipment" : obj["Machinery / Equipment"],
+      "autos" : obj["Autos / Aircrafts / Boats"],
+      "consumerGoods": obj["Consumer Goods"],
+      "paper" : obj["Paper / Plastic / Glass"],
+      "construction" : obj["Construction Materials (Raw)"],
+      "metals" : obj["Metals / Coal"],
+      "chemicals" : obj["Chemicals"],
+      "farming" : obj["Farming / Agriculture / Livestock"],
+      "textiles" : obj["Textiles / Skins / Furs"],
+      "food" : obj["Food & Beverages"]
+    }
+  }
+
+  const formatOwnerInfoList = (arr) => {
+    const newList = [];
+    arr.map(owner => {
+      newList.push({
+        firstName: owner.firstName,
+        LastName: owner.LastName,
+        dob: `${owner.dobY}-${owner.dobM}-${owner.dobD}`,
+        address: {
+          street: owner.address,
+          city: owner.city,
+          state: owner.state,
+          zip: owner.zip
+        }
+      })
+    })
+    return newList;
+  }
+
+  const formatDriverInfoList = (arr) => {
+    const newList = [];
+    arr.map(driver => {
+      newList.push({
+        firstName: driver.firstName,
+        LastName: driver.LastName,
+        dob: `${driver.dobY}-${driver.dobM}-${driver.dobD}`,
+        state: driver.state,
+        licenseNumber: driver.licenseNumber,
+        hireDate: `${driver.dohY}-${driver.dohM}-${driver.dohD}`,
+        cdl: driver.CDL,
+        yearsOfExperience: ""
+      });
+    });
+    return newList;
+  }
+
+  const formatVehicleInformationList = (arr) => {
+    let newList = [];
+    if(arr.vehicle.length){
+       arr.vehicle.map((vehicle, i) => {
+          newList.push({
+            "name" : `Truck${i}`,
+            "vin" : vehicle.VIN, 
+            "year" : vehicle.year,
+            "make" : vehicle.make,
+            "vehicleType" : vehicle.vehicleType, 
+            "travelRadius": vehicle.travelRadius,
+            "garageZipCode" : vehicle.zipCode,
+            "collisionCoverage" : vehicle.coverage,
+            "vehicleValue" : vehicle.currentValue,
+            "deductible" : vehicle.deductible
+          })
+       })
+    }
+
+    if(arr.trailer.length){
+       arr.trailer.map((vehicle, i) => {
+          newList.push({
+            "name" : `Truck${i}`,
+            "vin" : vehicle.VIN, 
+            "year" : vehicle.year,
+            "make" : vehicle.make,
+            "vehicleType" : vehicle.vehicleType, 
+            "travelRadius": vehicle.travelRadius,
+            "garageZipCode" : vehicle.zipCode,
+            "collisionCoverage" : vehicle.coverage,
+            "vehicleValue" : vehicle.currentValue,
+            "deductible" : vehicle.deductible
+          })
+       })
+    }
+  }
+
+  Company.prototype.updateSalesforce = async(uuid) => {
+    console.log('profile update salesforce:');
+    let sfATRes = await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
+                  .then(res => res.json()) // expecting a json response
+                  .then(json => json);
+
+    let accessToken = sfATRes.access_token;
+    let instanceUrl = sfATRes.instance_url;       
+    let sfCAUrl = `${instanceUrl}/services/apexrest/applications`;
+
+    let profile = await new Company().findByUUID(uuid);
+
+    let attachmentList = parseJsonFromArray(profile.attachmentList);
+    attachmentList.push({
+      name: "signature.pdf",
+      content: profile.signSignature.imageSign
+    })
+
+    let sfRequestBody = {
+      "accountWrapper": {
+        "name": profile.name,
+        "dotNumber": profile.dotNumber,
+        "dba": profile.dba,
+        "phoneNumber": profile.phoneNumber,
+        "mailingAddress": parseJsonFromObject(profile.mailingAddress),
+        "garagingAddress": parseJsonFromObject(profile.garagingAddress),
+        "emailAddress": profile.emailAddress,
+        "mcNumber": profile.mcNumber,
+        "currentCarrier": parseJsonFromArray(profile.currentCarrier),
+        "currentEldProvider": parseJsonFromArray(profile.currentEldProvider),
+        "cargoGroup": parseJsonFromArray(profile.cargoGroup),
+        "cargoHauled": formatKeysOfCargoHauled(parseJsonFromObject(profile.cargoHauled)),
+        "businessStructure" : profile.businessStructure,
+        "businessType" : profile.businessType
+      },
+      "ownerInformation": formatOwnerInfoList(parseJsonFromArray(profile.ownerInformationList)),
+      "driverInformationList": formatDriverInfoList(parseJsonFromArray(profile.driverInformationList)),
+      "vehicleInformationList": formatVehicleInformationList(parseJsonFromArray(profile.vehicleInformationList)),
+      "comments": profile.comments,
+      "attachmentList": 
+    };
+    let sfCARes = await fetch(sfCAUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+                  .then(json => json);
+
+    console.log("create app in salesforce: ", sfCARes);
   }
 
   Company.prototype.updateHubspot = async (uuid, key, val) => {
@@ -253,6 +410,10 @@ module.exports = (sequelize, DataTypes) => {
                                         });
         resolve('Ok');
       } else { // update company based on UUID
+        if (options.signSignature) {
+          await new Company().updateSalesforce(uuid);
+        }
+
         await Company.update(
            options,
            {where: {uuid} },
@@ -263,7 +424,6 @@ module.exports = (sequelize, DataTypes) => {
       }
     });
   }
-  
 
   Company.prototype.add = async (uuid, key, val, updateHubspot) => {
     return new Promise(async (resolve, reject) => {

@@ -48,17 +48,7 @@ let upload = multer({
 
   //UPDATE `test` SET `value` = JSON_SET(`value`, '$."key 1"', 'value 1', '$.c', '[true, false]') WHERE `key` = 'first'
 
-  router.all('/pdf', async (req, res, next) => {
-
-    // var html = fs.readFileSync(path.join(__dirname, "", "pdf.html"), 'utf8');
-    // var options = { format: 'A4' };
-     
-    // pdf.create(html, options).toFile('./application.pdf', function(err, res) {
-    //   if (err) return console.log(err);
-    //   console.log(res); // { filename: '/app/businesscard.pdf' }
-    // });
-    // return;
-
+  router.get('/pdf', async (req, res, next) => {
     let uuid;
     if(req.query.uuid)uuid = req.query.uuid;
     else if(req.body.uuid)uuid = req.body.uuid;
@@ -96,10 +86,7 @@ let upload = multer({
         messages: err
       })
     })
-
-
   })
-
 
   router.all('/pdf-preview', async (req, res, next) => {
 
@@ -128,10 +115,7 @@ let upload = multer({
         messages: err
       })
     })
-
-
   })
-
 
   router.all('/vin', async (req, res, next) => {
 
@@ -177,8 +161,7 @@ let upload = multer({
       })
     }
 
-})
-
+  })
 
   router.all('/search', async (req, res, next) => {
 
@@ -243,7 +226,7 @@ let upload = multer({
       const garagingAddress = {};
       const emailAddress = "";
       const mcNumber = company['MC/MX/FF Number(s)'];
-      const currentCarrier = Array.isArray(company['Carrier Operation']) ? company['Carrier Operation'].join(',') : "";
+      const currentCarrier = company['Carrier Operation'];
       const travelRadius = "";
       const currentEldProvider = [];
       const cargoHauled = {};
@@ -282,10 +265,10 @@ let upload = multer({
         cargoHauled
       }
       await new model.Company().create(uuid, options );
-      
+
       res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
       new model.Company().findByUUID(uuid).then(profile => {
-        console.log('company profile in create '+ JSON.stringify(profile));
+        // console.log('company profile in create '+ JSON.stringify(profile));
 
         res.send({
             status: "OK",
@@ -592,7 +575,6 @@ let obj ={
   })
 })
 
-
   router.post('/save', async (req, res, next) => {
 
     let profile;
@@ -608,6 +590,11 @@ let obj ={
     }
 
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
+
+    // Update salesforce if this the last step, sign signature, of form wizard
+    if (data.signSignature) {
+
+    }
 
     new model.Company().create(uuid, data).then(profile => {
       res.send({

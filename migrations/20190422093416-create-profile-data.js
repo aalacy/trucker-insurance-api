@@ -45,7 +45,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       currentCarrier: {
-        type: Sequelize.STRING
+        type: Sequelize.JSON
       },
       currentEldProvider: {
         type: Sequelize.JSON
