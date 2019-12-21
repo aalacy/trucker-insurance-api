@@ -218,7 +218,7 @@ module.exports = (sequelize, DataTypes) => {
       "driverInformationList": formatDriverInfoList(parseJsonFromArray(profile.driverInformationList)),
       "vehicleInformationList": formatVehicleInformationList(parseJsonFromArray(profile.vehicleInformationList)),
       "comments": profile.comments,
-      "attachmentList": 
+      "attachmentList": attachmentList
     };
     let sfCARes = await fetch(sfCAUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
