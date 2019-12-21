@@ -70,6 +70,25 @@ module.exports = (sequelize, DataTypes) => {
     })
   }
 
+  // validate and format if the value is null
+  const _v = (value) => {
+    if (value.length == 0) {
+      return null;
+    } else if (value == undefined){
+      return null;
+    } else {
+      return value;
+    }
+  }
+
+  const _a = (arr) => {
+    if (arr == undefined) {
+      return []; 
+    } else {
+      return arr;
+    }
+  }
+
   const parseJsonFromObject = (obj) => {
     if (obj.constructor !== Object) {
       try {
@@ -92,18 +111,18 @@ module.exports = (sequelize, DataTypes) => {
 
   const formatKeysOfCargoHauled = (obj) => {
     return {
-      "misc" : obj["Misc."],
-      "buildingSupplies": obj["Building Supplies"],
-      "machineryEquipment" : obj["Machinery / Equipment"],
-      "autos" : obj["Autos / Aircrafts / Boats"],
-      "consumerGoods": obj["Consumer Goods"],
-      "paper" : obj["Paper / Plastic / Glass"],
-      "construction" : obj["Construction Materials (Raw)"],
-      "metals" : obj["Metals / Coal"],
-      "chemicals" : obj["Chemicals"],
-      "farming" : obj["Farming / Agriculture / Livestock"],
-      "textiles" : obj["Textiles / Skins / Furs"],
-      "food" : obj["Food & Beverages"]
+      "misc" : _a(obj["Misc."]),
+      "buildingSupplies":  _a(obj["Building Supplies"]),
+      "machineryEquipment" :  _a(obj["Machinery / Equipment"]),
+      "autos" :  _a(obj["Autos / Aircrafts / Boats"]),
+      "consumerGoods":  _a(obj["Consumer Goods"]),
+      "paper" :  _a(obj["Paper / Plastic / Glass"]),
+      "construction" :  _a(obj["Construction Materials (Raw)"]),
+      "metals" :  _a(obj["Metals / Coal"]),
+      "chemicals" :  _a(obj["Chemicals"]),
+      "farming" :  _a(obj["Farming / Agriculture / Livestock"]),
+      "textiles" :  _a(obj["Textiles / Skins / Furs"]),
+      "food" :  _a(obj["Food & Beverages"])
     }
   }
 
@@ -112,7 +131,7 @@ module.exports = (sequelize, DataTypes) => {
     arr.map(owner => {
       newList.push({
         firstName: owner.firstName,
-        LastName: owner.LastName,
+        LastName: owner.lastName,
         dob: `${owner.dobY}-${owner.dobM}-${owner.dobD}`,
         address: {
           street: owner.address,
@@ -130,13 +149,13 @@ module.exports = (sequelize, DataTypes) => {
     arr.map(driver => {
       newList.push({
         firstName: driver.firstName,
-        LastName: driver.LastName,
+        LastName: driver.lastName,
         dob: `${driver.dobY}-${driver.dobM}-${driver.dobD}`,
         state: driver.state,
         licenseNumber: driver.licenseNumber,
         hireDate: `${driver.dohY}-${driver.dohM}-${driver.dohD}`,
-        cdl: driver.CDL,
-        yearsOfExperience: ""
+        cdl: _v(driver.CDL),
+        yearsOfExperience: null
       });
     });
     return newList;
@@ -154,9 +173,9 @@ module.exports = (sequelize, DataTypes) => {
             "vehicleType" : vehicle.vehicleType, 
             "travelRadius": vehicle.travelRadius,
             "garageZipCode" : vehicle.zipCode,
-            "collisionCoverage" : vehicle.coverage,
-            "vehicleValue" : vehicle.currentValue,
-            "deductible" : vehicle.deductible
+            "collisionCoverage" : _v(vehicle.coverage),
+            "vehicleValue" : _v(vehicle.currentValue),
+            "deductible" : _v(vehicle.deductible)
           })
        })
     }
@@ -164,20 +183,24 @@ module.exports = (sequelize, DataTypes) => {
     if(arr.trailer.length){
        arr.trailer.map((vehicle, i) => {
           newList.push({
-            "name" : `Truck${i}`,
+            "name" : `Truck${i+1}`,
             "vin" : vehicle.VIN, 
             "year" : vehicle.year,
             "make" : vehicle.make,
-            "vehicleType" : vehicle.vehicleType, 
-            "travelRadius": vehicle.travelRadius,
+            "vehicleType" : vehicle.trailerType, 
+            "travelRadius": vehicle.radiusOfTravelTrailer,
             "garageZipCode" : vehicle.zipCode,
-            "collisionCoverage" : vehicle.coverage,
-            "vehicleValue" : vehicle.currentValue,
-            "deductible" : vehicle.deductible
+            "collisionCoverage" : _v(vehicle.coverage),
+            "vehicleValue" : _v(vehicle.currentValue),
+            "deductible" : _v(vehicle.deductible)
           })
        })
     }
+
+    return newList;
   }
+
+  
 
   Company.prototype.updateSalesforce = async(uuid) => {
     console.log('profile update salesforce:');
@@ -192,9 +215,16 @@ module.exports = (sequelize, DataTypes) => {
     let profile = await new Company().findByUUID(uuid);
 
     let attachmentList = parseJsonFromArray(profile.attachmentList);
-    attachmentList.push({
+    let imageSign = parseJsonFromObject(profile.signSignature).imageSign;
+    let newAttachmentList = [];
+    attachmentList.forEach(function(attachment) {
+      if (attachment.name && attachment.name.length) {
+        newAttachmentList.push(attachment);
+      }
+    });
+    newAttachmentList.push({
       name: "signature.pdf",
-      content: profile.signSignature.imageSign
+      content: _v(imageSign)
     })
 
     let sfRequestBody = {
@@ -211,14 +241,14 @@ module.exports = (sequelize, DataTypes) => {
         "currentEldProvider": parseJsonFromArray(profile.currentEldProvider),
         "cargoGroup": parseJsonFromArray(profile.cargoGroup),
         "cargoHauled": formatKeysOfCargoHauled(parseJsonFromObject(profile.cargoHauled)),
-        "businessStructure" : profile.businessStructure,
-        "businessType" : profile.businessType
+        "businessStructure" : _v(profile.businessStructure),
+        "businessType" : _v(profile.businessType)
       },
       "ownerInformation": formatOwnerInfoList(parseJsonFromArray(profile.ownerInformationList)),
       "driverInformationList": formatDriverInfoList(parseJsonFromArray(profile.driverInformationList)),
       "vehicleInformationList": formatVehicleInformationList(parseJsonFromObject(profile.vehicleInformationList)),
-      "comments": profile.comments,
-      "attachmentList": attachmentList
+      "comments": _v(profile.comments),
+      "attachmentList": newAttachmentList
     };
     let sfCARes = await fetch(sfCAUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response

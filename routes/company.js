@@ -581,7 +581,7 @@ let obj ={
 
     const { data } = req.body;
     let uuid = data.uuid;
-    if (!uuid) {
+    if (!uuid && req.cookie) {
       const { uuid } = req.cookie;
     }
 
