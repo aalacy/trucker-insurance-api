@@ -166,12 +166,12 @@ module.exports = (sequelize, DataTypes) => {
     if(arr.vehicle.length){
        arr.vehicle.map((vehicle, i) => {
           newList.push({
-            "name" : `Truck${i}`,
+            "name" : vehicle.model,
             "vin" : vehicle.VIN, 
             "year" : vehicle.year,
             "make" : vehicle.make,
             "vehicleType" : vehicle.vehicleType, 
-            "travelRadius": vehicle.travelRadius,
+            "travelRadius": vehicle.radiusOfTravelVehicle,
             "garageZipCode" : vehicle.zipCode,
             "collisionCoverage" : _v(vehicle.coverage),
             "vehicleValue" : _v(vehicle.currentValue),
@@ -183,7 +183,7 @@ module.exports = (sequelize, DataTypes) => {
     if(arr.trailer.length){
        arr.trailer.map((vehicle, i) => {
           newList.push({
-            "name" : `Truck${i+1}`,
+            "name" : vehicle.model,
             "vin" : vehicle.VIN, 
             "year" : vehicle.year,
             "make" : vehicle.make,
@@ -200,7 +200,14 @@ module.exports = (sequelize, DataTypes) => {
     return newList;
   }
 
-  
+  const formatAddress = obj => {
+    return {
+      street: obj.address,
+      zip: obj.zip,
+      city: obj.city,
+      state: obj.state
+    };
+  }  
 
   Company.prototype.updateSalesforce = async(uuid) => {
     console.log('profile update salesforce:');
@@ -223,7 +230,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     });
     newAttachmentList.push({
-      name: "signature.pdf",
+      name: "signature.jpeg",
       content: _v(imageSign)
     })
 
@@ -233,8 +240,8 @@ module.exports = (sequelize, DataTypes) => {
         "dotNumber": profile.dotNumber,
         "dba": profile.dba,
         "phoneNumber": profile.phoneNumber,
-        "mailingAddress": parseJsonFromObject(profile.mailingAddress),
-        "garagingAddress": parseJsonFromObject(profile.garagingAddress),
+        "mailingAddress": formatAddress(parseJsonFromObject(profile.mailingAddress)),
+        "garagingAddress": formatAddress(parseJsonFromObject(profile.garagingAddress)),
         "emailAddress": profile.emailAddress,
         "mcNumber": profile.mcNumber,
         "currentCarrier": parseJsonFromArray(profile.currentCarrier),
