@@ -82,8 +82,8 @@
       }
 
       .page {
-        width: 50px;
-      background: #002060;
+      	width: 50px;
+     	background: #002060;
         font-size:12px; 
         color: white;
         font-weight: bold; 
@@ -123,172 +123,172 @@
     </noscript>
     <div class="container_pdf_doc">
 <!-- Page 1 -->
-        <div class="container page_index">
+      	<div class="container page_index">
 
-          <div class="h2 my-3" style="padding-top: 50px;">Trucking Insurance Application</div>
+	        <div class="h2 my-3" style="padding-top: 50px;">Trucking Insurance Application</div>
 
-          <div class="text-right " style="margin-bottom: 10px;">
-            Policy Term 
-            From: <span class="border_bottom field_item" id="policyTermFrom"><%= policy_term_from %></span> 
-            To: <span class="border_bottom field_item" id="policyTermTo"><%= policy_term_to %></span>
-          </div>
+	        <div class="text-right " style="margin-bottom: 10px;">
+	          Policy Term 
+	          From: <span class="border_bottom field_item" id="policyTermFrom"><%= policy_term_from %></span> 
+	          To: <span class="border_bottom field_item" id="policyTermTo"><%= policy_term_to %></span>
+	        </div>
 
-          <p class="border-title p-2 ">Providing Any of The Following Documents Will Enable Us To Get You The Cheapest Quotes In The Least Amount of Time!</p>
-          
-          <table border="0" style="table-layout: fixed">
-              <tr>
-                <td>
-                  <ul>
-                      <li>Any Previously Completed Applications</li>
-                      <li>Picture of Driver(s) License and Registration(s)</li>
-                      <li>MVR Report</li>
-                      <li>Loss Runs (3-5 years as applicable)</li>
-                  </ul>
-                </td>
-                <td>
-                  <ul>
-                      <li>Insurance Requirements Documentation</li>
-                      <li>Schedule of vehicles and drivers</li>
-                      <li>IFTA - all 4 quarters</li>
-                      <li>A copy of rental/lease agreement for leased vehicles</li>
-                  </ul>
-                </td>
-              </tr>
-            </table>
+	        <p class="border-title p-2 ">Providing Any of The Following Documents Will Enable Us To Get You The Cheapest Quotes In The Least Amount of Time!</p>
+	        
+	        <table border="0" style="table-layout: fixed">
+	            <tr>
+	              <td>
+	                <ul>
+	                    <li>Any Previously Completed Applications</li>
+	                    <li>Picture of Driver(s) License and Registration(s)</li>
+	                    <li>MVR Report</li>
+	                    <li>Loss Runs (3-5 years as applicable)</li>
+	                </ul>
+	              </td>
+	              <td>
+	                <ul>
+	                    <li>Insurance Requirements Documentation</li>
+	                    <li>Schedule of vehicles and drivers</li>
+	                    <li>IFTA - all 4 quarters</li>
+	                    <li>A copy of rental/lease agreement for leased vehicles</li>
+	                </ul>
+	              </td>
+	            </tr>
+	          </table>
 
-          <p class="border-title p-2 ">General Information</p>
-          <p class="width-200">
-            <div style="padding-top: 5px; display: inline-block;"> Company Name:</div> <span class="border_bottom field_item " id="companyName"> <%=company_name %></span> 
-            DBA: <span class="border_bottom field_item " id="dba"><%= dba_name %></span>
-            Phone number: <span class="border_bottom field_item" style="width:100%;max-width:110px;" id="phoneNumber"><%= phone_number %></span>
-          </p>
+	        <p class="border-title p-2 ">General Information</p>
+	        <p class="width-200">
+	          <div style="padding-top: 5px; display: inline-block;"> Company Name:</div> <span class="border_bottom field_item " id="companyName"> <%=company_name %></span> 
+	          DBA: <span class="border_bottom field_item " id="dba"><%= dba_name %></span>
+	          Phone number: <span class="border_bottom field_item" style="width:100%;max-width:110px;" id="phoneNumber"><%= phone_number %></span>
+	        </p>
 
-          <p class="width-200-d">
-            Mailing address: <span class="border_bottom field_item " id=""><%= mailing_address %></span> 
-            City: <span class="border_bottom field_item "  style="width:100%;max-width:110px;"  id=""><%= mailing_city %></span>
-             State: <span class="border_bottom field_item " style="width:100%;max-width:110px;" id=""><%= mailing_state %></span>
-            Zip: <span class="border_bottom field_item "  style="width:100%;max-width:135px;" id=""><%= mailing_zip %></span>
-          </p>  
-          <p class="width-200-d">
-            Garaging address: <span class="border_bottom field_item " id=""><%= garaging_address %></span> 
-            City: <span class="border_bottom field_item " id="" style="width:100%;max-width:110px;"><%= garaging_city %></span>
-            State: <span class="border_bottom field_item "style="width:100%;max-width:110px;"  id=""><%= garaging_state %></span>
-            Zip: <span class="border_bottom field_item "   style="width:100%;max-width:135px;" id=""><%= garaging_zip %></span>
-          </p> 
-          <p class="width-200-b">
-            E-mail Address: <span class="border_bottom field_item " id=""><%= email_address %></span>
-            Business start date: <span class="border_bottom field_item " id=""><%= business_start_date %></span>
-          </p> 
-          <p class="width-200-b">
-             DOT Number: <span class="border_bottom field_item " style="width:100%;max-width:273px;"  id=""><%= dot_number %></span>
-            MC Number: <span class="border_bottom field_item " style="width:100%;max-width:290px;"  id=""><%= mc_number %></span>
-          </p>
-          <p class="width-200-b">
-            Radius of travel: <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
-            Current Carrier: <span class="border_bottom field_item " style="width:100%;max-width:173px;" id=""><%= currentCarrier %></span> 
-             Current ELD Provider: <span class="border_bottom field_item " style="width:100%;min-width:173px;" id=""><%= eldProvider %></span>
-          </p>  
-          <p class="border-title p-2 ">Driver Information - attach schedule if over 5 drivers</p>
+	        <p class="width-200-d">
+	          Mailing address: <span class="border_bottom field_item " id=""><%= mailing_address %></span> 
+	          City: <span class="border_bottom field_item "  style="width:100%;max-width:110px;"  id=""><%= mailing_city %></span>
+	           State: <span class="border_bottom field_item " style="width:100%;max-width:110px;" id=""><%= mailing_state %></span>
+	          Zip: <span class="border_bottom field_item "  style="width:100%;max-width:135px;" id=""><%= mailing_zip %></span>
+	        </p>  
+	        <p class="width-200-d">
+	          Garaging address: <span class="border_bottom field_item " id=""><%= garaging_address %></span> 
+	          City: <span class="border_bottom field_item " id="" style="width:100%;max-width:110px;"><%= garaging_city %></span>
+	          State: <span class="border_bottom field_item "style="width:100%;max-width:110px;"  id=""><%= garaging_state %></span>
+	          Zip: <span class="border_bottom field_item "   style="width:100%;max-width:135px;" id=""><%= garaging_zip %></span>
+	        </p> 
+	        <p class="width-200-b">
+	          E-mail Address: <span class="border_bottom field_item " id=""><%= email_address %></span>
+	          Business start date: <span class="border_bottom field_item " id=""><%= business_start_date %></span>
+	        </p> 
+	        <p class="width-200-b">
+	           DOT Number: <span class="border_bottom field_item " style="width:100%;max-width:273px;"  id=""><%= dot_number %></span>
+	          MC Number: <span class="border_bottom field_item " style="width:100%;max-width:290px;"  id=""><%= mc_number %></span>
+	        </p>
+	        <p class="width-200-b">
+	          Radius of travel: <span class="border_bottom field_item " id=""><%= (radiusOfTravel > 0)?radiusOfTravel:'' %></span> 
+	          Current Carrier: <span class="border_bottom field_item " style="width:100%;max-width:173px;" id=""><%= currentCarrier %></span> 
+	           Current ELD Provider: <span class="border_bottom field_item " style="width:100%;min-width:173px;" id=""><%= eldProvider %></span>
+	        </p>  
+	        <p class="border-title p-2 ">Driver Information - attach schedule if over 5 drivers</p>
 
-          <table class="table table-bordered">
-              <thead style="color: #5f98f8">
-                <tr>
-                  <th scope="">Name</th>
-                  <th scope="">Date of Birth</th>
-                  <th scope="">State</th>
-                  <th scope="">Driver's License Number</th>
-                  <th scope="">Date of Hire</th>
-                  <th scope="">CDL (yes or no)</th>
-                  <th scope="">Years of Experience Using Scheduled Equipment</th>
-                </tr>
-              </thead>
-              <tbody>
-                  <% if(drivers != undefined){ %>
-                    <% if(drivers.length > 0){ %>
-                      <% drivers.forEach(function(driver, index) { %>
-                        <% if (Object.keys(driver).length === 0 && driver.constructor === Object) { %>
-                          <tr>
-                            <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
-                            <td align="left" class="text-td-small" valign="middle"></td>
-                            <td align="left" class="text-td-small" valign="middle"></td>
-                            <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
-                            <td align="left" class="text-td-small" valign="middle"></td>
-                            <td align="left" class="text-td-small" valign="middle"></td>
-                            <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
-                          </tr>
-                        <% } else { %>
-                          <tr>
-                            <td align="left" class="text-td-small" valign="middle" style="width: 200px;"><%=driver.firstName+" "+driver.lastName%></td>
-                            <td align="left" class="text-td-small" valign="middle"><%= driver.dobM %>/<%= driver.dobD %>/<%= driver.dobY %></td>
-                            <td align="left" class="text-td-small" valign="middle"><%= driver.state %></td>
-                            <td align="left" class="text-td-small" valign="middle" style="width: 200px;"><%= driver.licenseNumber %></td>
-                            <td align="left" class="text-td-small" valign="middle"><%= driver.dohM %>/<%= driver.dohD %>/<%= driver.dohY %></td>
-                            <td align="left" class="text-td-small" valign="middle"><%= driver.CDL != "" ? "YES" : "NO" %></td>
-                            <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
-                          </tr>
-                        <% } %>
-                      <% }); %>
-                    <% } %>
-                <% } %>
-              </tbody>
-          </table>
+	        <table class="table table-bordered">
+	            <thead style="color: #5f98f8">
+	              <tr>
+	                <th scope="">Name</th>
+	                <th scope="">Date of Birth</th>
+	                <th scope="">State</th>
+	                <th scope="">Driver's License Number</th>
+	                <th scope="">Date of Hire</th>
+	                <th scope="">CDL (yes or no)</th>
+	                <th scope="">Years of Experience Using Scheduled Equipment</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	                <% if(drivers != undefined){ %>
+	                  <% if(drivers.length > 0){ %>
+	                    <% drivers.forEach(function(driver, index) { %>
+	                      <% if (Object.keys(driver).length === 0 && driver.constructor === Object) { %>
+	                        <tr>
+	                          <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
+	                          <td align="left" class="text-td-small" valign="middle"></td>
+	                          <td align="left" class="text-td-small" valign="middle"></td>
+	                          <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
+	                          <td align="left" class="text-td-small" valign="middle"></td>
+	                          <td align="left" class="text-td-small" valign="middle"></td>
+	                          <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
+	                        </tr>
+	                      <% } else { %>
+	                        <tr>
+	                          <td align="left" class="text-td-small" valign="middle" style="width: 200px;"><%=driver.firstName+" "+driver.lastName%></td>
+	                          <td align="left" class="text-td-small" valign="middle"><%= driver.dobM %>/<%= driver.dobD %>/<%= driver.dobY %></td>
+	                          <td align="left" class="text-td-small" valign="middle"><%= driver.state %></td>
+	                          <td align="left" class="text-td-small" valign="middle" style="width: 200px;"><%= driver.licenseNumber %></td>
+	                          <td align="left" class="text-td-small" valign="middle"><%= driver.dohM %>/<%= driver.dohD %>/<%= driver.dohY %></td>
+	                          <td align="left" class="text-td-small" valign="middle"><%= driver.CDL != "" ? "YES" : "NO" %></td>
+	                          <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
+	                        </tr>
+	                      <% } %>
+	                    <% }); %>
+	                  <% } %>
+	              <% } %>
+	            </tbody>
+	        </table>
 
-          <p class="border-title p-2">Vehicle and Trailer Information - attach schedule if over 10 vehicles/trailers</p>
+	        <p class="border-title p-2">Vehicle and Trailer Information - attach schedule if over 10 vehicles/trailers</p>
 
-          <table class="table table-bordered">
-              <thead style="color: #5f98f8">
-                <tr>
-                  <th scope="">VIN</th>
-                  <th scope="">Year</th>
-                  <th scope="">Make</th>
-                  <th scope="">Vehicle/Trailer Type</th>
-                  <th scope="">Garaging Zip Code</th>
-                  <th scope="">Maximum Distance Traveled from Garaging Location (Radius)</th>
-                  <th scope="">Current Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if(vehiclesTrailers.length > 0){ %>
-                  <% vehiclesTrailers.forEach(function(vehicle, index) { %>
-                    <% if (Object.keys(vehicle).length === 0 && vehicle.constructor === Object) { %>
-                      <tr>
-                        <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
-                        <td align="left" class="text-td-small" valign="middle"></td>
-                        <td align="left" class="text-td-small" valign="middle"></td>
-                        <td align="left" class="text-td-small" valign="middle"></td>
-                        <td align="left" class="text-td-small" valign="middle" style="width: 100px;"></td>
-                        <td align="left" class="text-td-small" valign="middle" style="width: 300px;"></td>
-                        <td align="left" class="text-td-small" valign="middle"></td>
-                      </tr>
-                    <% }  else { %>
-                      <tr>
-                        <td align="left" class="text-td-small" valign="middle" style="width: 200px;"><%=vehicle.VIN%></td>
-                        <td align="left" class="text-td-small" valign="middle"><%=vehicle.year%></td>
-                        <td align="left" class="text-td-small" valign="middle"><%=vehicle.make%></td>
-                        <td align="left" class="text-td-small"  valign="middle"><%=vehicle.vehicleType%></td>
-                        <td align="left" class="text-td-small" valign="middle" style="width: 100px;"><%=vehicle.zipCode%></td>
-                        <td align="left" class="text-td-small" valign="middle" style="width: 300px;"><%=vehicle.radiusOfTravelVehicle%></td>
-                        <td align="left" class="text-td-small" valign="middle"><%=vehicle.currentValue%></td>
-                      </tr>
-                    <% } %>
-                  <% }); %>
-                <% } %>
-              </tbody>
-          </table>
+	        <table class="table table-bordered">
+	            <thead style="color: #5f98f8">
+	              <tr>
+	                <th scope="">VIN</th>
+	                <th scope="">Year</th>
+	                <th scope="">Make</th>
+	                <th scope="">Vehicle/Trailer Type</th>
+	                <th scope="">Garaging Zip Code</th>
+	                <th scope="">Maximum Distance Traveled from Garaging Location (Radius)</th>
+	                <th scope="">Current Value</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              <% if(vehiclesTrailers.length > 0){ %>
+	                <% vehiclesTrailers.forEach(function(vehicle, index) { %>
+	                  <% if (Object.keys(vehicle).length === 0 && vehicle.constructor === Object) { %>
+	                    <tr>
+	                      <td align="left" class="text-td-small" valign="middle" style="width: 200px;"></td>
+	                      <td align="left" class="text-td-small" valign="middle"></td>
+	                      <td align="left" class="text-td-small" valign="middle"></td>
+	                      <td align="left" class="text-td-small" valign="middle"></td>
+	                      <td align="left" class="text-td-small" valign="middle" style="width: 100px;"></td>
+	                      <td align="left" class="text-td-small" valign="middle" style="width: 300px;"></td>
+	                      <td align="left" class="text-td-small" valign="middle"></td>
+	                    </tr>
+	                  <% }  else { %>
+	                    <tr>
+	                      <td align="left" class="text-td-small" valign="middle" style="width: 200px;"><%=vehicle.VIN%></td>
+	                      <td align="left" class="text-td-small" valign="middle"><%=vehicle.year%></td>
+	                      <td align="left" class="text-td-small" valign="middle"><%=vehicle.make%></td>
+	                      <td align="left" class="text-td-small"  valign="middle"><%=vehicle.vehicleType%></td>
+	                      <td align="left" class="text-td-small" valign="middle" style="width: 100px;"><%=vehicle.zipCode%></td>
+	                      <td align="left" class="text-td-small" valign="middle" style="width: 300px;"><%=vehicle.radiusOfTravelVehicle%></td>
+	                      <td align="left" class="text-td-small" valign="middle"><%=vehicle.currentValue%></td>
+	                    </tr>
+	                  <% } %>
+	                <% }); %>
+	              <% } %>
+	            </tbody>
+	        </table>
       </div>
   </div>
     <div class="d-none d-print-block pageFooter">
-      <div class="footer">
-        <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
-        LuckyTruck
-      </div>
-    <div class="page">1</div>
-  </div>
-    
+	    <div class="footer">
+	      <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
+	      LuckyTruck
+	    </div>
+		<div class="page">1</div>
+	</div>
+  	
 
 <!-- Page 2 -->
-  <div class="container_pdf_doc">
-        <div class="container page_index">
+	<div class="container_pdf_doc">
+      	<div class="container page_index">
 
           <div class="h2 my-3  d-none d-print-block" style="padding-top: 50px; padding-bottom: 30px;">Trucking Insurance Application</div>
   
@@ -337,14 +337,14 @@
                 <% var a = owners %>
                   <% if(a.length > 0){ %>
                     <% a.forEach(function(owner, index) { %>
-                      <% if (Object.keys(owner).length !== 0 && owner.constructor === Object) { %>
-                        <% ownersLeft-- %>
-                        <tr>
-                          <td  scope=""><%= owner.firstName %> <%= owner.lastName %></td>
-                          <td><%= owner.dobM %>/<%= owner.dobD %>/<%= owner.dobY %> </td>
-                          <td><%= owner.address %> <%= owner.state %></td>
-                        </tr>
-                    <% } %>
+	                    <% if (Object.keys(owner).length !== 0 && owner.constructor === Object) { %>
+		                    <% ownersLeft-- %>
+		                    <tr>
+		                      <td  scope=""><%= owner.firstName %> <%= owner.lastName %></td>
+		                      <td><%= owner.dobM %>/<%= owner.dobD %>/<%= owner.dobY %> </td>
+		                      <td><%= owner.address %> <%= owner.state %></td>
+		                    </tr>
+		                <% } %>
                     <% }); %>
                   <% } %>
 
@@ -399,18 +399,18 @@
             COMMENTS <span class="border_bottom field_item " id="" style="min-width: 650px;"><%= comments %></span> 
           </p>
 
-        </div>
+      	</div>
     </div>
     <div class="d-none d-print-block pageFooter">
-      <div class="footer">
-        <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
-        LuckyTruck
-      </div>
-      <div class="page">2</div>
-    </div>
+	    <div class="footer">
+	      <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
+	      LuckyTruck
+	    </div>
+    	<div class="page">2</div>
+  	</div>
 <!-- Page 3 -->
-  <div class="container_pdf_doc">
-      <div class="container page_index">
+	<div class="container_pdf_doc">
+  		<div class="container page_index">
 
           <div class="h2 my-3  d-none d-print-block" style="padding-top: 50px;">Trucking Insurance Application</div>
 
@@ -463,16 +463,16 @@
               </td>
             </tr>
           </table>
-    </div>
+		</div>
     </div>
 
-    <div class="d-none d-print-block pageFooter">
-      <div class="footer">
-        <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
-        LuckyTruck
-      </div>
-      <div class="page">3</div>
-    </div>
+  	<div class="d-none d-print-block pageFooter">
+	    <div class="footer">
+	      <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
+	      LuckyTruck
+	    </div>
+    	<div class="page">3</div>
+  	</div>
     
   </body>
 </html>
