@@ -131,7 +131,7 @@ let upload = multer({
     try{
       let result = await LookupVehicle.lookup(vin);
 
-      let vehiclesTrailers = {};
+      let vehiclesTrailers = { model: ''};
       if(result.data && result.data.Results){
         vehiclesTrailers.raw = result.data.Results;
         if(result.data.Results[0].VIN){
@@ -142,9 +142,7 @@ let upload = multer({
         if(result.data.Results[0].Make)vehiclesTrailers.make = result.data.Results[0].Make;
         if(result.data.Results[0].Model)vehiclesTrailers.model = result.data.Results[0].Model;
         if(result.data.Results[0].VehicleType)vehiclesTrailers.vehicleType = result.data.Results[0].VehicleType;
-
       }
-
 
       res.send({
         status: "OK",
