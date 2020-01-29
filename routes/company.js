@@ -1,13 +1,12 @@
 module.exports = (app) => {
-  var webConfig = require("../config/web.js");
   let express = require('express')
   let multer  = require('multer')
   let router = express.Router();
   var path = require('path');
   var pdf = require('html-pdf');
-  
-  //  let upload = multer({ dest: webConfig.rootDir+'/public/company/' })
-  //let upload = multer({ dest: "http://3.13.68.92:3000/public/company/"})
+  const fetch = require('node-fetch');
+  const env = process.env.NODE_ENV || 'development';
+  const config = require(__dirname + '/../config/config.json')[env];
   
   var stoorages = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -24,11 +23,9 @@ module.exports = (app) => {
         cb(null, file.fieldname + Date.now() + "-"+ext
         );
     }
-});
+  });
 
-let upload = multer({
-    storage: stoorages
-});
+  let upload = multer({ storage: stoorages });
   let document = require('../models/Document')
   const vision = require('@google-cloud/vision')
   const client = new vision.ImageAnnotatorClient()
@@ -46,7 +43,12 @@ let upload = multer({
   let pdfApplication = require('../utils/pdf-application');
 
 
-  //UPDATE `test` SET `value` = JSON_SET(`value`, '$."key 1"', 'value 1', '$.c', '[true, false]') WHERE `key` = 'first'
+  // Authentication to Salesforce
+  const authSalesforce = async () => {
+    return await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
+                  .then(res => res.json()) // expecting a json response
+                  .then(json => json);
+  }
 
   router.get('/pdf', async (req, res, next) => {
     let uuid;
@@ -175,21 +177,35 @@ let upload = multer({
       let so;
       if(!isNaN(keyword)){
         so = await companySnapshot.get(keyword).catch(err => console.log(err));
+        if (so) {
+          res.send({
+              status: "OK",
+              data: so,
+              type: "USDOT",
+              messages: []
+          })
+        } else {
+          res.send({
+              status: "Error",
+              messages: ["No search results"]
+          })
+        }
       }else{
         so = await companySnapshot.search(keyword).catch(err => console.log(err));
+        if (so) {
+          res.send({
+              status: "OK",
+              data: so,
+              messages: []
+          })
+        } else {
+          res.send({
+              status: "Error",
+              messages: ["No search results"]
+          })
+        }
       }
-      if (so) {
-        res.send({
-            status: "OK",
-            data: so,
-            messages: []
-        })
-      } else {
-        res.send({
-            status: "Error",
-            messages: ["No search results"]
-        })
-      }
+      
   })
 
   router.all('/create', async (req, res, next) => {
@@ -357,8 +373,6 @@ let upload = multer({
 
   })
 
-
-
   router.all('/hubspot', async (req, res, next) => {
     console.log("hubspot1 req",req);
     console.log("hubspot1 res",res);
@@ -399,12 +413,6 @@ let upload = multer({
       }
 
   })
-
-  // router.post('/upload',async (req, res, next) => {
-  //   console.log("test");
-  //   res.send("test").end();
-  // });
- 
 
   router.post('/upload', upload.fields([
     {name: 'imageIdFront', maxCount: 1},
@@ -524,10 +532,7 @@ let upload = multer({
                   messages: ['Accepted']
                 })
               }
-
-
             })
-
       }catch(e){
         console.log(e);
 
@@ -541,37 +546,34 @@ let upload = multer({
       }
 
     })
-
-
   })
 
+  router.post('/uploadSign', upload.single('imageSign'),async(req,res,next)=>{
+    console.log('mmmmmmmmmm',req.val);
+    console.log('iiiiiiiiiiii',req.imageSign);
 
-router.post('/uploadSign', upload.single('imageSign'),async(req,res,next)=>{
-  console.log('mmmmmmmmmm',req.val);
-  console.log('iiiiiiiiiiii',req.imageSign);
-
-  let uuid;
-  if(req.cookies.uuid)uuid = req.cookies.uuid;
-let dt = new Date('dd-mm-yyyy');
-let obj ={
-  filePath:'',
-  date:dt.getDate()
-}
-  new model.Company().add(uuid, 'imageSign',dt.getDate()).then(profile => {
-    res.send({
-      status: "OK",
-      data: profile,
-      messages: profile.dataValues
-    })
-  }).catch(err => {
-    console.log('eerr', err);
-    res.send({
-      status: "ERROR",
-      data: uuid,
-      messages: err
+    let uuid;
+    if(req.cookies.uuid)uuid = req.cookies.uuid;
+    let dt = new Date('dd-mm-yyyy');
+    let obj ={
+      filePath:'',
+      date:dt.getDate()
+    }
+    new model.Company().add(uuid, 'imageSign',dt.getDate()).then(profile => {
+      res.send({
+        status: "OK",
+        data: profile,
+        messages: profile.dataValues
+      })
+    }).catch(err => {
+      console.log('eerr', err);
+      res.send({
+        status: "ERROR",
+        data: uuid,
+        messages: err
+      })
     })
   })
-})
 
   router.post('/save', async (req, res, next) => {
 
@@ -608,8 +610,32 @@ let obj ={
         messages: err
       })
     })
-
   })
+
+  router.post('/accountinfo/policies', async (req, res, next) => {
+    const { body: { DOT_ID } } = req;
+
+    const authSF = await authSalesforce();
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy`;
+    const sfRequestBody = {
+      "DOT Id": DOT_ID
+    }
+
+    let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+                  .then(json => json);
+
+    if (sfCARes.status == 'Success') {
+      res.json({
+        status: "ok",
+        policies: sfCARes.policies
+      })
+    } else {
+
+    }
+  });
 
   app.use('/api/company', router)
 }
