@@ -3,10 +3,11 @@ module.exports = (app) => {
   let multer  = require('multer')
   let router = express.Router();
   var path = require('path');
-  var pdf = require('html-pdf');
   const fetch = require('node-fetch');
   const env = process.env.NODE_ENV || 'development';
   const config = require(__dirname + '/../config/config.json')[env];
+  const publicIp = require('public-ip');
+  var geoip = require('geoip-lite');
   
   var stoorages = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -160,52 +161,61 @@ module.exports = (app) => {
         messages: []
       })
     }
-
   })
 
   router.all('/search', async (req, res, next) => {
 
-      if (!req.body.keyword && !req.query.keyword) {
-        return res.send({
-            status: "ERROR",
-            data: {},
-            messages: ['keyword is empty']
+    if (!req.body.keyword && !req.query.keyword) {
+      return res.send({
+          status: "ERROR",
+          data: {},
+          messages: ['keyword is empty']
+      })
+    }
+
+    let keyword = (req.body.keyword)?req.body.keyword:req.query.keyword;
+    let so;
+    if(!isNaN(keyword)){
+      so = await companySnapshot.get(keyword).catch(err => console.log(err));
+      if (Object.keys(so).length !== 0 && obj.constructor === Object) {
+        let _address = so['Physical Address'].split(' ');
+        const index = _address.length;
+        let data = [{
+          name: so['Legal Name'],
+          usdot: so['USDOT Number'],
+          location: `${_address[index-4]} ${_address[index-3]}`
+        }]
+        res.send({
+            status: "OK",
+            type: 'USDOT',
+            data: data,
+            messages: []
+        })
+      } else {
+        res.send({
+            type: "USDOT",
+            status: "Error",
+            messages: ["No search results"]
         })
       }
-
-      let keyword = (req.body.keyword)?req.body.keyword:req.query.keyword;
-      let so;
-      if(!isNaN(keyword)){
-        so = await companySnapshot.get(keyword).catch(err => console.log(err));
-        if (so) {
-          res.send({
-              status: "OK",
-              data: so,
-              type: "USDOT",
-              messages: []
-          })
-        } else {
-          res.send({
-              status: "Error",
-              messages: ["No search results"]
-          })
-        }
-      }else{
-        so = await companySnapshot.search(keyword).catch(err => console.log(err));
-        if (so) {
-          res.send({
-              status: "OK",
-              data: so,
-              messages: []
-          })
-        } else {
-          res.send({
-              status: "Error",
-              messages: ["No search results"]
-          })
-        }
+    }else{
+      so = await companySnapshot.search(keyword).catch(err => console.log(err));
+      const clientIp = await publicIp.v4()
+      var geo = geoip.lookup(clientIp);
+      so = so.filter(item => item.location.includes(geo.region));
+      if (so) {
+        res.send({
+            status: "OK",
+            data: so,
+            messages: []
+        })
+      } else {
+        res.send({
+            status: "Error",
+            messages: ["No search results"]
+        })
       }
-      
+    }
   })
 
   router.all('/create', async (req, res, next) => {
