@@ -177,7 +177,7 @@ module.exports = (app) => {
     let so;
     if(!isNaN(keyword)){
       so = await companySnapshot.get(keyword).catch(err => console.log(err));
-      if (Object.keys(so).length !== 0 && obj.constructor === Object) {
+      if (Object.keys(so).length !== 0 && so.constructor === Object) {
         let _address = so['Physical Address'].split(' ');
         const index = _address.length;
         let data = [{
