@@ -189,13 +189,13 @@ module.exports = (app) => {
             status: "OK",
             type: 'USDOT',
             data: data,
-            messages: []
+            message: ""
         })
       } else {
         res.send({
             type: "USDOT",
             status: "Error",
-            messages: ["No search results"]
+            message: 'If your company is new, feel welcome to call us at <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> and we can help set up your authority, otherwise check the number and search again.'
         })
       }
     }else{
@@ -207,12 +207,12 @@ module.exports = (app) => {
         res.send({
             status: "OK",
             data: so,
-            messages: []
+            message: ""
         })
       } else {
         res.send({
             status: "Error",
-            messages: ["No search results"]
+            message: 'If your company is new, feel welcome to call us at <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> and we can help set up your authority, otherwise check the number and search again.'
         })
       }
     }
