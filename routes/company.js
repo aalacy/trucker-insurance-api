@@ -203,7 +203,7 @@ module.exports = (app) => {
       const clientIp = await publicIp.v4()
       var geo = geoip.lookup(clientIp);
       so = so.filter(item => item.location.includes(geo.region));
-      if (so) {
+      if (Object.keys(so).length !== 0 && so.constructor === Object) {
         res.send({
             status: "OK",
             data: so,
