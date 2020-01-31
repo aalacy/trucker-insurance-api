@@ -218,7 +218,7 @@ module.exports = (app) => {
       } else {
         res.send({
             status: "Error",
-            message: 'If your company is new, feel welcome to call us at <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> and we can help set up your authority, otherwise check the number and search again.'
+            message: 'No company found. If you\'re company is new please call <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> or click <a href="/account-info">here </a> to complete your application.'
         })
       }
     }
