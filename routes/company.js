@@ -202,11 +202,17 @@ module.exports = (app) => {
       so = await companySnapshot.search(keyword).catch(err => console.log(err));
       const clientIp = await publicIp.v4()
       var geo = geoip.lookup(clientIp);
-      so = so.filter(item => item.location.includes(geo.region));
-      if (Object.keys(so).length !== 0 && so.constructor === Object) {
+      let filteredData = so.filter(item => item.location.split(',')[1].trim() == geo.region);
+      let new_data = filteredData || [];
+      so.map(item => {
+        if (!new_data.includes(item)) {
+          new_data.push(item);
+        }
+      })
+      if (new_data.length !== 0) {
         res.send({
             status: "OK",
-            data: so,
+            data: new_data,
             message: ""
         })
       } else {
