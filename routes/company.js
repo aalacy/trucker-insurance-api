@@ -218,7 +218,7 @@ module.exports = (app) => {
       } else {
         res.send({
             status: "Error",
-            message: 'No company found. If you\'re company is new please call <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> or click <a href="/account-info">here </a> to complete your application.'
+            message: 'No company found. If you\'re company is new please call <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> or click <a href="/account-info" style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">here </a> to complete your application.'
         })
       }
     }

@@ -218,7 +218,7 @@ module.exports = (sequelize, DataTypes) => {
   Company.prototype.updateSalesforce = async(uuid) => {
     console.log('profile update salesforce:');
     
-    const sfATRes = authSalesforce();
+    const sfATRes = await authSalesforce();
     let accessToken = sfATRes.access_token;
     let instanceUrl = sfATRes.instance_url;       
     let sfCAUrl = `${instanceUrl}/services/apexrest/applications`;
