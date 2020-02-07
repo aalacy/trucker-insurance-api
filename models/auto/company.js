@@ -72,9 +72,9 @@ module.exports = (sequelize, DataTypes) => {
 
   // validate and format if the value is null
   const _v = (value) => {
-    if (value.length == 0) {
+    if (value == undefined) {
       return null;
-    } else if (value == undefined){
+    } else if (value && value.length == 0) {
       return null;
     } else {
       return value;
@@ -222,6 +222,10 @@ module.exports = (sequelize, DataTypes) => {
     let accessToken = sfATRes.access_token;
     let instanceUrl = sfATRes.instance_url;       
     let sfCAUrl = `${instanceUrl}/services/apexrest/applications`;
+
+    if (!accessToken) {
+      return "Something wrong happened in the server. please try again later, or contact the customer service if you see this error message again";
+    }
 
     let profile = await new Company().findByUUID(uuid);
 
@@ -459,7 +463,10 @@ module.exports = (sequelize, DataTypes) => {
         })
 
         if (options.signSignature) {
-          await new Company().updateSalesforce(uuid);
+          const res = await new Company().updateSalesforce(uuid);
+          if (res) {
+            reject(res);
+          }
         }
         resolve('Ok');
       }

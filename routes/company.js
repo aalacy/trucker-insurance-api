@@ -133,6 +133,7 @@ module.exports = (app) => {
     let vin = (req.body.vin)?req.body.vin:req.query.vin;
     try{
       let result = await LookupVehicle.lookup(vin);
+      console.log(result.data.Results);
 
       let vehiclesTrailers = { model: ''};
       if(result.data && result.data.Results){
@@ -145,6 +146,7 @@ module.exports = (app) => {
         if(result.data.Results[0].Make)vehiclesTrailers.make = result.data.Results[0].Make;
         if(result.data.Results[0].Model)vehiclesTrailers.model = result.data.Results[0].Model;
         if(result.data.Results[0].VehicleType)vehiclesTrailers.vehicleType = result.data.Results[0].VehicleType;
+        if(result.data.Results[0].BodyClass)vehiclesTrailers.bodyClass = result.data.Results[0].BodyClass;
       }
 
       res.send({
@@ -202,6 +204,7 @@ module.exports = (app) => {
       so = await companySnapshot.search(keyword).catch(err => console.log(err));
       const clientIp = await publicIp.v4()
       var geo = geoip.lookup(clientIp);
+      console.log('---ip ----', clientIp, geo);
       let filteredData = so.filter(item => item.location.split(',')[1].trim() == geo.region);
       let new_data = filteredData || [];
       so.map(item => {
@@ -304,7 +307,8 @@ module.exports = (app) => {
             status: "OK",
             //data: new model.Company().renderAllByType(profile),
             data:company, //b
-            messages: []
+            messages: [],
+            uuid: uuid
           })
       }).catch(err => {
         console.log('Err:'+err);
@@ -322,7 +326,6 @@ module.exports = (app) => {
       })
     }
   })
-
 
   async function getProfile(uuid){
     return new Promise((resolve, reject) => {
@@ -360,9 +363,9 @@ module.exports = (app) => {
     else if(req.body.uuid)uuid = req.body.uuid;
     else if(req.cookies.uuid)uuid = req.cookies.uuid;
     
+    console.log('--- uuid ', uuid)
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
-        console.log('profile Current in /current:' + JSON.stringify(company));
         res.send({
           status: "OK",
           data: {
@@ -466,9 +469,7 @@ module.exports = (app) => {
     if(!uuid)uuid = await getNewUUID();
 
     res.cookie('uuid',uuid, { maxAge: 9000000, httpOnly: false });
-    
 
-    
     let headersSent = false;
     let filesApproved = 0;
 
@@ -607,6 +608,7 @@ module.exports = (app) => {
 
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
 
+    console.log('--- uuid ', uuid)
     // Update salesforce if this the last step, sign signature, of form wizard
     if (data.signSignature) {
 

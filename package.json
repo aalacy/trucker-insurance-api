@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && NODE_ENV=development nodemon ./bin/www",
+    "win": "set GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && nodemon ./bin/www",
     "start": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && NODE_ENV=production nodemon ./bin/www",
     "pm2": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && NODE_ENV=production pm2 start ./bin/www",
-    "debug": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && NODE_ENV=development node --inspect ./bin/www"
+    "debug": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && NODE_ENV=development node --inspect ./bin/www",
+    "debug:win": "set GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/My Project-2357326fb47d-luckytruck-server.json\" && node --inspect ./bin/www"
   },
   "dependencies": {
     "@google-cloud/vision": "^0.25.0",
@@ -23,6 +25,7 @@
     "express-session": "^1.16.1",
     "fs": "0.0.1-security",
     "geoip-lite": "^1.4.0",
+    "geolocator": "^2.1.5",
     "grpc": "^1.21.1",
     "http-errors": "^1.6.3",
     "hubspot": "^2.3.2",

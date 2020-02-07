@@ -153,13 +153,8 @@ module.exports = {
                 console.log(body);
                 resolve('ok')
               }
-
-              
-
-
           }
       });
-
 
     })
   },
@@ -214,7 +209,9 @@ module.exports = {
       }
       const fullProfile = profile; 
 
-      ejsOptions.signSignature = fullProfile.signSignature.imageSign;
+      if (fullProfile.signSignature) {
+        ejsOptions.signSignature = JSON.parse(fullProfile.signSignature).imageSign;
+      }
 
       if(fullProfile.currentEldProvider){
         try {
