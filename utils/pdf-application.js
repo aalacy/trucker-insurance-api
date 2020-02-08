@@ -209,8 +209,10 @@ module.exports = {
       }
       const fullProfile = profile; 
 
-      if (fullProfile.signSignature) {
+      if (fullProfile.signSignature.constructor !== Object) {
         ejsOptions.signSignature = JSON.parse(fullProfile.signSignature).imageSign;
+      } else {
+        ejsOptions.signSignature = fullProfile.signSignature.imageSign;
       }
 
       if(fullProfile.currentEldProvider){
