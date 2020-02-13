@@ -7,6 +7,7 @@ module.exports = (app) => {
   const env = process.env.NODE_ENV || 'development';
   const config = require(__dirname + '/../config/config.json')[env];
   const publicIp = require('public-ip');
+  const requestIp = require('request-ip');
   var geoip = require('geoip-lite');
   
   var stoorages = multer.diskStorage({
@@ -202,7 +203,7 @@ module.exports = (app) => {
       }
     }else{
       so = await companySnapshot.search(keyword).catch(err => console.log(err));
-      const clientIp = await publicIp.v4()
+      const clientIp = requestIp.getClientIp(req); 
       var geo = geoip.lookup(clientIp);
       console.log('---ip ----', clientIp, geo);
       let filteredData = so.filter(item => item.location.split(',')[1].trim() == geo.region);
