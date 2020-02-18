@@ -6,10 +6,6 @@ module.exports = (app) => {
   const fetch = require('node-fetch');
   const env = process.env.NODE_ENV || 'development';
   const config = require(__dirname + '/../config/config.json')[env];
-  // const publicIp = require('public-ip');
-  // var geoip = require('geoip-lite');
-  const reverse = require('reverse-geocode')
-  
   var stoorages = multer.diskStorage({
     destination: function (req, file, cb) {
         // cb(null, 'public/company')
@@ -54,6 +50,7 @@ module.exports = (app) => {
 
   // get Geo data
   const getGeoData = async (coords) => {
+    coords = JSON.parse(coords);
     const data = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords['lat']}, ${coords['lng']}&key=${config.google_api}`)
         .then(res => res.json()) // expecting a json response
         .then(json => json);
@@ -222,8 +219,8 @@ module.exports = (app) => {
       }
     }else{
       so = await companySnapshot.search(keyword).catch(err => console.log(err));
-      // const geoData = reverse.lookup(coords.lat, coords.lng, 'us')
       const state = await getGeoData(coords);
+      console.log('state ,', state)
       let filteredData = so;
       if (state) {
         filteredData = so.filter(item => item.location.split(',')[1].trim() == state);
