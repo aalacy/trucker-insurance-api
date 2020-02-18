@@ -38,7 +38,11 @@ module.exports = (sequelize, DataTypes) => {
     vehicleInformationList: DataTypes.JSON,
     comments: DataTypes.TEXT,
     attachmentList: DataTypes.JSON,
-    signSignature: DataTypes.JSON
+    signSignature: DataTypes.JSON,
+    imageIdFront: DataTypes.JSON,
+    imageIdBack: DataTypes.JSON,
+    imageDOT: DataTypes.JSON,
+    imageRegistration: DataTypes.JSON,
   }, {});
   Company.associate = function(models) {
     // associations can be defined here
@@ -476,7 +480,7 @@ module.exports = (sequelize, DataTypes) => {
   Company.prototype.add = async (uuid, key, val, updateHubspot) => {
     return new Promise(async (resolve, reject) => {
       
-      let company = await new Company().findExact(uuid, key);
+      let company = await new Company().findByUUID(uuid);
       if(!company){
         company = new Company();
       }
@@ -486,16 +490,7 @@ module.exports = (sequelize, DataTypes) => {
       company.val = val;
 
       company.save().then(async companyData => {
-
-        if(updateHubspot){
-          try{ 
-            await new Company().updateHubspot(uuid) 
-          }catch(e){
-            console.log("Update hubspot catch",e)
-          }
-        }  
         resolve(companyData);
-
       }).catch(err => {
         console.log("update hubspot error",err)
           reject(err)

@@ -8,7 +8,6 @@ const request = require("request");
 const tabletojson = require('tabletojson');
 
 module.exports = {
-  
   states: ['alabama','alaska','american samoa','arizona','arkansas','california','colorado','connecticut','delaware','district of columbia','federated states of micronesia','florida','georgia','guam','hawaii','idaho','illinois','indiana','iowa','kansas','kentucky','louisiana','maine','marshall islands','maryland','massachusetts','michigan','minnesota','mississippi','missouri','montana','nebraska','nevada','new hampshire','new jersey','new mexico','new york','north carolina','north dakota','northern mariana islands','ohio','oklahoma','oregon','palau','pennsylvania','puerto rico','rhode island','south carolina','south dakota','tennessee','texas','utah','vermont','virgin island','virginia','washington','west virginia','wisconsin','wyoming'],
   scan: async function(location) {
     return new Promise(async (resolve, reject) => {
@@ -80,9 +79,6 @@ module.exports = {
       }catch(e){
         reject(e);
       }
-
-      
-
     })
   },
   test: function() {

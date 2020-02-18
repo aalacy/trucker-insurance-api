@@ -6,8 +6,9 @@ module.exports = (app) => {
   const fetch = require('node-fetch');
   const env = process.env.NODE_ENV || 'development';
   const config = require(__dirname + '/../config/config.json')[env];
-  const publicIp = require('public-ip');
-  var geoip = require('geoip-lite');
+  // const publicIp = require('public-ip');
+  // var geoip = require('geoip-lite');
+  const reverse = require('reverse-geocode')
   
   var stoorages = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -49,6 +50,24 @@ module.exports = (app) => {
     return await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
                   .then(res => res.json()) // expecting a json response
                   .then(json => json);
+  }
+
+  // get Geo data
+  const getGeoData = async (coords) => {
+    const data = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords['lat']}, ${coords['lng']}&key=${config.google_api}`)
+        .then(res => res.json()) // expecting a json response
+        .then(json => json);
+    let state = ''
+    if (data['results'].length > 0) {
+      const result = data['results'][0];
+      result['address_components'].forEach(item => {
+        if (item.types.includes('administrative_area_level_1')) {
+          state = item.short_name;
+        }
+      })
+    }
+
+    return state;
   }
 
   router.get('/pdf', async (req, res, next) => {
@@ -176,6 +195,7 @@ module.exports = (app) => {
     }
 
     let keyword = (req.body.keyword)?req.body.keyword:req.query.keyword;
+    let coords = (req.body.coords)?req.body.coords:req.query.coords;
     let so;
     if(!isNaN(keyword)){
       so = await companySnapshot.get(keyword).catch(err => console.log(err));
@@ -202,10 +222,12 @@ module.exports = (app) => {
       }
     }else{
       so = await companySnapshot.search(keyword).catch(err => console.log(err));
-      const clientIp = await publicIp.v4()
-      var geo = geoip.lookup(clientIp);
-      console.log('---ip ----', clientIp, geo);
-      let filteredData = so.filter(item => item.location.split(',')[1].trim() == geo.region);
+      // const geoData = reverse.lookup(coords.lat, coords.lng, 'us')
+      const state = await getGeoData(coords);
+      let filteredData = so;
+      if (state) {
+        filteredData = so.filter(item => item.location.split(',')[1].trim() == state);
+      }
       let new_data = filteredData || [];
       so.map(item => {
         if (!new_data.includes(item)) {
@@ -430,7 +452,6 @@ module.exports = (app) => {
           messages: []
         })
       }
-
   })
 
   router.post('/upload', upload.fields([
