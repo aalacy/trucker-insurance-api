@@ -467,7 +467,7 @@ module.exports = (sequelize, DataTypes) => {
         })
 
         if (options.signSignature) {
-          const res = await new Company().updateSalesforce(uuid);
+          const res = new Company().updateSalesforce(uuid);
           if (res) {
             reject(res);
           }

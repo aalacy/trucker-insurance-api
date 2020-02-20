@@ -40,7 +40,6 @@ module.exports = (app) => {
   const parseAddress = require('parse-address');
   let pdfApplication = require('../utils/pdf-application');
 
-
   // Authentication to Salesforce
   const authSalesforce = async () => {
     return await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
@@ -670,6 +669,34 @@ module.exports = (app) => {
       })
     } else {
 
+    }
+  });
+
+  router.post('/accountinfo/quotes', async (req, res, next) => {
+    const { body: { DOT_ID } } = req;
+
+    const authSF = await authSalesforce();
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${DOT_ID}`;
+
+    let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+                  .then(json => json);
+
+    console.log(sfCARes);
+    if (sfCARes.status == 'Success') {
+      res.json({
+        status: "ok",
+        quoteList: sfCARes.quoteList,
+        message: sfCARes.message
+      })
+    } else {
+      res.json({
+        status: "failure",
+        quoteList: [],
+        message: sfCARes.message
+      })
     }
   });
 
