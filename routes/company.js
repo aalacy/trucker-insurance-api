@@ -648,17 +648,14 @@ module.exports = (app) => {
   })
 
   router.post('/accountinfo/policies', async (req, res, next) => {
-    const { body: { DOT_ID } } = req;
+    const { body: { dotId } } = req;
 
     const authSF = await authSalesforce();
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
-    let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy`;
-    const sfRequestBody = {
-      "DOT Id": DOT_ID
-    }
+    let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy/?dotId=${dotId}`;
 
-    let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+    let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
                   .then(json => json);
 
@@ -673,18 +670,17 @@ module.exports = (app) => {
   });
 
   router.post('/accountinfo/quotes', async (req, res, next) => {
-    const { body: { DOT_ID } } = req;
+    const { body: { dotId } } = req;
 
     const authSF = await authSalesforce();
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
-    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${DOT_ID}`;
+    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${dotId}`;
 
     let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
                   .then(json => json);
 
-    console.log(sfCARes);
     if (sfCARes.status == 'Success') {
       res.json({
         status: "ok",

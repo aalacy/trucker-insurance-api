@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=yes">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>LuckyTruck</title>
+    <style>
+      .my-3 {
+        color: #5f98f8; 
+        font-weight: bold;
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 30px;
+      }
+      .width-200 span{
+        width: 100%;
+        max-width: 280px;
+      }
+      .width-200-a span{
+        width: 100%;
+        max-width: 140px;
+      }
+
+      .width-200-d span{
+        width: 100%;
+        max-width: 190px;
+      }
+
+      .width-200-b span{
+        width: 100%;
+        max-width: 150px;
+      }
+      .width-200-c span{
+        width: 100%;
+        max-width: 100px;
+      }
+     .pad-10{
+       padding-bottom: 10px;
+     }
+      body{
+          margin: 0px;
+          padding: 0px;
+          font-size: 0.8rem;
+          line-height: 1.5rem;
+          /* padding-left: 10px; */
+      }
+      .container_pdf_doc{
+        width: 1024px;
+        margin: 0px auto;
+        background-color:white;
+      }
+      .page_index{
+          page-break-after: always;
+      }
+      .border_bottom{
+          border: 0px;
+          border-bottom:1px solid #000;
+      }
+      .border-title{
+          /*border: 1px solid #000;*/
+          color: white; 
+          background-color: #5f98f8;   
+          margin: 0;
+      }
+      .field_item{
+          min-width: 100px;
+          display: inline-block;
+          
+      }
+      .table td, .table th {
+          padding: 0.75rem;
+      }
+
+      .text-td {
+        font-style: normal;  
+        font-size:12px;    
+        line-height:14px; 
+        color: black; 
+        padding: 0.5rem;
+      }
+
+      .page {
+        width: 50px;
+      background: #002060;
+        font-size:12px; 
+        color: white;
+        font-weight: bold; 
+        width: 30px;
+        padding: 10px 17px 10px 17px;
+        text-align: center;
+        display: inline;
+      }
+
+      .footer {
+        font-style: italic;  
+        font-size:14px;   
+        font-weight: bold; 
+        line-height:15px; 
+        color: white; 
+        background-color: #5f98f8; 
+        padding: 5px 0 5px 0;
+        display: inline-block;
+        width: 1136px;
+      }
+
+      .pageFooter {
+        width: 100%;
+       /* position: fixed;
+        bottom: 0;*/
+        margin-top: -35px;
+      }
+
+      .text-underline {
+        border-bottom: 1px solid; padding: 0 1rem 0 1rem; display: inline-block;
+      }
+
+      .text-uppercase {
+        text-transform: uppercase;
+      }
+
+      .header-block {
+        padding-top: 100px;
+        position: relative;
+      }
+
+      .header-title {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .header-right {
+        border: 1px solid black;
+        font-size: 14px;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 5px 10px 30px 10px;
+      }
+
+      .header-logo {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+      }
+
+      .table-bordered, .table-bordered td, .table-bordered th {
+        border: 1px solid black;
+      }
+
+      .w-50 {
+        width:  50%;
+      }
+
+      .between-block {
+        font-weight: bold;
+      }
+
+      .second-table td {
+        font-size: 9px;
+      }
+
+      .square-table td{
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but LuckyTruck doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div class="container_pdf_doc">
+    <!-- Page 1 -->
+      <div class="container page_index">
+        <div class="header-block">
+          <img src="./acord.png" alt="acord logo" class="header-logo" /> 
+          <div class="h3 header-title">
+            Certificate Of Liability Insurance
+          </div>
+          <div class="header-right">
+            DATE <%=issued_at%>
+          </div>
+        </div>
+
+        <table class="table-bordered w-100">
+          <tbody>
+            <tr>
+              <td  colspan="2">
+                THIS CERTIFICATE IS ISSUED AS A MATTER OF INFORMATION ONLY AND CONFERS NO RIGHTS UPON THE CERTIFICATE HOLDER. THIS
+CERTIFICATE DOES NOT AFFIRMATIVELY OR NEGATIVELY AMEND, EXTEND OR ALTER THE COVERAGE AFFORDED BY THE POLICIES
+BELOW. THIS CERTIFICATE OF INSURANCE DOES NOT CONSTITUTE A CONTRACT BETWEEN THE ISSUING INSURER(S), AUTHORIZED
+REPRESENTATIVE OR PRODUCER, AND THE CERTIFICATE HOLDER. 
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                IMPORTANT: If the certificate holder is an ADDITIONAL INSURED, the policy(ies) must be endorsed. If SUBROGATION IS WAIVED, subject to
+the terms and conditions of the policy, certain policies may require an endorsement. A statement on this certificate does not confer rights to the
+certificate holder in lieu of such endorsement(s).
+              </td>
+            </tr>
+            <tr style="vertical-align: top;">
+              <td class="w-50">
+                <div>PRODUCER</div>
+                <div>LuckyTruck, Inc.</div>
+                <div>555 Stanley Ave</div>
+                <div>Cincinnati, Ohio 45226</div>
+              </td>
+              <td class="p-0 border-0 w-50">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td colspan="3">
+                        <div>CONTACT NAME:</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="1"><div>PHONE (A/C, No, Ext):</div></td>
+                      <td colspan="2"><div>FAX (A/C, No):</div></td>
+                    </tr>
+                    <tr>
+                      <td colspan="3"><div>E-MAIL ADDRESS:</div></td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" class="text-center">INSURER(S) AFFORDING COVERAGE</td>
+                      <td colspan="1">NAIC #</td>
+                    </tr>
+                    <tr>
+                      <td colspan="2">INSURER A :</td>
+                      <td colspan="1"> </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr style="vertical-align: top;">
+              <td>
+                <div>INSURED</div>
+              </td>
+              <td class=" border-0 p-0">
+                <table class="w-100">
+                  <tr>
+                    <td colspan="2">INSURER B :</td>
+                    <td colspan="1"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">INSURER C :</td>
+                    <td colspan="1"> </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="between-block">
+          <span>COVERAGES</span><span class="mr-3"></span><span>CERTIFICATE NUMBER:</span><span class="mr-2"></span><span>REVISION NUMBER:</span>
+        </div>
+        <table class="table-bordered w-100 second-table">
+          <tbody>
+            <tr>
+              <td colspan="8">
+                THIS IS TO CERTIFY THAT THE POLICIES OF INSURANCE LISTED BELOW HAVE BEEN ISSUED TO THE INSURED NAMED ABOVE FOR THE POLICY PERIOD
+INDICATED. NOTWITHSTANDING ANY REQUIREMENT, TERM OR CONDITION OF ANY CONTRACT OR OTHER DOCUMENT WITH RESPECT TO WHICH THIS
+CERTIFICATE MAY BE ISSUED OR MAY PERTAIN, THE INSURANCE AFFORDED BY THE POLICIES DESCRIBED HEREIN IS SUBJECT TO ALL THE TERMS,
+EXCLUSIONS AND CONDITIONS OF SUCH POLICIES. LIMITS SHOWN MAY HAVE BEEN REDUCED BY PAID CLAIMS.
+              </td>
+            </tr>
+            <tr>
+              <td>INSR LTR</td>
+              <td>TYPE OF INSURANCE</td>
+              <td>ADDL INSR</td>
+              <td>SUBR WVD</td>
+              <td>POLICY NUMBER</td>
+              <td>POLICY EFF (MM/DD/YYYY)</td>
+              <td>POLICY EXP (MM/DD/YYYY)</td>
+              <td>LIMITS</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="p-0 border-0">
+                <table class="w-100 square-table">
+                  <tr>
+                    <td colspan="10">GENERAL LIABILITY </td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="8">COMMERCIAL GENERAL LIABILITY</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="3" class="text-center">Claims-Made</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="text-center">OCCUR</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="8" class="border border-bottom-1"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="8"><div class="border border-bottom-1 mx-1"></div></td>
+                  </tr>
+                  <tr>
+                    <td colspan="9">GEN'L AGGREGATE LIMIT APPLIES PER:</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="" class="text-center">POLICY</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="" class="text-center">PRO- JECT</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="2" class="text-center">LOC</td>
+                  </tr>
+                </table>
+              </td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="d-none d-print-block pageFooter">
+        <div class="footer">
+          <img src="<%= logo %>" style="margin-left: 10px;" height="25px" width="25px"/>
+          LuckyTruck
+        </div>
+        <div class="page">1</div>
+      </div>
+  </body>
+</html>
