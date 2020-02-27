@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     imageIdBack: DataTypes.JSON,
     imageDOT: DataTypes.JSON,
     imageRegistration: DataTypes.JSON,
+    sf_status: DataTypes.STRING,
   }, {});
   Company.associate = function(models) {
     // associations can be defined here
@@ -269,11 +270,28 @@ module.exports = (sequelize, DataTypes) => {
       "comments": _v(profile.comments),
       "attachmentList": newAttachmentList
     };
-    let sfCARes = await fetch(sfCAUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+    fetch(sfCAUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
-                  .then(json => json);
-
-    console.log("create app in salesforce: ", sfCARes);
+                  .then(json => {
+                    Company.update(
+                      {
+                        sf_status: 'ok'
+                      },
+                      {where: {uuid} },
+                    ).catch(err => {
+                      console.log(err);
+                    })
+                  })
+                  .catch(err => {
+                    Company.update(
+                      {
+                        sf_status: err
+                      },
+                      {where: {uuid} },
+                    ).catch(err => {
+                      console.log(err);
+                    })
+                  })
   }
 
   Company.prototype.updateHubspot = async (uuid, key, val) => {
@@ -467,10 +485,7 @@ module.exports = (sequelize, DataTypes) => {
         })
 
         if (options.signSignature) {
-          const res = new Company().updateSalesforce(uuid);
-          if (res) {
-            reject(res);
-          }
+          new Company().updateSalesforce(uuid);
         }
         resolve('Ok');
       }

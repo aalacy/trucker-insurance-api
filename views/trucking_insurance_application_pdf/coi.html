@@ -160,11 +160,31 @@
         font-weight: bold;
       }
 
+      table td {
+        line-height: 15px;
+      }
+
       .second-table td {
         font-size: 9px;
       }
 
       .square-table td{
+      }
+
+      .bold-tr td {
+        font-weight: bold;
+      }
+
+      .border-top-white {
+        border-top-color: white !important;
+      }
+
+      .border-bottom-white {
+        border-bottom-color: white !important;
+      }
+
+      .first-right-table td {
+        font-size: 8px;
       }
     </style>
   </head>
@@ -268,50 +288,50 @@ CERTIFICATE MAY BE ISSUED OR MAY PERTAIN, THE INSURANCE AFFORDED BY THE POLICIES
 EXCLUSIONS AND CONDITIONS OF SUCH POLICIES. LIMITS SHOWN MAY HAVE BEEN REDUCED BY PAID CLAIMS.
               </td>
             </tr>
-            <tr>
-              <td>INSR LTR</td>
-              <td>TYPE OF INSURANCE</td>
-              <td>ADDL INSR</td>
-              <td>SUBR WVD</td>
-              <td>POLICY NUMBER</td>
-              <td>POLICY EFF (MM/DD/YYYY)</td>
-              <td>POLICY EXP (MM/DD/YYYY)</td>
-              <td>LIMITS</td>
+            <tr class="bold-tr">
+              <td style="width: 25px;">INSR LTR</td>
+              <td class="text-center">TYPE OF INSURANCE</td>
+              <td style="width: 25px;">ADDL INSR</td>
+              <td style="width: 25px;">SUBR WVD</td>
+              <td class="text-center">POLICY NUMBER</td>
+              <td class="text-center">POLICY EFF (MM/DD/YYYY)</td>
+              <td class="text-center">POLICY EXP (MM/DD/YYYY)</td>
+              <td class="text-center" style="min-width: 200px">LIMITS</td>
             </tr>
             <tr>
               <td></td>
-              <td class="p-0 border-0">
+              <td rowspan="1" class="p-0">
                 <table class="w-100 square-table">
                   <tr>
-                    <td colspan="10">GENERAL LIABILITY </td>
+                    <td colspan="10" class="border-0 border-left-0">GENERAL LIABILITY </td>
                   </tr>
                   <tr>
-                    <td colspan="1" class="p-2"></td>
+                    <td colspan="1" class="p-2 border-left-0"></td>
                     <td colspan="8">COMMERCIAL GENERAL LIABILITY</td>
                   </tr>
                   <tr>
-                    <td colspan="1" class="p-2"></td>
+                    <td colspan="1" class="p-2 border-left-0"></td>
                     <td colspan="1" class="p-2"></td>
                     <td colspan="3" class="text-center">Claims-Made</td>
                     <td colspan="1" class="p-2"></td>
                     <td colspan="4" class="text-center">OCCUR</td>
                   </tr>
                   <tr>
-                    <td colspan="1" class="p-2"></td>
-                    <td colspan="8" class="border border-bottom-1"></td>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="8" class="border-bottom-white"></td>
                   </tr>
                   <tr>
-                    <td colspan="1" class="p-2"></td>
-                    <td colspan="8"><div class="border border-bottom-1 mx-1"></div></td>
+                    <td colspan="1" class="border-left-0"></td>
+                    <td colspan="8" class="p-2"><div></div></td>
                   </tr>
                   <tr>
-                    <td colspan="9">GEN'L AGGREGATE LIMIT APPLIES PER:</td>
+                    <td colspan="9" class="border-left-0">GEN'L AGGREGATE LIMIT APPLIES PER:</td>
                   </tr>
                   <tr>
-                    <td colspan="1" class="p-2"></td>
+                    <td colspan="1" class="p-2 border-left-0"></td>
                     <td colspan="" class="text-center">POLICY</td>
                     <td colspan="1" class="p-2"></td>
-                    <td colspan="" class="text-center">PRO- JECT</td>
+                    <td colspan="" class="text-center">PROJECT</td>
                     <td colspan="1" class="p-2"></td>
                     <td colspan="2" class="text-center">LOC</td>
                   </tr>
@@ -322,7 +342,145 @@ EXCLUSIONS AND CONDITIONS OF SUCH POLICIES. LIMITS SHOWN MAY HAVE BEEN REDUCED B
               <td></td>
               <td></td>
               <td></td>
+              <td rowspan="1" class="p-0 border-0">
+                <table class="w-100 square-table first-right-table">
+                  <tr>
+                    <td class="w-50">EACH OCCURRENCE</td>
+                    <td  class="w-50">$</td>
+                  </tr>
+                  <tr>
+                    <td style="line-height: 7px; font-size: 7px;">DAMAGE TO RENTED PREMISES (Ea occurrence)</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td class="w-50">MED EXP (Any one person)</td>
+                    <td  class="w-50">$</td>
+                  </tr>
+                  <tr>
+                    <td>PERSONAL & ADV INJURY</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td>GENERAL AGGREGATE</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td>PRODUCTS - COMP/OP AGG</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>$</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-right pr-1" style="font-size: 17px;">A</td>
+              <td rowspan="1" class="p-0 border-0">
+                <table class="w-100 square-table">
+                  <tr>
+                    <td colspan="10" class="border-0">AUTOMOBILE LIABILITY</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="8">ANY AUTO</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="4" class="text-center">ALL OWNED AUTOS</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="text-center">SCHEDULED AUTOS</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="4" class="text-center">HIRED AUTOS</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="text-center">NON-OWNED AUTOS</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="4" class="p-2"> </td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="p-2"> </td>
+                  </tr>
+                </table>
+              </td>
               <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td rowspan="1" class="p-0 border-0">
+                <table class="w-100 square-table">
+                  <tr>
+                    <td class="w-50" style="line-height: 7px; font-size: 8px;">COMBINED SINGLE LIMIT (Ea accident)</td>
+                    <td  class="w-50">$</td>
+                  </tr>
+                  <tr>
+                    <td>BODILY INJURY (Per person)</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td class="w-50" style="line-height: 7px; font-size: 8px;">BODILY INJURY (Per accident)</td>
+                    <td  class="w-50">$</td>
+                  </tr>
+                  <tr>
+                    <td style="line-height: 7px; font-size: 8px;">PROPERTY DAMAGE (Per accident)</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>$</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+             <tr>
+              <td class="text-right pr-1" style="font-size: 17px;">A</td>
+              <td rowspan="1" class="p-0 border-0">
+                <table class="w-100 square-table">
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="4" class="text-center">UMBRELLA LIAB</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="text-center">OCCUR</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="4" class="text-center">EXCESS LIAB</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="text-center">CLAIMS-MADE</td>
+                  </tr>
+                  <tr>
+                    <td colspan="1" class="p-2 border-left-0"></td>
+                    <td colspan="4" class="text-center">DED</td>
+                    <td colspan="1" class="p-2"></td>
+                    <td colspan="4" class="text-center">RETENTION $</td>
+                  </tr>
+                </table>
+              </td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td rowspan="1" class="p-0 border-0">
+                <table class="w-100 square-table">
+                  <tr>
+                    <td>EACH OCCURRENCE</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td>AGGREGATE</td>
+                    <td>$</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>$</td>
+                  </tr>
+                </table>
+              </td>
             </tr>
           </tbody>
         </table>
