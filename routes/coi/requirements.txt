@@ -1,0 +1,6 @@
+pillow==5.4.1
+reportlab==3.3.0
+PyPDF2
+requests
+mysql-connector-python
+sqlalchemy

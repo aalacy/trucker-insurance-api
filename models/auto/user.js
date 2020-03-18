@@ -6,6 +6,17 @@ let im = require('imagemagick');
 let webConfig = require('../../config/web.js')
 let sanitize = require("sanitize-filename");
 const uuid = require('uuid/v4');
+const moment = require('moment');
+const fetch = require('node-fetch');
+const env = process.env.NODE_ENV || 'development';
+const config = require(__dirname + '/../../config/config.json')[env];
+
+const authSalesforce = async () => {
+    return await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
+        .then(res => res.json()) // expecting a json response
+        .then(json => json);
+}
+
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         firstName: {
@@ -146,7 +157,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         admin: DataTypes.INTEGER,
         social: DataTypes.INTEGER,
+        dotId: DataTypes.INTEGER,
         role:DataTypes.STRING,
+        companyName:DataTypes.STRING,
+        sf_token:DataTypes.STRING,
+        sf_instance_url:DataTypes.STRING,
+        sf_token_expired:DataTypes.DATE,
         account_status:DataTypes.STRING,
     }, {
         passwordConfirm: null,
@@ -336,8 +352,6 @@ module.exports = (sequelize, DataTypes) => {
                 reject(stringHelper.sequelizeValidationErrorsToArray(Object.assign({}, e).errors))
             })
         })
-
-
     }
 
     User.prototype.resetPassword = async (code, newPassword) => {
@@ -514,11 +528,8 @@ module.exports = (sequelize, DataTypes) => {
                     })
                 }
             }).catch(err => {
-                console.log(err)
                 reject(err)
-                return
             })
-
         })
     }
 
@@ -665,11 +676,11 @@ module.exports = (sequelize, DataTypes) => {
                             return
                         })
                     }).catch(err => {
+                        console.log('========', err);
                         reject(err)
                         return
                     })
                 }).catch(udErr => {
-                    console.log(udErr)
                     reject(stringHelper.sequelizeValidationErrorsToArray(Object.assign({}, udErr).errors))
                     return
                 })
@@ -702,6 +713,47 @@ module.exports = (sequelize, DataTypes) => {
                 reject(e)
                 return
             })
+        })
+    }
+
+    User.prototype.setSfToken = async (id, sf_token, sf_instance_url) => {
+        return new Promise((resolve, reject) => {
+            User.update(
+                {
+                    sf_token,
+                    sf_instance_url,
+                    sf_token_expired: moment().add(1, 'hour').format('YYYY-MM-DD hh:mm:ss')
+                },
+              {where: {id} },
+            ).catch(err => {
+                console.log(err);
+                reject(e)
+            })
+            resolve('ok')
+        });
+    }
+
+    User.prototype.getSFToken = async (id) => {
+        return new Promise( async (resolve, reject) => {
+            try{
+                const user = await new User().findUser({ id });
+                const now = moment().format('YYYY-MM-DD hh:mm:ss')
+                if (user.sf_token_expired && moment(user.sf_token_expired).isAfter(now)) {
+                    resolve({ access_token: user.sf_token, instance_url: user.sf_instance_url, status: 'ok' })
+                } else {
+                    const sfATRes = await authSalesforce();
+                    let access_token = sfATRes.access_token;
+                    let instance_url = sfATRes.instance_url;
+                    if (!access_token) {
+                        reject({message: 'Something wrong happend on Sales Force', status: 'failure'});
+                    } else {
+                        await new User().setSfToken(id, access_token, instance_url);
+                        resolve({ access_token, instance_url, status: 'ok' })
+                    }
+                }
+            } catch (e) {
+                reject(e);
+            }
         })
     }
 

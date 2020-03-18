@@ -5,7 +5,7 @@ module.exports = {
     return queryInterface.addColumn(
       'Companies',
       'sf_status',
-     Sequelize.STRING
+      Sequelize.STRING
     );
   },
 

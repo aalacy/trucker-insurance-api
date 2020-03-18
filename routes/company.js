@@ -24,28 +24,26 @@ module.exports = (app) => {
   });
 
   let upload = multer({ storage: stoorages });
-  let document = require('../models/Document')
+  const uuidv4 = require('uuid/v4');
+  var fs = require('fs');
+  const LookupVehicle = require('lookup_vehicle');
+  const parseAddress = require('parse-address');
+  const { exec } = require("child_process");
+  const moment = require('moment');
+  const pdf2base64 = require('pdf-to-base64');
   const vision = require('@google-cloud/vision')
   const client = new vision.ImageAnnotatorClient()
   let visionUtil = require('../utils/Vision')
   let companySnapshot = require('../utils/company-snapshot')
   let vehicleTitleSnapshot = require('../utils/vehicle-title-snapshot.js');
   let driverLicenseSnapshot = require('../utils/driver-license-snapshot.js');
+  let document = require('../models/Document')
   let checkr = require('../utils/Checkr')
   let responseHelper = require('../helpers/string')
-  const uuidv4 = require('uuid/v4');
   let model = require("../models/auto");
-  var fs = require('fs');
-  const LookupVehicle = require('lookup_vehicle');
-  const parseAddress = require('parse-address');
   let pdfApplication = require('../utils/pdf-application');
-
-  // Authentication to Salesforce
-  const authSalesforce = async () => {
-    return await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
-                  .then(res => res.json()) // expecting a json response
-                  .then(json => json);
-  }
+  let pdfCOI = require('../utils/pdf_coi');
+  var webConfig = require("../config/web.js");
 
   // get Geo data
   const getGeoData = async (coords) => {
@@ -66,6 +64,70 @@ module.exports = (app) => {
     return state;
   }
 
+  router.post('/coi', async (req, res, next) => {
+    const { name, address, dotId, policy, userId } = req.body;
+    let uuid;
+    if(req.query.uuid)uuid = req.query.uuid;
+    else if(req.body.uuid)uuid = req.body.uuid;
+    else if(req.cookies.uuid)uuid = req.cookies.uuid;
+
+    if(!uuid){
+      res.send({
+        status: "error",
+        data: 'uuid is empty',
+        messages: []
+      })
+      return;
+    }
+
+    const shellPath = __dirname + '/coi/run_coi.py'
+    const path = `/public/coi/coi-${name}${uuid}${moment().format("hhmmss")}.pdf`
+    let shellCommand = `python2 ${shellPath} --policy ${JSON.stringify(policy)} --name "${name}" --address '${address}' --userId '${userId}' --path '${path}' `
+    if (dotId) {
+      shellCommand += ` --dotId ${dotId}`
+    }
+    exec(shellCommand, async (error, stdout, stderr) => {
+      if (error || stderr) {
+        console.log(`error: ${error.message}`);
+        return res.json({
+          status: 'failure',
+        })
+      }
+
+      // upload pdf
+      const authSF = await new model.User().getSFToken(userId);
+      let accessToken = authSF.access_token;
+      let instanceUrl = authSF.instance_url;       
+      let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?type=new`;
+
+      const pdfContent = await pdf2base64(webConfig.rootDir+path);
+      const sfRequestBody = {
+        policyId: policy.policyId,
+        pdfContent
+      }
+
+      // const sfRequestBody = {
+      //   "policyName": name,
+      //   dotId,
+      //   "stage": "Active",
+      //   "originalPremium": 15203,
+      //   "policyNumber": "TBI",
+      //   "billingCarrier": "ABC",
+      //   "expiryDate": moment().format('YYYY-MM-DD'),
+      //   "effectiveDate": "2020-01-25",
+      //   "term": "annual"
+      // }
+
+      const sfres = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+
+      return res.json({
+        status: 'ok',
+        path
+      })
+    });
+  })
+
   router.get('/pdf', async (req, res, next) => {
     let uuid;
     if(req.query.uuid)uuid = req.query.uuid;
@@ -82,7 +144,6 @@ module.exports = (app) => {
     }
 
     pdfApplication.get(uuid, 0, new model.Company()).then(location => {
-      console.log('pdfApp:'+ JSON.stringify(location));
       if(req.body.email == undefined){
         fs.readFile(location, function (err,data){
           // console.log('FsData:'+ JSON.stringify(data));
@@ -123,9 +184,7 @@ module.exports = (app) => {
     }
 
     pdfApplication.getHTML(uuid, new model.Company()).then(html => {
-
         res.send(html);
-
     }).catch(err => {
       res.send({
         status: "ERROR",
@@ -169,9 +228,7 @@ module.exports = (app) => {
         data: vehiclesTrailers,
         messages: []
       })
-
-
-    }catch(e){
+    } catch(e){
       res.send({
         status: "ERROR",
         data: e,
@@ -216,7 +273,7 @@ module.exports = (app) => {
             message: 'If your company is new, feel welcome to call us at <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> and we can help set up your authority, otherwise check the number and search again.'
         })
       }
-    }else{
+    } else{
       so = await companySnapshot.search(keyword).catch(err => console.log(err));
       const state = await getGeoData(coords);
       console.log('state ,', state)
@@ -246,15 +303,14 @@ module.exports = (app) => {
   })
 
   router.all('/create', async (req, res, next) => {
-
-    if (!req.body.usdot && !req.query.usdot) {
+    const { usdot, userId } = req.body;
+    if ( !usdot || !userId ) {
       return res.send({
           status: "ERROR",
           data: {},
-          messages: ['usdot is empty']
+          messages: ['usdot or userId is empty']
       })
     }
-    let usdot = (req.body.usdot)?req.body.usdot:req.query.usdot;
     let company = await companySnapshot.get(usdot);
     let uuid = await getNewUUID();
 
@@ -285,7 +341,6 @@ module.exports = (app) => {
       const businessType = '';
       const businessStructure = '';
 
-
       if(company["Mailing Address"]){
         let tmp = new model.Company().parseAndAssignAddress(company["Mailing Address"], {}, '');
         Object.keys(tmp).forEach(function(key) {
@@ -301,6 +356,7 @@ module.exports = (app) => {
         });
       }
       const options = {
+        user_id: userId,
         businessStructureRaw: company,
         name,
         dotNumber,
@@ -313,20 +369,18 @@ module.exports = (app) => {
         currentCarrier,
         travelRadius,
         currentEldProvider,
-        cargoHauled
+        cargoHauled,
+        businessStructure
       }
       await new model.Company().create(uuid, options );
 
       res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
       new model.Company().findByUUID(uuid).then(profile => {
-        // console.log('company profile in create '+ JSON.stringify(profile));
-
         res.send({
             status: "OK",
-            //data: new model.Company().renderAllByType(profile),
             data:company, //b
             messages: [],
-            uuid: uuid
+            uuid
           })
       }).catch(err => {
         console.log('Err:'+err);
@@ -377,11 +431,10 @@ module.exports = (app) => {
   router.all('/current', async (req, res, next) => {
 
     let uuid;
-    if(req.query.uuid)uuid = req.query.uuid;
-    else if(req.body.uuid)uuid = req.body.uuid;
-    else if(req.cookies.uuid)uuid = req.cookies.uuid;
+    if(req.query.uuid) uuid = req.query.uuid;
+    else if(req.body.uuid) uuid = req.body.uuid;
+    else if(req.cookies.uuid) uuid = req.cookies.uuid;
     
-    console.log('--- uuid ', uuid)
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({
@@ -429,8 +482,6 @@ module.exports = (app) => {
       });
       return;
     }
-    console.log("hubspot2 if uuid")
-
 
       try{
         log = await new model.Company().updateHubspot(uuid);
@@ -463,8 +514,6 @@ module.exports = (app) => {
     {name: 'previouslyCompletedApplications', maxCount: 1},
     {name: 'insuranceRequirements', maxCount: 1},
     {name: 'imageSign', maxCount: 1},
-    
-    
   ]), async (req, res, next) => {
     let doc = new document()
 
@@ -648,38 +697,72 @@ module.exports = (app) => {
   })
 
   router.post('/accountinfo/policies', async (req, res, next) => {
-    const { body: { dotId } } = req;
+    const { body: { dotId, userId } } = req;
 
-    const authSF = await authSalesforce();
+    const authSF = await new model.User().getSFToken(userId);
+    if (authSF.status == 'ok') {
+      let accessToken = authSF.access_token;
+      let instanceUrl = authSF.instance_url;       
+      let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy/?dotId=${dotId}`;
+
+      let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                    .then(res => res.json()) // expecting a json response
+                    .then(json => json);
+
+      if (sfCARes.status == 'Success') {
+        res.json({
+          status: "ok",
+          policies: sfCARes.policies
+        })
+      } else {
+        res.json({
+          status: "failure",
+          policies: []
+        })
+      }
+    } else {
+      res.json({
+        status: "failure",
+        policies: []
+      })
+    }
+  });
+
+  router.post('/accountinfo/certs', async (req, res, next) => {
+    let { body: { userId } } = req;
+
+    const authSF = await new model.User().getSFToken(userId);
+    userId = 123
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
-    let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy/?dotId=${dotId}`;
+    let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?luckyTruckId=${userId}`;
 
     let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
-                  .then(json => json);
 
-    if (sfCARes.status == 'Success') {
+    if (sfCARes.status == 'error') {
       res.json({
-        status: "ok",
-        policies: sfCARes.policies
+        status: "failure",
+        certs: [],
       })
     } else {
-
+      res.json({
+        status: "ok",
+        certs: sfCARes,
+      })
     }
   });
 
   router.post('/accountinfo/quotes', async (req, res, next) => {
-    const { body: { dotId } } = req;
+    const { body: { dotId, userId } } = req;
 
-    const authSF = await authSalesforce();
+    const authSF = await new model.User().getSFToken(userId);
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
     let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${dotId}`;
 
     let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
-                  .then(json => json);
 
     if (sfCARes.status == 'Success') {
       res.json({

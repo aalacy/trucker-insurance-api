@@ -14,6 +14,7 @@ const fetch = require('node-fetch');
 module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
     uuid: DataTypes.STRING,
+    user_id: DataTypes.INTEGER,
     businessStructureRaw: DataTypes.JSON,
     name: DataTypes.STRING,
     dotNumber: DataTypes.STRING,
@@ -214,18 +215,12 @@ module.exports = (sequelize, DataTypes) => {
     };
   }  
 
-  const authSalesforce = async () => {
-    return await fetch(`https://${config.sf_server}.salesforce.com/services/oauth2/token?grant_type=password&client_id=${config.sf_client_id}&client_secret=${config.sf_client_secret}&username=${config.sf_username}&password=${config.sf_password}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
-                  .then(res => res.json()) // expecting a json response
-                  .then(json => json);
-  }
-
-  Company.prototype.updateSalesforce = async(uuid) => {
+  Company.prototype.updateSalesforce = async (uuid) => {
     console.log('profile update salesforce:');
-    
-    const sfATRes = await authSalesforce();
-    let accessToken = sfATRes.access_token;
-    let instanceUrl = sfATRes.instance_url;       
+
+    const authSF = await new model.User().getSFToken(userId);
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
     let sfCAUrl = `${instanceUrl}/services/apexrest/applications`;
 
     if (!accessToken) {
