@@ -82,7 +82,7 @@ module.exports = (app) => {
 
     const shellPath = __dirname + '/coi/run_coi.py'
     const path = `/public/coi/coi-${name}${uuid}${moment().format("hhmmss")}.pdf`
-    let shellCommand = `python2 ${shellPath} --policy ${JSON.stringify(policy)} --name "${name}" --address '${address}' --userId '${userId}' --path '${path}' `
+    let shellCommand = `python ${shellPath} --policy ${JSON.stringify(policy)} --name "${name}" --address '${address}' --userId '${userId}' --path '${path}' `
     if (dotId) {
       shellCommand += ` --dotId ${dotId}`
     }
@@ -732,7 +732,7 @@ module.exports = (app) => {
     let { body: { userId } } = req;
 
     const authSF = await new model.User().getSFToken(userId);
-    userId = 123
+    // userId = 123
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
     let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?luckyTruckId=${userId}`;
