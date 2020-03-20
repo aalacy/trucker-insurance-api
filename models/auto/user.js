@@ -738,7 +738,7 @@ module.exports = (sequelize, DataTypes) => {
             try{
                 const user = await new User().findUser({ id });
                 const now = moment().format('YYYY-MM-DD hh:mm:ss')
-                if (user.sf_token_expired && moment(user.sf_token_expired).isAfter(now)) {
+                if (user && user.sf_token_expired && moment(user.sf_token_expired).isAfter(now)) {
                     resolve({ access_token: user.sf_token, instance_url: user.sf_instance_url, status: 'ok' })
                 } else {
                     const sfATRes = await authSalesforce();

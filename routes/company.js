@@ -71,20 +71,20 @@ module.exports = (app) => {
     else if(req.body.uuid)uuid = req.body.uuid;
     else if(req.cookies.uuid)uuid = req.cookies.uuid;
 
-    if(!uuid){
-      res.send({
-        status: "error",
-        data: 'uuid is empty',
-        messages: []
-      })
-      return;
-    }
-
     const shellPath = __dirname + '/coi/run_coi.py'
-    const path = `/public/coi/coi-${name}${uuid}${moment().format("hhmmss")}.pdf`
-    let shellCommand = `python2 ${shellPath} --policy ${JSON.stringify(policy)} --name "${name}" --address '${address}' --userId '${userId}' --path '${path}' `
+    const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
+    let shellCommand = `python ${shellPath} --userId '${userId}' --path '${path}' `
     if (dotId) {
-      shellCommand += ` --dotId ${dotId}`
+      shellCommand += ` --dotId ${dotId} `
+    }
+    if (name) {
+      shellCommand += `--name "${name}" `
+    }
+    if (address) {
+      shellCommand += `--address '${address}' `
+    }
+    if (policy) {
+      shellCommand += `--policy ${JSON.stringify(policy)} `
     }
     exec(shellCommand, async (error, stdout, stderr) => {
       if (error || stderr) {
@@ -98,32 +98,25 @@ module.exports = (app) => {
       const authSF = await new model.User().getSFToken(userId);
       let accessToken = authSF.access_token;
       let instanceUrl = authSF.instance_url;       
-      let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?type=new`;
+      let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi`;
 
       const pdfContent = await pdf2base64(webConfig.rootDir+path);
       const sfRequestBody = {
-        policyId: policy.policyId,
+        policyId: JSON.parse(policy).policyId,
         pdfContent
       }
 
-      // const sfRequestBody = {
-      //   "policyName": name,
-      //   dotId,
-      //   "stage": "Active",
-      //   "originalPremium": 15203,
-      //   "policyNumber": "TBI",
-      //   "billingCarrier": "ABC",
-      //   "expiryDate": moment().format('YYYY-MM-DD'),
-      //   "effectiveDate": "2020-01-25",
-      //   "term": "annual"
-      // }
-
       const sfres = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
-
+      console.log(sfres)
+      console.log(sfUploadCOIUrl)            
+      // console.log(sfRequestBody)            
       return res.json({
         status: 'ok',
-        path
+        pdf: {
+          content: pdfContent,
+          name: 'COI.pdf'
+        }
       })
     });
   })
@@ -428,13 +421,14 @@ module.exports = (app) => {
   }
 
 
-  router.all('/current', async (req, res, next) => {
+  router.get('/current', async (req, res, next) => {
 
     let uuid;
     if(req.query.uuid) uuid = req.query.uuid;
     else if(req.body.uuid) uuid = req.body.uuid;
     else if(req.cookies.uuid) uuid = req.cookies.uuid;
     
+    console.log('uuid', uuid)
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({
@@ -674,10 +668,8 @@ module.exports = (app) => {
 
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
 
-    console.log('--- uuid ', uuid)
     // Update salesforce if this the last step, sign signature, of form wizard
     if (data.signSignature) {
-
     }
 
     new model.Company().create(uuid, data).then(profile => {
@@ -696,6 +688,7 @@ module.exports = (app) => {
     })
   })
 
+  // get the polices based upon userId and dotId
   router.post('/accountinfo/policies', async (req, res, next) => {
     const { body: { dotId, userId } } = req;
 
@@ -728,11 +721,44 @@ module.exports = (app) => {
     }
   });
 
-  router.post('/accountinfo/certs', async (req, res, next) => {
+  // get the endorsement list from policy 
+  router.post('/accountinfo/policy/endorsements', async (req, res, next) => {
+    const { body: { policyId, userId } } = req;
+
+    const authSF = await new model.User().getSFToken(userId);
+    if (authSF.status == 'ok') {
+      let accessToken = authSF.access_token;
+      let instanceUrl = authSF.instance_url;       
+      let sfReadAccountPolicyEndorsementUrl = `${instanceUrl}/services/apexrest/account/endorsement?policyId=${policyId}`;
+
+      let sfEndorsementRes = await fetch(sfReadAccountPolicyEndorsementUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                    .then(res => res.json()) // expecting a json response
+                    .then(json => json);
+
+      if (sfEndorsementRes.status == 'Success') {
+        res.json({
+          status: "ok",
+          endorsements: sfEndorsementRes.record
+        })
+      } else {
+        res.json({
+          status: "failure",
+          endorsements: []
+        })
+      }
+    } else {
+      res.json({
+        status: "failure",
+        policies: []
+      })
+    }
+  })
+
+  // get the past certificates from the account
+  router.post('/accountinfo/pastcerts', async (req, res, next) => {
     let { body: { userId } } = req;
 
     const authSF = await new model.User().getSFToken(userId);
-    userId = 123
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
     let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?luckyTruckId=${userId}`;

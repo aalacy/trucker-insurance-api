@@ -8,20 +8,20 @@ from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, P
 
 BASE_PATH = os.path.abspath(os.curdir) + '/routes/coi'
 
-def coi(title='COI.pdf', author=None, name=None, address=None, policy=""):
+def coi(title='COI.pdf', author=None, name="", address="", policy="{}"):
     cr =ROCReport(title, author, name, address, policy)
     buff = cStringIO.StringIO()
     return cr.create_report(buff)
 
 class ROCReport:
-    def __init__(self, title=None, author=None, name=None, address=None, policy=""):
+    def __init__(self, title=None, author=None, name="", address="", policy="{}"):
         self.page_size = letter
         self.page_margin = (7.9 * mm, 6.4 * mm)
         self.sections = ["header", "content"]
         self.title = title
         self.author = author
-        self.name = name
-        self.address = address
+        self.name = name or ""
+        self.address = address or ""
         self.policy = json.loads(policy)
 
     def validate(self, val):
@@ -715,9 +715,9 @@ class ROCReport:
                                     ),
                                     Paragraph("", styles["rc-small-header-center"]),
                                     Paragraph("", styles["rc-small-header-center"]),
-                                    Paragraph(self.validate(self.policy['policyId']), styles["rc-small-header-center"]),
-                                    Paragraph(self.validate(self.policy['effectiveDate']), styles["rc-small-header-center"]),
-                                    Paragraph(self.validate(self.policy['expiryDate']), styles["rc-small-header-center"]),
+                                    Paragraph(self.validate(self.policy.get('policyId', '')), styles["rc-small-header-center"]),
+                                    Paragraph(self.validate(self.policy.get('effectiveDate', '')), styles["rc-small-header-center"]),
+                                    Paragraph(self.validate(self.policy.get('expiryDate', '')), styles["rc-small-header-center"]),
                                     Table(
                                         [
                                             [
