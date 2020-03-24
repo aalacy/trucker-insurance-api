@@ -18,7 +18,7 @@ config_path = BASE_PATH + '/config/config.json'
 # name = 'Test'
 # address = 'test'
 
-engine = create_engine('mysql+mysqlconnector://root:12345678@localhost:3306/luckytruck')
+engine = create_engine('mysql+mysqlconnector://root@localhost:3306/luckytruck')
 connection = engine.connect()
 
 session = requests.Session()

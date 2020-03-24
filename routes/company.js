@@ -64,12 +64,34 @@ module.exports = (app) => {
     return state;
   }
 
+  router.post('/coi/new', async (req, res, next) => {
+    const { certData, userId } = req.body;
+
+    const authSF = await new model.User().getSFToken(userId);
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfNewCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?type=new`;
+
+    const sfRequestBody = {
+      "firstName" : certData.firstName,
+      "lastName"  : certData.lastName,
+      "streetAddress" : certData.address,
+      "city" : certData.city,
+      "state" : certData.state,
+      "zipCode" : certData.zipCode,
+      luckyTruckId: userId
+    }
+
+    const sfres = await fetch(sfNewCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                .then(res => res.json()) // expecting a json response
+    return res.json({
+      status: 'ok',
+    })
+  })
+
   router.post('/coi', async (req, res, next) => {
-    const { name, address, dotId, policy, userId } = req.body;
-    let uuid;
-    if(req.query.uuid)uuid = req.query.uuid;
-    else if(req.body.uuid)uuid = req.body.uuid;
-    else if(req.cookies.uuid)uuid = req.cookies.uuid;
+    const { name, address, uuid, dotId, policy, userId } = req.body;
+    if(!uuid)uuid = await getNewUUID();
 
     const shellPath = __dirname + '/coi/run_coi.py'
     const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
@@ -86,11 +108,13 @@ module.exports = (app) => {
     if (policy) {
       shellCommand += `--policy ${JSON.stringify(policy)} `
     }
+
     exec(shellCommand, async (error, stdout, stderr) => {
       if (error || stderr) {
         console.log(`error: ${error.message}`);
         return res.json({
           status: 'failure',
+          message: 'Failed to upload a new certificate to the Salesforce'
         })
       }
 
@@ -108,9 +132,6 @@ module.exports = (app) => {
 
       const sfres = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
-      console.log(sfres)
-      console.log(sfUploadCOIUrl)            
-      // console.log(sfRequestBody)            
       return res.json({
         status: 'ok',
         pdf: {
@@ -696,12 +717,13 @@ module.exports = (app) => {
     if (authSF.status == 'ok') {
       let accessToken = authSF.access_token;
       let instanceUrl = authSF.instance_url;       
-      let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy/?dotId=${dotId}`;
+      let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy?luckyTruckId=${userId}`;
 
       let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                     .then(res => res.json()) // expecting a json response
                     .then(json => json);
 
+      console.log(sfCARes)
       if (sfCARes.status == 'Success') {
         res.json({
           status: "ok",

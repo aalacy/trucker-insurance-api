@@ -14,7 +14,7 @@ def coi(title='COI.pdf', author=None, name="", address="", policy="{}"):
     return cr.create_report(buff)
 
 class ROCReport:
-    def __init__(self, title=None, author=None, name="", address="", policy="{}"):
+    def __init__(self, title=None, author=None, name="", address="", policy=None):
         self.page_size = letter
         self.page_margin = (7.9 * mm, 6.4 * mm)
         self.sections = ["header", "content"]
@@ -22,7 +22,7 @@ class ROCReport:
         self.author = author
         self.name = name or ""
         self.address = address or ""
-        self.policy = json.loads(policy)
+        self.policy = json.loads(policy) if policy else {}
 
     def validate(self, val):
         if val:
