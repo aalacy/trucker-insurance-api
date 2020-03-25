@@ -95,7 +95,7 @@ module.exports = (app) => {
 
     const shellPath = __dirname + '/coi/run_coi.py'
     const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
-    let shellCommand = `python ${shellPath} --userId '${userId}' --path '${path}' `
+    let shellCommand = `python2 ${shellPath} --userId '${userId}' --path '${path}' `
     if (dotId) {
       shellCommand += ` --dotId ${dotId} `
     }
@@ -443,13 +443,11 @@ module.exports = (app) => {
 
 
   router.get('/current', async (req, res, next) => {
-
     let uuid;
     if(req.query.uuid) uuid = req.query.uuid;
     else if(req.body.uuid) uuid = req.body.uuid;
     else if(req.cookies.uuid) uuid = req.cookies.uuid;
     
-    console.log('uuid', uuid)
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({
