@@ -215,10 +215,7 @@ module.exports = (sequelize, DataTypes) => {
     };
   }  
 
-  Company.prototype.updateSalesforce = async (uuid) => {
-    console.log('profile update salesforce:');
-
-    const authSF = await new model.User().getSFToken(userId);
+  Company.prototype.updateSalesforce = async (uuid, userId, authSF,) => {
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
     let sfCAUrl = `${instanceUrl}/services/apexrest/applications`;
@@ -243,6 +240,7 @@ module.exports = (sequelize, DataTypes) => {
     })
 
     let sfRequestBody = {
+      luckyTruckId: userId,
       "accountWrapper": {
         "name": profile.name,
         "dotNumber": profile.dotNumber,
@@ -457,7 +455,7 @@ module.exports = (sequelize, DataTypes) => {
     })
   }
 
-  Company.prototype.create = async (uuid, options) =>{
+  Company.prototype.create = async (uuid, userId, authSF, options) =>{
     return new Promise(async (resolve, reject) => {
       let company = await new Company().findByUUID(uuid);
       if(!company){ // create new company record
@@ -480,7 +478,7 @@ module.exports = (sequelize, DataTypes) => {
         })
 
         if (options.signSignature) {
-          new Company().updateSalesforce(uuid);
+          new Company().updateSalesforce(uuid, userId, authSF);
         }
         resolve('Ok');
       }

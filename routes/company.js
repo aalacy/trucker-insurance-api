@@ -95,7 +95,7 @@ module.exports = (app) => {
 
     const shellPath = __dirname + '/coi/run_coi.py'
     const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
-    let shellCommand = `python2 ${shellPath} --userId '${userId}' --path '${path}' `
+    let shellCommand = `python ${shellPath} --userId '${userId}' --path '${path}' `
     if (dotId) {
       shellCommand += ` --dotId ${dotId} `
     }
@@ -386,7 +386,8 @@ module.exports = (app) => {
         cargoHauled,
         businessStructure
       }
-      await new model.Company().create(uuid, options );
+
+      await new model.Company().create(uuid, '', {}, options );
 
       res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
       new model.Company().findByUUID(uuid).then(profile => {
@@ -688,10 +689,12 @@ module.exports = (app) => {
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
 
     // Update salesforce if this the last step, sign signature, of form wizard
+    let authSF = {}
     if (data.signSignature) {
+      authSF = await new model.User().getSFToken(data.user_id);
     }
 
-    new model.Company().create(uuid, data).then(profile => {
+    new model.Company().create(uuid, data.user_id, authSF, data).then(profile => {
       res.send({
         status: "OK",
         data: uuid,
@@ -805,7 +808,7 @@ module.exports = (app) => {
     const authSF = await new model.User().getSFToken(userId);
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
-    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${dotId}`;
+    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
 
     let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
