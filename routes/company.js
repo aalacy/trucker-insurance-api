@@ -318,11 +318,11 @@ module.exports = (app) => {
 
   router.all('/create', async (req, res, next) => {
     const { usdot, userId } = req.body;
-    if ( !usdot || !userId ) {
+    if ( !usdot ) {
       return res.send({
           status: "ERROR",
           data: {},
-          messages: ['usdot or userId is empty']
+          messages: ['usdot is empty']
       })
     }
     let company = await companySnapshot.get(usdot);
@@ -358,8 +358,8 @@ module.exports = (app) => {
       if(company["Mailing Address"]){
         let tmp = new model.Company().parseAndAssignAddress(company["Mailing Address"], {}, '');
         Object.keys(tmp).forEach(function(key) {
-          let _key = key.replace('address', 'street');
-          mailingAddress[_key] = tmp[key];
+          // let _key = key.replace('address', 'street');
+          mailingAddress[key] = tmp[key];
         });
       }
 
@@ -370,7 +370,6 @@ module.exports = (app) => {
         });
       }
       const options = {
-        user_id: userId,
         businessStructureRaw: company,
         name,
         dotNumber,
@@ -391,9 +390,13 @@ module.exports = (app) => {
 
       res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
       new model.Company().findByUUID(uuid).then(profile => {
+        console.log(profile)
         res.send({
             status: "OK",
-            data:company, //b
+            data:{
+              company: profile,
+              uuid,
+            }, //b
             messages: [],
             uuid
           })
@@ -808,7 +811,8 @@ module.exports = (app) => {
     const authSF = await new model.User().getSFToken(userId);
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
-    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
+    // let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
+    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${dotId}`;
 
     let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
