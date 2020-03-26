@@ -722,7 +722,7 @@ module.exports = (sequelize, DataTypes) => {
                 {
                     sf_token,
                     sf_instance_url,
-                    sf_token_expired: moment().add(1, 'hour').format('YYYY-MM-DD hh:mm:ss')
+                    sf_token_expired: moment().add(30, 'minutes').format('YYYY-MM-DD hh:mm:ss')
                 },
               {where: {id} },
             ).catch(err => {

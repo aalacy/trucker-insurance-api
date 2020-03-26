@@ -84,9 +84,16 @@ module.exports = (app) => {
 
     const sfres = await fetch(sfNewCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                 .then(res => res.json()) // expecting a json response
-    return res.json({
-      status: 'ok',
-    })
+
+    if (sfres.status != 'success') {
+      return res.json({
+        status: 'failure',
+      })
+    } else {
+      return res.json({
+        status: 'ok',
+      })
+    }
   })
 
   router.post('/coi', async (req, res, next) => {
@@ -727,7 +734,6 @@ module.exports = (app) => {
                     .then(res => res.json()) // expecting a json response
                     .then(json => json);
 
-      console.log(sfCARes)
       if (sfCARes.status == 'Success') {
         res.json({
           status: "ok",
@@ -805,23 +811,24 @@ module.exports = (app) => {
     }
   });
 
+  // get all quotes in user portal
   router.post('/accountinfo/quotes', async (req, res, next) => {
     const { body: { dotId, userId } } = req;
 
     const authSF = await new model.User().getSFToken(userId);
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
-    // let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
-    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote/?dotId=${dotId}`;
+    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
+    // let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote?dotId=${dotId}`;
 
     let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
                   .then(res => res.json()) // expecting a json response
 
-    if (sfCARes.status == 'Success') {
+    if (sfCARes.status != 'error') {
       res.json({
         status: "ok",
-        quoteList: sfCARes.quoteList,
-        message: sfCARes.message
+        quoteList: sfCARes,
+        message: ''
       })
     } else {
       res.json({
@@ -831,6 +838,128 @@ module.exports = (app) => {
       })
     }
   });
+
+  // Edit quote
+  router.post('/accountinfo/quotes/edit', async (req, res, next) => {
+    const { body: { quoteId, userId, description } } = req;
+
+    const authSF = await new model.User().getSFToken(userId);
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
+
+    const sfRequestBody = {
+      quoteId,
+      description
+    }
+
+    let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+
+    if (sfCARes.status == 'success') {
+      res.json({
+        status: "ok",
+        message: ''
+      })
+    } else {
+      res.json({
+        status: "failure",
+        message: sfCARes.message
+      })
+    }
+  });
+
+  // get drivers list in user portal
+  router.post('/accountinfo/drivers', async (req, res, next) => {
+    let { body: { userId, dotId } } = req;
+
+    const authSF = await new model.User().getSFToken(userId);
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfReadAccountDriversUrl = `${instanceUrl}/services/apexrest/account/driver?dotId=${dotId}`;
+
+    let sfCARes = await fetch(sfReadAccountDriversUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+
+    if (sfCARes.status != 'Success') {
+      res.json({
+        status: "failure",
+        drivers: [],
+      })
+    } else {
+      res.json({
+        status: "ok",
+        drivers: sfCARes.record,
+      })
+    }
+  });
+
+  // add driver
+  router.post('/accountinfo/drivers/new', async (req, res, next) => {
+    let { body: { driversData, operator, userId, dotId } } = req;
+
+    const authSF = await new model.User().getSFToken(userId);
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfReadAccountDriversUrl = `${instanceUrl}/services/apexrest/account/driver/`;
+
+    const sfRequestBody = {
+      "ownerOperator": operator,
+      "middleName": driversData.middleName,
+      "licenseNumber": driversData.licenseNumber,
+      "lastName": driversData.lastName,
+      "hireDate": `${driversData.dohY}-${driversData.dohM}-${driversData.dohD}`,
+      "firstName": driversData.firstName,
+      "dob": `${driversData.dobY}-${driversData.dobM}-${driversData.dobD}`,
+      "currentDriver": "Yes",
+      "cdlYearsExperience": driversData.CDL,
+      "cdlNumber": "1123652",
+      dotId
+    }
+
+    let sfCARes = await fetch(sfReadAccountDriversUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+
+    console.log(authSF, sfCARes)
+    if (sfCARes.status != 'Success') {
+      res.json({
+        status: "failure",
+        message: sfCARes.message
+      })
+    } else {
+      res.json({
+        status: "ok",
+        message: sfCARes.message
+      })
+    }
+  });
+
+  // remove driver
+  router.post('/accountinfo/drivers/delete', async (req, res, next) => {
+    let { body: { driverId, reason, userId } } = req;
+
+    const authSF = await new model.User().getSFToken(userId);
+    let accessToken = authSF.access_token;
+    let instanceUrl = authSF.instance_url;       
+    let sfReadAccountDriversUrl = `${instanceUrl}/services/apexrest/account/driver?driverId=${driverId}&reason=${reason}`;
+
+    let sfCARes = await fetch(sfReadAccountDriversUrl, { method: 'DELETE', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) // expecting a json response
+
+    console.log(authSF, sfCARes)
+    if (sfCARes.status != 'Success') {
+      res.json({
+        status: "failure",
+        message: sfCARes.message
+      })
+    } else {
+      res.json({
+        status: "ok",
+        message: sfCARes.message
+      })
+    }
+  });
+
 
   app.use('/api/company', router)
 }
