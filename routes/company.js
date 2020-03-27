@@ -101,16 +101,18 @@ module.exports = (app) => {
     // if(!uuid)uuid = await getNewUUID();
 
     const shellPath = __dirname + '/coi/run_coi.py'
+    let _name = name.replace("'", "").replace('"', '\\"')
+    let _address = address.replace("'", "").replace('"', '\\"')
     const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
     let shellCommand = `python ${shellPath} --userId '${userId}' --path '${path}' `
     if (dotId) {
       shellCommand += ` --dotId ${dotId} `
     }
-    if (name) {
-      shellCommand += `--name "${name}" `
+    if (_name) {
+      shellCommand += `--name "${_name}" `
     }
-    if (address) {
-      shellCommand += `--address '${address}' `
+    if (_address) {
+      shellCommand += `--address "${_address}" `
     }
     if (policy) {
       shellCommand += `--policy ${JSON.stringify(policy)} `

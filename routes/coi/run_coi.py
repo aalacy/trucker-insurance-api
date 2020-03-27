@@ -34,11 +34,13 @@ def generate_pdf(data, args):
 
 def read_sf(config, userId):
     # read sf info stored in db and check expired (1 hour)
-    res = connection.execute('SELECT * FROM users WHERE id={}'.format(userId))
+    res = connection.execute('SELECT * FROM Users WHERE id={}'.format(userId))
     users = [dict(r) for r in res]
-    user = users[0]
+    user = None
+    if len(users) > 0:
+        user = users[0]
     # expired_time = date.strptime(user['sf_token_expired'], '%y-%d-%m %H:%M:%S')
-    if user['sf_token_expired'] and user['sf_token_expired'] < date.now():
+    if user and user['sf_token_expired'] and user['sf_token_expired'] < date.now():
         return (user['sf_token'], user['sf_instance_url'])
     else:
         headers = { 'Content-Type': 'application/'}
