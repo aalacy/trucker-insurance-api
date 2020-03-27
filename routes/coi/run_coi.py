@@ -23,11 +23,14 @@ connection = engine.connect()
 
 session = requests.Session()
 
+def _escape(val):
+    return val.replace('###*###', "'")
+
 def generate_pdf(data, args):
     pdf_output = os.path.abspath(os.curdir) + args.path
     with open(os.path.expanduser(pdf_output), "wb+") as output_file:
         shutil.copyfileobj(
-            coi(name=args.name, address=args.address, policy=args.policy),
+            coi(name=_escape(args.name), address=_escape(args.address), policy=args.policy),
             output_file,
         )
     print("completed")

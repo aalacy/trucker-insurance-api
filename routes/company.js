@@ -101,9 +101,9 @@ module.exports = (app) => {
     // if(!uuid)uuid = await getNewUUID();
 
     const shellPath = __dirname + '/coi/run_coi.py'
-    let _name = name.replace("'", "").replace('"', '\\"')
-    let _address = address.replace("'", "").replace('"', '\\"')
-    const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
+    let _name = name.replace("'", "###*###").replace('"', '\\"')
+    let _address = address.replace("'", "###*###").replace('"', '\\"')
+    const path = `/public/coi/coi-${_name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
     let shellCommand = `python ${shellPath} --userId '${userId}' --path '${path}' `
     if (dotId) {
       shellCommand += ` --dotId ${dotId} `
