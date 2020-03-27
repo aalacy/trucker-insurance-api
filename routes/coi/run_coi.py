@@ -24,7 +24,10 @@ connection = engine.connect()
 session = requests.Session()
 
 def _escape(val):
-    return val.replace('###*###', "'")
+    if val:
+        return val.replace('###*###', "'")
+    else
+        return val
 
 def generate_pdf(data, args):
     pdf_output = os.path.abspath(os.curdir) + args.path
