@@ -26,7 +26,7 @@ session = requests.Session()
 def _escape(val):
     if val:
         return val.replace('###*###', "'")
-    else
+    else:
         return val
 
 def generate_pdf(data, args):
