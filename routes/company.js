@@ -98,7 +98,7 @@ module.exports = (app) => {
 
   router.post('/coi', async (req, res, next) => {
     const { name, address, uuid, dotId, policy, userId } = req.body;
-    if(!uuid)uuid = await getNewUUID();
+    // if(!uuid)uuid = await getNewUUID();
 
     const shellPath = __dirname + '/coi/run_coi.py'
     const path = `/public/coi/coi-${name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
@@ -126,28 +126,36 @@ module.exports = (app) => {
       }
 
       // upload pdf
+      const pdfContent = await pdf2base64(webConfig.rootDir+path);
+
       const authSF = await new model.User().getSFToken(userId);
       let accessToken = authSF.access_token;
       let instanceUrl = authSF.instance_url;       
       let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi`;
 
-      const pdfContent = await pdf2base64(webConfig.rootDir+path);
       const sfRequestBody = {
         policyId: JSON.parse(policy).policyId,
         pdfContent
       }
 
-      console.log(sfRequestBody)
+      const sfCARes = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                  .then(res => res.json()) 
 
-      const sfres = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
-      return res.json({
-        status: 'ok',
-        pdf: {
-          content: pdfContent,
-          name: 'COI.pdf'
-        }
-      })
+      console.log(sfCARes)
+      if (sfCARes.status == 'error') {
+        return res.json({
+          status: 'failure',
+          message: sfCARes.message
+        })
+      } else {
+        return res.json({
+          status: 'ok',
+          pdf: {
+            content: pdfContent,
+            name: 'COI.pdf'
+          }
+        })
+      }
     });
   })
 
