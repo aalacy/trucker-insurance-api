@@ -2,3 +2,5 @@ node_modules
 node_modules__
 .env
 routes/coi/venv
+public/trucking-insurance-application
+public/coi
