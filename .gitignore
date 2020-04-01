@@ -1,4 +1,4 @@
 node_modules
 node_modules__
-
+.env
 routes/coi/venv

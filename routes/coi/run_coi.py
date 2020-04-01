@@ -13,12 +13,17 @@ from coi import coi
 
 BASE_PATH = os.path.abspath(os.curdir)
 config_path = BASE_PATH + '/config/config.json'
+# load json config file
+config_data = {}
+with open(config_path, "r") as read_file:
+    config_data = json.load(read_file)
+config = config_data[os.getenv("NODE_ENV") or "development"]
 
 # dotId = 2732221 # test data
 # name = 'Test'
 # address = 'test'
 
-engine = create_engine('mysql+mysqlconnector://root:12345678@localhost:3306/luckytruck')
+engine = create_engine('mysql+mysqlconnector://root@localhost:3306/luckytruck')
 connection = engine.connect()
 
 session = requests.Session()
@@ -74,12 +79,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.dotId:
-    	# load json config file
-        config_data = {}
-        with open(config_path, "r") as read_file:
-            config_data = json.load(read_file)
-
-        config = config_data['development']
         access_token, instance_url = read_sf(config, args.userId)
       
         if access_token and instance_url:

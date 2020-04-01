@@ -446,7 +446,6 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     User.prototype.renderOne = (user) => {
-        console.log('user model', user);
         user = user.dataValues
 
 
