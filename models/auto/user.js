@@ -157,7 +157,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         admin: DataTypes.INTEGER,
         social: DataTypes.INTEGER,
-        dotId: DataTypes.INTEGER,
+        dotId: DataTypes.STRING,
         role:DataTypes.STRING,
         companyName:DataTypes.STRING,
         sf_token:DataTypes.STRING,

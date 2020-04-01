@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('Users', 'dotId', {
-        type : Sequelize.INTEGER,
+        type : Sequelize.STRING,
         allowNull : true,
       });
   },
