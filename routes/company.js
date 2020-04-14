@@ -307,31 +307,36 @@ module.exports = (app) => {
         })
       }
     } else{
-      so = await companySnapshot.search(keyword).catch(err => console.log(err));
-      const state = await getGeoData(coords);
-      console.log('state ,', state)
-      let filteredData = so;
-      if (state) {
-        filteredData = so.filter(item => item.location.split(',')[1].trim() == state);
-      }
-      let new_data = filteredData || [];
-      so.map(item => {
-        if (!new_data.includes(item)) {
-          new_data.push(item);
-        }
-      })
-      if (new_data.length !== 0) {
-        res.send({
-            status: "OK",
-            data: new_data,
-            message: ""
-        })
-      } else {
-        res.send({
+      return res.send({
+            type: "Name",
             status: "Error",
-            message: 'No company found. If you\'re company is new please call <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> or click <a href="/account-info" style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">here </a> to complete your application.'
+            message: 'Search by company name is not allowed'
         })
-      }
+      // so = await companySnapshot.search(keyword).catch(err => console.log(err));
+      // const state = await getGeoData(coords);
+      // console.log('state ,', state)
+      // let filteredData = so;
+      // if (state) {
+      //   filteredData = so.filter(item => item.location.split(',')[1].trim() == state);
+      // }
+      // let new_data = filteredData || [];
+      // so.map(item => {
+      //   if (!new_data.includes(item)) {
+      //     new_data.push(item);
+      //   }
+      // })
+      // if (new_data.length !== 0) {
+      //   res.send({
+      //       status: "OK",
+      //       data: new_data,
+      //       message: ""
+      //   })
+      // } else {
+      //   res.send({
+      //       status: "Error",
+      //       message: 'No company found. If you\'re company is new please call <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> or click <a href="/account-info" style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">here </a> to complete your application.'
+      //   })
+      // }
     }
   })
 
