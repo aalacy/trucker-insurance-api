@@ -96,6 +96,22 @@ module.exports = (app) => {
     }
   })
 
+  router.get('/testnico', async (req, res, next) => {
+    const shellPath = __dirname + '/coi/run_coi.py'
+
+    let shellCommand = `/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/routes/coi/venv/bin/python ${shellPath} --new_path '/public/coi/testnico.pdf' --old_path '/public/coi/coi.pdf' --name 'test' --address 'test'`
+
+    exec(shellCommand, async (error, stdout, stderr) => {
+      if (error || stderr) {
+        console.log(error, stderr)
+      }
+
+      return res.json({
+        status: 'ok',
+      })
+    })
+  })
+
   router.post('/coi', async (req, res, next) => {
     const { name, address, uuid, dotId, policy, userId } = req.body;
     // if(!uuid)uuid = await getNewUUID();
@@ -104,7 +120,7 @@ module.exports = (app) => {
     let _name = name.replace("'", "###*###").replace('"', '\\"')
     let _address = address.replace("'", "###*###").replace('"', '\\"')
     const path = `/public/coi/coi-${_name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
-    let shellCommand = `python ${shellPath} --userId '${userId}' --path '${path}' `
+    let shellCommand = `python ${shellPath} --userId '${userId}' --old_path '${path}' `
     if (dotId) {
       shellCommand += ` --dotId ${dotId} `
     }

@@ -6,7 +6,6 @@ import json
 from document_specific_styles import *
 from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, Paragraph, Table, Spacer
 
-BASE_PATH = os.path.abspath(os.curdir) + '/routes/coi'
 
 def coi(title='COI.pdf', author=None, name="", address="", policy="{}"):
     cr =ROCReport(title, author, name, address, policy)
@@ -14,6 +13,8 @@ def coi(title='COI.pdf', author=None, name="", address="", policy="{}"):
     return cr.create_report(buff)
 
 class ROCReport:
+    BASE_PATH = os.path.abspath(os.curdir) + '/routes/coi'
+
     def __init__(self, title=None, author=None, name="", address="", policy=None):
         self.page_size = letter
         self.page_margin = (7.9 * mm, 6.4 * mm)
@@ -82,7 +83,7 @@ class ROCReport:
                 [
                     [
                         Paragraph(
-                            "<img src='{}/img/accord.png' width='80' height='30' />".format(BASE_PATH),                
+                            "<img src='{}/img/accord.png' width='80' height='30' />".format(self.BASE_PATH),                
                             extend_style(styles["rc-main-rmt"])
                         ),
                         Paragraph(
@@ -982,7 +983,7 @@ class ROCReport:
                                                 Paragraph("AUTHORIZED REPRESENTATIVE", styles["rc-small-header"]),
                                             ],
                                             [
-                                                Paragraph('<img src="{}/img/signature.png" width="90" height="30" />'.format(BASE_PATH), 
+                                                Paragraph('<img src="{}/img/signature.png" width="90" height="30" />'.format(self.BASE_PATH), 
                                                     extend_style(styles["rc-main-rmt"])
                                                 ),
                                             ]

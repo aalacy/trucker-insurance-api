@@ -10,8 +10,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from coi import coi
+from nico import nico
 
-BASE_PATH = os.path.abspath(os.curdir)
+BASE_PATH = os.getcwd()
 config_path = BASE_PATH + '/config/config.json'
 # load json config file
 config_data = {}
@@ -19,11 +20,7 @@ with open(config_path, "r") as read_file:
     config_data = json.load(read_file)
 config = config_data[os.getenv("NODE_ENV") or "development"]
 
-# dotId = 2732221 # test data
-# name = 'Test'
-# address = 'test'
-
-engine = create_engine('mysql+mysqlconnector://root@localhost:3306/luckytruck')
+engine = create_engine(config['db_python'])
 connection = engine.connect()
 
 session = requests.Session()
@@ -34,14 +31,24 @@ def _escape(val):
     else:
         return val
 
-def generate_pdf(data, args):
-    pdf_output = os.path.abspath(os.curdir) + args.path
+def generate_old_pdf(data, args):
+    pdf_output = os.path.abspath(os.curdir) + args.old_path
     with open(os.path.expanduser(pdf_output), "wb+") as output_file:
         shutil.copyfileobj(
             coi(name=_escape(args.name), address=_escape(args.address), policy=args.policy),
             output_file,
         )
-    print("completed")
+    print("completed old coi")
+
+def generate_nico_pdf(data, args):
+    pdf_output = os.path.abspath(os.curdir) + args.new_path
+    # pdf_output = os.path.abspath(os.curdir) + 'text-nico.pdf'
+    with open(os.path.expanduser(pdf_output), "wb+") as output_file:
+        shutil.copyfileobj(
+            nico(name=_escape(args.name), address=_escape(args.address), policy=args.policy),
+            output_file,
+        )
+    print("completed new nico coi")
 
 def read_sf(config, userId):
     # read sf info stored in db and check expired (1 hour)
@@ -74,7 +81,8 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--address', type=str, required=False, help="address")
     parser.add_argument('-d', '--dotId', type=str, required=False, help="US DOT ID")
     parser.add_argument('-u', '--userId', type=str, required=False, help="User ID")
-    parser.add_argument('-p', '--path', type=str, required=False, help="path")
+    parser.add_argument('-i', '--old_path', type=str, required=False, help="old coi path")
+    parser.add_argument('-c', '--new_path', type=str, required=False, help="new nico path")
 
     args = parser.parse_args()
 
@@ -97,4 +105,6 @@ if __name__ == "__main__":
         else:
             print("something wrong with salesforce access_token url")
     else:
-        generate_pdf({}, args)
+        generate_old_pdf({}, args)
+        generate_nico_pdf({}, args)
+

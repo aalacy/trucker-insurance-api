@@ -665,6 +665,14 @@ styles["citation_table"] = TableStyle(
     ]
 )
 
+styles["rc-divider-table"] = TableStyle(
+    [
+        ("BACKGROUND", (0, 0), (-1, -1), "#d1d1d1"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("GRID", (0, 0), (-1, -1), .45, "black"),
+    ]
+)
+
 styles["citation_table_header"] = TableStyle(
     [
         ("BACKGROUND", (0, 0), (-1, -1), colors.red),
@@ -1090,7 +1098,14 @@ styles["rc-main-table"] = TableStyle(
     ]
 )
 
-
+styles["rc-square-table"] = TableStyle(
+    [
+        ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+        ("TOPPADDING", (0, 0), (-1, -1), 2.2),
+        ("LEFTPADDING", (0, 0), (-1, 0), 4.5),
+        ("RIGHTPADDING", (-1, 0), (-1, -1), 5.5),
+    ]
+)
 
 styles["rc-main-rmt"] = ParagraphStyle(
     "rc-main-rmt",
@@ -1213,6 +1228,16 @@ styles["rc-small-content"] = ParagraphStyle(
     fontName="Arial",
 )
 
+styles["rc-right-header"] = ParagraphStyle(
+    "rc-right-header",
+    parent=styles["rc-small-header"],
+    fontSize=9,
+    spaceAfter=0,
+    leading=3,
+    fontName="LiberationSerif",
+)
+
+
 styles["rc-medium-content"] = ParagraphStyle(
     "rc-medium-content",
     parent=styles["rc-small-header"],
@@ -1224,11 +1249,17 @@ styles["rc-medium-content"] = ParagraphStyle(
 styles["rc-medium-content-center"] = ParagraphStyle(
     "rc-medium-content-center",
     parent=styles["rc-medium-content"],
-    fontSize=9,
-    leading=10,
     leftIndent=0,
     fontName="Arial",
     alignment=TA_CENTER,
+)
+
+styles["rc-medium-content-right"] = ParagraphStyle(
+    "rc-medium-content-right",
+    parent=styles["rc-medium-content"],
+    leftIndent=0,
+    fontName="Arial",
+    alignment=TA_LEFT,
 )
 
 styles["rc-small-header-center"] = ParagraphStyle(
@@ -1264,4 +1295,113 @@ styles["rc-my-doc-header"] = ParagraphStyle(
     leading=22,
     fontSize=17,
     fontName="Times-Bold",
+)
+
+styles["rc-nico-header"] = ParagraphStyle(
+    "rc-nico-header",
+    parent=styles["rc-my-doc-header"],
+    fontSize=24,
+    fontName="Arial-Bold"
+)
+
+styles["rc-my-doc-header-subtitle"] = ParagraphStyle(
+    "rc-my-doc-header-subtitle",
+    parent=styles["rc-my-doc-header"],
+    fontSize=14,
+    alignment=TA_CENTER,
+    leftIndent=3.3 * mm,
+    backColor="#d1d1d1"
+)
+
+styles["rc-first-label"] = ParagraphStyle(
+    "rc-first-label",
+    parent=styles["rc-small-header"],
+    fontSize=8,
+    leading=10,
+    leftIndent=1.6 * mm,
+    rightIndent=.1 * mm,
+    fontName="Arial",
+)
+
+styles["rc-normal-text"] = ParagraphStyle(
+    "rc-normal-text",
+    parent=styles["rc-small-header"],
+    leading=9,
+    fontSize=8,
+    fontName="Arial",
+)
+
+styles["rc-bold-text"] = ParagraphStyle(
+    "rc-bold-text",
+    parent=styles["rc-normal-text"],
+    fontName="Arial-Bold",
+    leading=8,
+    alignment=TA_LEFT,
+)
+
+styles["rc-normal-center"] = ParagraphStyle(
+    "rc-normal-center",
+    parent=styles["rc-normal-text"],
+    leading=10,
+    leftIndent=0,
+    alignment=TA_CENTER,
+)
+
+styles["rc-bold-center"] = ParagraphStyle(
+    "rc-bold-center",
+    parent=styles["rc-normal-center"],
+    leading=9,
+    fontName="Arial-Bold",
+)
+
+styles["rc-normal-end"] = ParagraphStyle(
+    "rc-normal-end",
+    parent=styles["rc-normal-text"],
+    alignment=TA_RIGHT,
+)
+
+styles["rc-checkbox-text"] = ParagraphStyle(
+    "rc-checkbox-text",
+    parent=styles["rc-small-header"],
+    fontSize=8,
+    leading=10,
+    leftIndent=1.8 * mm,
+    fontName="Arial",
+)
+
+styles["rc-checkbox-text-small"] = ParagraphStyle(
+    "rc-checkbox-text-small",
+    parent=styles["rc-checkbox-text"],
+    leftIndent=1*mm,
+)
+
+styles["rc-divider-text"] = ParagraphStyle(
+    "rc-divider-text",
+    parent=styles["rc-my-doc-header"],
+    fontSize=10,
+    leading=12,
+    alignment=TA_LEFT,
+    leftIndent=1.0 * mm,
+)
+
+styles["rc-normal-header"] = ParagraphStyle(
+    "rc-normal-header",
+    parent=styles["rc-small-header"],
+    leading=11,
+    fontSize=10,
+)
+
+styles["rc-normal-header1"] = ParagraphStyle(
+    "rc-normal-header",
+    parent=styles["rc-small-header"],
+    leading=11,
+    fontSize=9,
+)
+
+styles["rc-header-text"] = ParagraphStyle(
+    "rc-header-text",
+    parent=styles["rc-normal-header"],
+    leading=12,
+    fontSize=12,
+    alignment=TA_CENTER,
 )
