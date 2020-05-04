@@ -1212,7 +1212,7 @@ styles["rc-small-header"] = ParagraphStyle(
     "rc-small-header",
     parent=styles["rc-main-header"],
     fontSize=6,
-    leading=7,
+    leading=8,
     spaceBefore=0,
     spaceAfter=0,
     leftIndent=1.3 * mm,
@@ -1246,6 +1246,12 @@ styles["rc-medium-content"] = ParagraphStyle(
     fontName="Arial",
 )
 
+styles["rc-medium-content-justify"] = ParagraphStyle(
+    "rc-medium-content-justify",
+    parent=styles["rc-medium-content"],
+    alignment=TA_JUSTIFY
+)
+
 styles["rc-medium-content-center"] = ParagraphStyle(
     "rc-medium-content-center",
     parent=styles["rc-medium-content"],
@@ -1272,9 +1278,17 @@ styles["rc-small-header-center"] = ParagraphStyle(
 styles["rc-medium-header"] = ParagraphStyle(
     "rc-medium-header",
     parent=styles["rc-small-header"],
-    leading=0,
+    leading=10,
     fontSize=9,
     leftIndent=1.3 * mm,
+)
+
+styles["rc-medium-header-underline"] = ParagraphStyle(
+    "rc-medium-header-underline",
+    parent=styles["rc-medium-header"],
+    underlineWidth=10,
+    underlineColor='black',
+    alignment=TA_CENTER,
 )
 
 styles["rc-medium-header-center"] = ParagraphStyle(
@@ -1300,7 +1314,8 @@ styles["rc-my-doc-header"] = ParagraphStyle(
 styles["rc-nico-header"] = ParagraphStyle(
     "rc-nico-header",
     parent=styles["rc-my-doc-header"],
-    fontSize=24,
+    fontSize=22,
+    leading=12,
     fontName="Arial-Bold"
 )
 
@@ -1328,6 +1343,7 @@ styles["rc-normal-text"] = ParagraphStyle(
     parent=styles["rc-small-header"],
     leading=9,
     fontSize=8,
+    justifyBreaks=0,
     fontName="Arial",
 )
 
@@ -1335,14 +1351,21 @@ styles["rc-bold-text"] = ParagraphStyle(
     "rc-bold-text",
     parent=styles["rc-normal-text"],
     fontName="Arial-Bold",
-    leading=8,
+    leading=9,
     alignment=TA_LEFT,
+)
+
+styles["rc-bold-text-underline"] = ParagraphStyle(
+    "rc-bold-text-underline",
+    parent=styles["rc-bold-text"],
+    underlineWidth=1,
+    underlineColor='black'
 )
 
 styles["rc-normal-center"] = ParagraphStyle(
     "rc-normal-center",
     parent=styles["rc-normal-text"],
-    leading=10,
+    leading=9,
     leftIndent=0,
     alignment=TA_CENTER,
 )
@@ -1398,10 +1421,30 @@ styles["rc-normal-header1"] = ParagraphStyle(
     fontSize=9,
 )
 
+styles["rc-normal-text1"] = ParagraphStyle(
+    "rc-normal-text1",
+    parent=styles["rc-normal-text"],
+    leading=11,
+    firstLineIndent=13,
+    fontSize=9,
+    fontName="Arial",
+)
+
 styles["rc-header-text"] = ParagraphStyle(
     "rc-header-text",
     parent=styles["rc-normal-header"],
     leading=12,
     fontSize=12,
     alignment=TA_CENTER,
+)
+
+styles["rc-small-underline"] = ParagraphStyle(
+    "rc-small-underline",
+    parent=styles["rc-small-content"],
+    fontSize=6,
+    firstLineIndent=0,
+    spaceBefore=0,
+    leftIndent=0,
+    spaceAfter=0,
+    leading=0,
 )

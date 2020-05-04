@@ -439,19 +439,14 @@ module.exports = (sequelize, DataTypes) => {
             }).catch(err => {
                 reject(err)
             })
-
         })
-
-
     }
 
     User.prototype.renderOne = (user) => {
         user = user.dataValues
 
-
         let userDataIgnoreKeys = ['id', 'UserId', 'createdAt', 'updatedAt']
         let userIgnoreKeys = ['password', 'admin', 'createdAt', 'updatedAt']
-
 
         let userData = {}
         if (user.UserDatum && Object.keys(user.UserDatum).length > 0) {
@@ -459,13 +454,11 @@ module.exports = (sequelize, DataTypes) => {
         }
         if (user.UserDatum) delete user.UserDatum
 
-
         Object.keys(user).forEach(key => {
             if (userIgnoreKeys.indexOf(key) > -1) {
                 delete user[key]
             }
         })
-
         
         Object.keys(userData).forEach(dkey => {
             if (userDataIgnoreKeys.indexOf(dkey) > -1) return
