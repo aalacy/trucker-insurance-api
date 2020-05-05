@@ -177,7 +177,8 @@ module.exports = (app) => {
       return;
     }
 
-    const shellPython = __dirname + '/coi/venv/bin/python ' + __dirname + '/coi/run_nico.py'
+    // const shellPython = __dirname + '/coi/venv/bin/python ' + __dirname + '/coi/run_nico.py'
+    const shellPython = 'python ' + __dirname + '/coi/run_nico.py'
     let shellCommand = `${shellPython} --uuid ${uuid}`
 
     const pdfPath = __dirname + `/../public/nico/nico-${uuid}.pdf`

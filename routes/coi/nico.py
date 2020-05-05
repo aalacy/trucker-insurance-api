@@ -343,15 +343,15 @@ class ROCReport:
             vehicles.append(Table(
                 [
                     [   
-                       Paragraph(str(number+1), extend_style(styles["rc-normal-header"])),
-                       Paragraph(str(vehicle['year']), extend_style(styles["rc-normal-header"])),
-                       Paragraph(str(vehicle['model']), extend_style(styles["rc-normal-header"])),
-                       Paragraph(vehicle['vehicleType'], extend_style(styles["rc-normal-header"])),
-                       Paragraph(str(vehicle['VIN']), extend_style(styles["rc-normal-header"])),
+                       Paragraph(str(number+1), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['year']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['model']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(vehicle['vehicleType'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['VIN']), extend_style(styles["rc-normal-text"])),
                        None,
                        None,
                        None,
-                       Paragraph(str(vehicle['radiusOfTravelVehicle']), extend_style(styles["rc-normal-header"])),
+                       Paragraph(str(vehicle['radiusOfTravelVehicle']), extend_style(styles["rc-normal-text"])),
                        None,
                        None,
                     ]
@@ -360,7 +360,7 @@ class ROCReport:
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
-                colWidths=(7*mm, 9*mm, 22*mm, 18*mm, 52*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
+                colWidths=(7*mm, 9*mm, 22*mm, 38*mm, 32*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
                 rowHeights=4.5*mm
             ))
         return vehicles
@@ -1698,7 +1698,7 @@ class ROCReport:
                                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                                 ("GRID", (0, 0), (-1, -1), .75, "black"),
                             ]),
-                            colWidths=(7*mm, 9*mm, 22*mm, 18*mm, 52*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
+                            colWidths=(7*mm, 9*mm, 22*mm, 38*mm, 32*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
                             rowHeights=(18*mm)
                         ),
                     ]

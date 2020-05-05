@@ -26,7 +26,7 @@ session = requests.Session()
 
 def generate_nico_pdf(data, args):
 	# read company data
-	res = connection.execute('SELECT * FROM companies WHERE uuid="{}"'.format(args.uuid))
+	res = connection.execute('SELECT * FROM Companies WHERE uuid="{}"'.format(args.uuid))
 	companies = [dict(r) for r in res]
 	if len(companies):
 		pdf_output = os.path.abspath(os.curdir) + '/public/nico/nico-' + args.uuid + '.pdf'
