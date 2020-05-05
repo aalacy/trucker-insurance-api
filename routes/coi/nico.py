@@ -8,23 +8,38 @@ from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, P
 
 L_S = 2.2 
 
-def nico(title='nico.pdf', author=None, name="", address="", policy="{}"):
-    cr =ROCReport(title, author, name, address, policy)
+def nico(title='nico.pdf', author="Luckytruck", company={}):
+    cr =ROCReport(title=title, company=company)
     buff = cStringIO.StringIO()
     return cr.create_report(buff)
 
 class ROCReport:
     BASE_PATH = os.path.abspath(os.curdir) + '/routes/coi'
 
-    def __init__(self, title=None, author=None, name="", address="", policy=None):
+    def __init__(self, title=None, author="Luckytruck", company=None):
         self.page_size = letter
         self.page_margin = (7 * mm, 6.4 * mm)
         self.sections = ["header", "content"]
         self.title = title
         self.author = author
-        self.name = name or ""
-        self.address = address or ""
-        self.policy = json.loads(policy) if policy else {}
+        self.name = company['name']
+        self.dba = company['dba']
+        self.mc_number = company['mcNumber']
+        self.email_address = company['emailAddress']
+        self.phone_number = company['phoneNumber']
+        self.dot_number = company['dotNumber']
+        self.mailing_address = json.loads(company['mailingAddress'])
+        self.garaging_addr = json.loads(company['garagingAddress'])
+        self.business_structure = company['businessStructure']
+        self.drivers_information_list =json.loads( company['driverInformationList'])
+        self.vehicles_trailers_list = json.loads(company['vehicleInformationList'])['vehicle'] + json.loads(company['vehicleInformationList'])['trailer']
+        self.signature = json.loads(company['signSignature'])['imageSign']        
+
+    def check_business_type(self, type):
+        if type in self.business_structure:
+            return True
+        else:
+            return False
 
     def validate(self, val):
         if val:
@@ -145,7 +160,7 @@ class ROCReport:
     def checkbox(self, checked=None, size='medium'):
         x = ''
         if checked:
-            x = 'X'
+            x = 'x'
         width = 5.8
         height = 5.2
         if size == 'small':
@@ -229,11 +244,11 @@ class ROCReport:
             ),
         ]
 
-    def underline(self):
+    def underline(self, text=""):
         return  Table(
                     [
                         [ 
-                            Paragraph("", styles["rc-small-content"]),
+                            Paragraph(text, styles["rc-normal-text"]),
                         ]
                     ],
                     style=extend_table_style(styles["rc-main-table"], [
@@ -242,29 +257,53 @@ class ROCReport:
                     ]),
                 )
 
-    def driver_information(self, number):
-        return Table(
-                [
-                    [   
-                       Paragraph(number, extend_style(styles["rc-normal-header"])),
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("GRID", (0, 0), (-1, -1), .15, "black"),
-                ]),
-                colWidths=(60*mm, 20*mm, 10*mm, 39*mm, 20*mm, 25*mm, 20*mm, 8*mm),
-                rowHeights=4*mm
-            ),
+    def driver_information(self):
+        drivers = []
+        for number in range(0, 5):
+            if number >= len(self.drivers_information_list):
+                driver = {
+                    'firstName': '',
+                    'lastName': '',
+                    'dobY': '',
+                    'dobM': '',
+                    'dobD': '',
+                    'state': '',
+                    'licenseNumber': '',
+                    'CDL': ''
+                }
+            else:
+                driver = self.drivers_information_list[number]
+
+            dob = '{}-{}-{}'.format(driver['dobY'], driver['dobM'], driver['dobD'])
+            if number >= len(self.drivers_information_list):
+                dob = ''
+            drivers.append(
+                Table(
+                    [
+                        [   
+                           Paragraph(str(number+1)+'. '+driver['firstName'] + ' ' + driver['lastName'], extend_style(styles["rc-normal-text"])),
+                           Paragraph(dob, extend_style(styles["rc-normal-text"])),
+                           Paragraph(str(driver['state']), extend_style(styles["rc-normal-text"])),
+                           Paragraph(str(driver['licenseNumber']), extend_style(styles["rc-normal-text"])),
+                           Paragraph(str(driver['CDL']), extend_style(styles["rc-normal-text"])),
+                           Paragraph("", extend_style(styles["rc-normal-text"])),
+                           None,
+                           None,
+                        ]
+                    ],
+                    style=extend_table_style(styles["rc-main-table"], [
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("GRID", (0, 0), (-1, -1), .15, "black"),
+                    ]),
+                    colWidths=(60*mm, 20*mm, 10*mm, 39*mm, 20*mm, 25*mm, 20*mm, 8*mm),
+                    rowHeights=4*mm
+                ),
+            )
+
+        return drivers
 
     def driver_information_continued(self, number):
+
         return Table(
                 [
                     [   
@@ -287,19 +326,32 @@ class ROCReport:
                 rowHeights=4.5*mm
             ),
 
-    def schedule_detail(self, number):
-        return Table(
+    def schedule_detail(self):
+        vehicles = []
+        for number in range(0, 10):
+            if number >= len(self.vehicles_trailers_list):
+                vehicle = {
+                    'year': '',
+                    'model': '',
+                    'vehicleType': '',
+                    'VIN': '',
+                    'radiusOfTravelVehicle': '',
+                }
+            else:
+                vehicle = self.vehicles_trailers_list[number]
+
+            vehicles.append(Table(
                 [
                     [   
-                       Paragraph(number, extend_style(styles["rc-normal-header"])),
+                       Paragraph(str(number+1), extend_style(styles["rc-normal-header"])),
+                       Paragraph(str(vehicle['year']), extend_style(styles["rc-normal-header"])),
+                       Paragraph(str(vehicle['model']), extend_style(styles["rc-normal-header"])),
+                       Paragraph(vehicle['vehicleType'], extend_style(styles["rc-normal-header"])),
+                       Paragraph(str(vehicle['VIN']), extend_style(styles["rc-normal-header"])),
                        None,
                        None,
                        None,
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
+                       Paragraph(str(vehicle['radiusOfTravelVehicle']), extend_style(styles["rc-normal-header"])),
                        None,
                        None,
                     ]
@@ -310,7 +362,8 @@ class ROCReport:
                 ]),
                 colWidths=(7*mm, 9*mm, 22*mm, 18*mm, 52*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
                 rowHeights=4.5*mm
-            ),
+            ))
+        return vehicles
 
     def physical_detail(self, number):
         return Table(
@@ -499,7 +552,7 @@ class ROCReport:
                     [   
                         self.right_header("1."),
                         Paragraph('Name (and "dba")', extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline('{} ({})'.format(self.name, self.dba))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -511,19 +564,19 @@ class ROCReport:
                 [
                     [   
                         None,
-                        self.checkbox(size='small'),
-                        Paragraph("Indivisual / Proprietorship", styles["rc-checkbox-text-small"]),
-                        self.checkbox(size='small'),
+                        self.checkbox(size='small', checked='Proprietorship' in self.business_structure),
+                        Paragraph("Individual / Proprietorship", styles["rc-checkbox-text-small"]),
+                        self.checkbox(size='small', checked='Partnership' in self.business_structure),
                         Paragraph("Partnership", styles["rc-checkbox-text-small"]),
-                        self.checkbox(size='small'),
+                        self.checkbox(size='small', checked='Corporation' in self.business_structure),
                         Paragraph("Corporation", styles["rc-checkbox-text-small"]),
-                        self.checkbox(size='small'),
+                        self.checkbox(size='small', checked='Limited Liability Company' in self.business_structure),
                         Paragraph("Other", styles["rc-checkbox-text-small"]),
                         Paragraph("Business Phone Number", extend_style(styles["rc-first-label"])),
                         Table(
                             [
                                 [ 
-                                    self.underline()
+                                    self.underline(self.phone_number)
                                 ]
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -549,13 +602,13 @@ class ROCReport:
                     [   
                         self.right_header("2."),
                         Paragraph("Mailing Address", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.mailing_address['address']),
                         Paragraph("City", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.mailing_address['city']),
                         Paragraph("State", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.mailing_address['state']),
                         Paragraph("Zip", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.mailing_address['zip'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -572,13 +625,13 @@ class ROCReport:
                     [   
                         self.right_header("3."),
                         Paragraph("Premises Address", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.garaging_addr['address']),
                         Paragraph("City", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.garaging_addr['city']),
                         Paragraph("State", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.garaging_addr['state']),
                         Paragraph("Zip", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.garaging_addr['zip'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1290,20 +1343,21 @@ class ROCReport:
                             rowHeights=18*mm
                         ),
                     ],
-                    [   
-                        self.driver_information('1.')
-                    ],
-                    [   
-                        self.driver_information('2.')
-                    ],
-                    [   
-                        self.driver_information('3.')
-                    ],
-                    [   
-                        self.driver_information('4.')
-                    ],
-                    [   
-                        self.driver_information('5.')
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), .75, "black"),
+                ]),
+                colWidths=(202*mm),
+                rowHeights=(18*mm) 
+            ),
+        ]
+
+        elems += [
+            Table(
+                [   
+                    [
+                        self.driver_information()
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1311,7 +1365,7 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(18*mm, 4*mm, 4*mm, 4*mm, 4*mm, 4*mm) 
+                rowHeights=(20*mm) 
             ),
         ]
 
@@ -1321,7 +1375,7 @@ class ROCReport:
                 [
                     [   
                        Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
-                       Paragraph("Truck Application Page 1 of 5", extend_style(styles["rc-normal-end"])),
+                       Paragraph("Truck Application Page 1 of 4", extend_style(styles["rc-normal-end"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1647,36 +1701,6 @@ class ROCReport:
                             colWidths=(7*mm, 9*mm, 22*mm, 18*mm, 52*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
                             rowHeights=(18*mm)
                         ),
-                    ],
-                    [   
-                        self.schedule_detail("1."),
-                    ],
-                    [   
-                        self.schedule_detail("2."),
-                    ],
-                    [   
-                        self.schedule_detail("3."),
-                    ],
-                    [   
-                        self.schedule_detail("4."),
-                    ],
-                    [   
-                        self.schedule_detail("5."),
-                    ],
-                    [   
-                        self.schedule_detail("6."),
-                    ],
-                    [   
-                        self.schedule_detail("7."),
-                    ],
-                    [   
-                        self.schedule_detail("8."),
-                    ],
-                    [   
-                        self.schedule_detail("9."),
-                    ],
-                    [   
-                        self.schedule_detail("10."),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1684,7 +1708,23 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(18*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm)
+                rowHeights=(18*mm)
+            ),
+        ]
+
+        elems += [
+            Table(
+                [
+                    [   
+                        self.schedule_detail()
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), .75, "black"),
+                ]),
+                colWidths=( 202*mm),
+                rowHeights=45*mm
             ),
         ]
 
@@ -1972,15 +2012,16 @@ class ROCReport:
             Table(
                 [
                     [   
-                       Paragraph("Truck Application Page 2 of 5", extend_style(styles["rc-normal-end"])),
+                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
+                       Paragraph("Truck Application Page 2 of 4", extend_style(styles["rc-normal-end"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("TOPPADDING", (0, 0), (-1, -1), 12),
                 ]),
-                colWidths=(202*mm),
-                rowHeights=5*mm
+                colWidths=(90*mm, 112*mm),
+                rowHeights=6*mm
             ),
         ]
 
@@ -3068,371 +3109,16 @@ class ROCReport:
             Table(
                 [
                     [   
-                       Paragraph("Truck Application Page 3 of 5", extend_style(styles["rc-normal-end"])),
+                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
+                       Paragraph("Truck Application Page 3 of 4", extend_style(styles["rc-normal-end"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 5),
                 ]),
-                colWidths=(202*mm),
+                colWidths=(90*mm, 112*mm),
                 rowHeights=5*mm
-            ),
-        ]
-
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("SELECTION OF LIMITS FOR UNINSURED/UNDERINSURED MOTORISTS COVERAGE<br/>(Virginia)", extend_style(styles["rc-header-text"])),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5)
-                ]),
-                colWidths=(202*mm),
-                rowHeights=12*mm
-            ),
-        ]
-
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("Virginia Insurance Code Section 38.2-2206 provides that policies of insurance which provide bodily injury or property damage liability insurance relating to the ownership, maintenance or use of a motor vehicle issued or delivered in the Commonwealth of Virginia must provide Unsured motor vehicle coverage in limits not less than $25,000 because of bodily injury to or death of one person in any one accident and $50,000 because of bodily injury to or death of two or more persons in any one accident, and $20,000 because of injury to or destruction of property of others on any one accident. Such policies must also provide coverage for bodily injury or property damage caused by the operation or use of an Underinsured motor vehicle.", extend_style(styles["rc-medium-content-justify"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                       Paragraph("Under Virginia law, the limits of Uninsured/Underinsured motorist coverage must equal the limits of the liability insurance provided by your policy unless additional coverage is rejected by any one named insured. Therefore, if you purchase liability insurance in amounts greater than the state mandated minimum limits of $25,000/50,000/20,000, your Uninsured/Underinsured motorist coverage limits will equal these greater limits.", extend_style(styles["rc-medium-content-justify"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                       Paragraph("If you purchase liability limits in excess of $25,000/50,000/20,000 you may reject the increased limits of Uninsured/Underinsured motorist coverage. If you reject the increased limits of Uninsured/Underinsured motorist coverage you must at a minimum purchase the state-mandated limits of $25,000/50,000/20,000. You may also choose to purhase Uninsured/Underinsured motorist coverage limits in excess of the state-mandated minimum amount yet less than your liability insurance limits. Ask your producer for coverage limits offered.", extend_style(styles["rc-medium-content-justify"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                       Paragraph("The rejection of the additional limits of Uninsured/Underinsured motorist insurance by any one named insured is binding on all insureds under such policy.", extend_style(styles["rc-medium-content-justify"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                       Paragraph("In accordance with the Virginia law, the undersigned insured (and each of them):", extend_style(styles["rc-medium-content"])),
-                    ],
-                    [   
-                        Table(
-                            [
-                                [   
-                                    Paragraph("(Applicable item marked", extend_style(styles["rc-bold-text"])),
-                                    self.checkbox(True, size='small'),
-                                    Paragraph(" )", extend_style(styles["rc-bold-text"])),
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                            ]),
-                            colWidths=(35*mm, 2.5*mm, 16*mm),
-                            rowHeights=6*mm
-                        )
-                        
-                    ],
-                    [
-                        Table(
-                            [
-                                [   
-                                    None,
-                                    self.checkbox(size='small'),
-                                    None,
-                                    Paragraph("Selects Uninsured/Underinsured mortor vehicle coverage limits in the amount of $25,000/50,000/20,000. These are the lowest coverage limits which may be purchased by law.", extend_style(styles["rc-normal-text"])),
-                                ],
-                                [
-                                    None,None,None,None,
-                                ],
-                                [   
-                                    None,
-                                    self.checkbox(size='small'),
-                                    None,
-                                    Paragraph("Selects Uninsured/Underinsured mortor vehicle coverage limits which are lower than the liability limits under the policy but higher than the state-mandated minimum limits. Selected limits for Uninsured/Underinsured motorist coverage are:", extend_style(styles["rc-normal-text"])),
-                                ],
-                                [
-                                    None,None,None,None,
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    Paragraph("Enter limit if a separate limit of liability applies)", extend_style(styles["rc-medium-content"])),
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    Paragraph("$_______________ Bodily injury each person", extend_style(styles["rc-medium-content"])),
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    Paragraph("$_______________ Bodily injury each accident", extend_style(styles["rc-medium-content"])),
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    Paragraph("$_______________ Property Damage each accident", extend_style(styles["rc-medium-content"])),
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    None,
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    Paragraph("Enter limit if a single limit of liability applies)", extend_style(styles["rc-medium-content"])),
-                                ],
-                                [
-                                    None,
-                                    None,
-                                    None,
-                                    Paragraph("$_______________ Each accident", extend_style(styles["rc-medium-content"])),
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                            ]),
-                            colWidths=(2*mm, 3*mm, 3*mm, 192*mm),
-                        )
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                        Paragraph("<u>MEDIACAL EXPENSE AND INCOME LOSS BENEFITS SELECTION</u>", extend_style(styles["rc-medium-header-underline"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                        Table(
-                            [
-                                [   
-                                    Paragraph("<u>Medical Expense Benefits</u>", extend_style(styles["rc-bold-text-underline"])),
-                                    Paragraph("- Choose one:", extend_style(styles["rc-medium-content"])),
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ]),
-                            colWidths=(36*mm, 160*mm),
-                        )
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Table(
-                            [
-                                [   
-                                    None,
-                                    self.checkbox_text('Reject', 12, bold=True),
-                                    None, None, None, None, None
-                                ],
-                                [   
-                                    None,
-                                    self.checkbox_text('Accept', 16, bold=True),
-                                    Paragraph("If accepting, choose one:", extend_style(styles["rc-medium-content"])),
-                                    self.checkbox_text('$500', 10),
-                                    self.checkbox_text('$1000', 10),
-                                    self.checkbox_text('$2000', 10),
-                                    self.checkbox_text('$5000', 10),
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ]),
-                            colWidths=(2*mm, 35*mm, 40*mm, 30*mm, 30*mm, 30*mm,30*mm),
-                        ),
-                    ],
-                    [
-                        None,
-                    ],
-                    [   
-                        Table(
-                            [
-                                [   
-                                    Paragraph("<u>Income Loss Benefits</u>", extend_style(styles["rc-bold-text-underline"])),
-                                    Paragraph("- Choose one:", extend_style(styles["rc-medium-content"])),
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ]),
-                            colWidths=(31*mm, 160*mm),
-                        )
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Table(
-                            [
-                                [   
-                                    None,
-                                    self.checkbox_text('Reject', 12, bold=True)
-                                ],
-                                [   
-                                    None,
-                                    self.checkbox_text('Accept', 16, bold=True),
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ]),
-                            colWidths=(2*mm, 200*mm),
-                        )
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Paragraph('I have indicated my choice above ("X" indicates my choice):', extend_style(styles["rc-medium-content"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Table(
-                            [
-                                [   
-                                    None,
-                                    Table(
-                                        [
-                                            [   
-                                                Paragraph("Signature of Insured", extend_style(styles["rc-normal-center"])),
-                                            ],
-                                        ],
-                                        style=extend_table_style(styles["rc-main-table"], [
-                                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                            ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
-                                        ]),
-                                        colWidths=(80*mm),
-                                    ),
-                                    None,
-                                    Table(
-                                        [
-                                            [   
-                                                Paragraph("Signature of Insured", extend_style(styles["rc-normal-center"])),
-                                            ],
-                                        ],
-                                        style=extend_table_style(styles["rc-main-table"], [
-                                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                            ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
-                                        ]),
-                                        colWidths=(80*mm),
-                                    ),
-                                    None,
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ]),
-                            colWidths=(2*mm, 80*mm, 18*mm, 80*mm, 22*mm),
-                        )                        
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Table(
-                            [
-                                [   
-                                    None,
-                                    Table(
-                                        [
-                                            [   
-                                                Paragraph("Date", extend_style(styles["rc-normal-center"])),
-                                            ],
-                                        ],
-                                        style=extend_table_style(styles["rc-main-table"], [
-                                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                            ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
-                                        ]),
-                                        colWidths=(80*mm),
-                                    ),
-                                    None,
-                                    Table(
-                                        [
-                                            [   
-                                                Paragraph("Policy Number", extend_style(styles["rc-normal-center"])),
-                                            ],
-                                        ],
-                                        style=extend_table_style(styles["rc-main-table"], [
-                                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                            ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
-                                        ]),
-                                        colWidths=(80*mm),
-                                    ),
-                                    None,
-                                ],
-                            ],
-                            style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ]),
-                            colWidths=(2*mm, 80*mm, 18*mm, 80*mm, 22*mm),
-                        )                        
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Paragraph("(Until you advise us otherwise in writing, your choices, as indicated above, will continue regardless of any addition or change in Auto coverage on your current policy or addition of any Scheduled Autos.)", extend_style(styles["rc-medium-content"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        Paragraph("SIGNATURE IS ALSO REQUIRED ON LAST PAGE OF APPLICATION", extend_style(styles["rc-medium-header-center"])),
-                    ],
-
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ]),
-                colWidths=(202*mm),
-            ),
-        ]
-
-        # 4 page footer
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("Truck Application Page 4 of 5", extend_style(styles["rc-normal-end"])),
-                    ],
-                    [
-                        None,
-                    ],
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
-                ]),
-                colWidths=(202*mm),
-                rowHeights=7*mm
             ),
         ]
 
@@ -3449,7 +3135,7 @@ class ROCReport:
                         None
                     ],
                     [
-                        Paragraph("No coverage is bound until the Company advises the <b>Applicant or its representative that a policy will be issued and then only as of the policy effective date and in accordance with all policy terms. The Apllicant acknowledges that the Applicant's Representative named below is acting as Applicant's agent and not on behalf of the Company. The Applicant's Representative has no authority to bind coverage, may not accept any funds for the Company, and may not modify or interpret the terms of the policy.</b>", extend_style(styles["rc-normal-text1"])),
+                        Paragraph("No coverage is bound until the Company advises the Applicant or its representative that a policy will be issued and then only as of the policy effective date and in accordance with all policy terms. <b>The Apllicant acknowledges that the Applicant's Representative named below is acting as Applicant's agent and not on behalf of the Company. The Applicant's Representative has no authority to bind coverage, may not accept any funds for the Company, and may not modify or interpret the terms of the policy.</b>", extend_style(styles["rc-normal-text1"])),
                     ],
                     [
                        Paragraph("The Applicant agrees that the foregoing statements and answers are true and correct. The Applicant requests the Company to rely on its statements and answers in issuing any policy or subsequent renewal. The Applicant agrees that if its statements and answers are materially false, the Company may rescind any policy or subsequent renewal it may issue.", extend_style(styles["rc-normal-text1"])),
@@ -3484,20 +3170,11 @@ class ROCReport:
                         ),
                     ],
                     [
-                        None,
+                        None
                     ],
                     [
-                        None,
-                    ],
-                    [
-                        Paragraph("IT IS A CRIME TO KNOWINGLY PROVIDE FALSE, INCOMEPLETE OR MISLEADING INFORMATION TO AN INSURANCE COMPANY FOR THE PURPOSE OF DEFRAUDING THE COMPANY. PENALTIES INCLUDE IMPRISONMENT, ", extend_style(styles["rc-medium-header"])),
-                    ],
-                    [
-                        None,
-                    ],
-                    [
-                        None,
-                    ],
+                        None
+                    ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
@@ -3513,40 +3190,52 @@ class ROCReport:
                         Table(
                             [
                                 [   
-                                    Paragraph("Witness", extend_style(styles["rc-normal-text"])),
+                                    Paragraph("", extend_style(styles["rc-small-underline"])),
+                                ],
+                                [   
+                                    Paragraph("Witness", extend_style(styles["rc-small-underline"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
                                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
+                                ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
                             ]),
                             colWidths=(72*mm),
+                            rowHeights=(6*mm)
                         ),
                         None,
                         Table(
                             [
                                 [   
-                                    Paragraph("Applicant's Signature", extend_style(styles["rc-normal-text"])),
+                                    Paragraph("<img src='{}' width='220' height='15'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
+                                ],
+                                [   
+                                    Paragraph("Applicant's Signature", extend_style(styles["rc-small-underline"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
                                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
+                                ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
                             ]),
                             colWidths=(82*mm),
+                            rowHeights=(6*mm)
                         ),
                         None,
                         Table(
                             [
                                 [   
-                                    Paragraph("Date", extend_style(styles["rc-normal-text"])),
+                                    Paragraph(date.now().strftime('%y-%d-%m %H:%M:%S'), extend_style(styles["rc-normal-text"])),
+                                ],
+                                [   
+                                    Paragraph("Date", extend_style(styles["rc-small-underline"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
                                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                                ("LINEABOVE", (0, 0), (-1, -1), 0.75, 'black')
+                                ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
                             ]),
                             colWidths=(30*mm),
+                            rowHeights=(6*mm)
                         ),
                         None,
                     ],
@@ -3706,8 +3395,8 @@ class ROCReport:
                             [
                                 [   
                                     None,
-                                    Paragraph("Applicant's Representative's Name and Address", extend_style(styles["rc-normal-center"])),
-                                    Paragraph("Phone No.", extend_style(styles["rc-normal-center"])),
+                                    Paragraph("Applicant's Representative's Name and Address", extend_style(styles["rc-small-underline"])),
+                                    Paragraph("Phone No.", extend_style(styles["rc-small-underline"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -3735,19 +3424,38 @@ class ROCReport:
             ),
         ]
 
-        # footer page 5
+        elems += [
+            Table(
+                [
+                    [
+                        None
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ]),
+                colWidths=(202*mm),
+                rowHeights=76*mm
+            ),
+        ]
+
+
+        # footer page 4
         elems += [
             Table(
                 [
                     [   
-                       Paragraph("Truck Application Page 5 of 5", extend_style(styles["rc-normal-end"])),
+                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
+                       Paragraph("Truck Application Page 4 of 4", extend_style(styles["rc-normal-end"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 12),
                 ]),
-                colWidths=(202*mm),
-                rowHeights=69*mm
+                colWidths=(90*mm, 112*mm),
+                rowHeights=6*mm
             ),
         ]
 

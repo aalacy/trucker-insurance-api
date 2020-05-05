@@ -7,7 +7,7 @@ from document_specific_styles import *
 from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, Paragraph, Table, Spacer
 
 
-def coi(title='COI.pdf', author=None, name="", address="", policy="{}"):
+def coi(title='COI.pdf', author="Luckytruck", name="", address="", policy="{}"):
     cr =ROCReport(title, author, name, address, policy)
     buff = cStringIO.StringIO()
     return cr.create_report(buff)
@@ -15,7 +15,7 @@ def coi(title='COI.pdf', author=None, name="", address="", policy="{}"):
 class ROCReport:
     BASE_PATH = os.path.abspath(os.curdir) + '/routes/coi'
 
-    def __init__(self, title=None, author=None, name="", address="", policy=None):
+    def __init__(self, title=None, author="Luckytruck", name="", address="", policy=None):
         self.page_size = letter
         self.page_margin = (7.9 * mm, 6.4 * mm)
         self.sections = ["header", "content"]

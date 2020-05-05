@@ -96,27 +96,11 @@ module.exports = (app) => {
     }
   })
 
-  router.get('/testnico', async (req, res, next) => {
-    const shellPath = __dirname + '/coi/run_coi.py'
-
-    let shellCommand = `/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/routes/coi/venv/bin/python ${shellPath} --new_path '/public/coi/testnico.pdf' --old_path '/public/coi/coi.pdf' --name 'test' --address 'test'`
-
-    exec(shellCommand, async (error, stdout, stderr) => {
-      if (error || stderr) {
-        console.log(error, stderr)
-      }
-
-      return res.json({
-        status: 'ok',
-      })
-    })
-  })
-
   router.post('/coi', async (req, res, next) => {
     const { name, address, uuid, dotId, policy, userId } = req.body;
     // if(!uuid)uuid = await getNewUUID();
 
-    const shellPath = __dirname + '/coi/run_coi.py'
+    const shellPath =  __dirname + '/coi/run_coi.py'
     let _name = name.replace("'", "###*###").replace('"', '\\"')
     let _address = address.replace("'", "###*###").replace('"', '\\"')
     const path = `/public/coi/coi-${_name}${uuid}${moment().format("YYYYMMDDhhmmss")}.pdf`
@@ -177,6 +161,42 @@ module.exports = (app) => {
     });
   })
 
+  // Generate Nico PDF in the multi step forms
+  router.get('/nico', async (req, res, next) => {
+    let uuid;
+    if(req.query.uuid)uuid = req.query.uuid;
+    else if(req.body.uuid)uuid = req.body.uuid;
+    else if(req.cookies.uuid)uuid = req.cookies.uuid;
+
+    if(!uuid){
+      res.send({
+        status: "OK",
+        data: 'uuid is empty',
+        messages: []
+      })
+      return;
+    }
+
+    const shellPython = __dirname + '/coi/venv/bin/python ' + __dirname + '/coi/run_nico.py'
+    let shellCommand = `${shellPython} --uuid ${uuid}`
+
+    const pdfPath = __dirname + `/../public/nico/nico-${uuid}.pdf`
+
+    exec(shellCommand, async (error, stdout, stderr) => {
+      console.log(stdout)
+      if (error || stderr) {
+        console.log(error, stderr)
+      }
+
+      fs.readFile(pdfPath, function (err, data){
+        // console.log('FsData:'+ JSON.stringify(data));
+        res.contentType("application/pdf");
+        res.send(data);
+       });
+    })
+  })
+
+  // Generate old PDF in the multi step forms
   router.get('/pdf', async (req, res, next) => {
     let uuid;
     if(req.query.uuid)uuid = req.query.uuid;

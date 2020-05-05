@@ -10,7 +10,7 @@ let request = require('request');
 module.exports = {
 
   getFileName: function(uuid, hubspotCompanyId, extension){
-    return 'trucking-insurance-application-'+((hubspotCompanyId)?hubspotCompanyId:uuid)+((extension)?'.pdf':'');
+    return 'app-'+((hubspotCompanyId)?hubspotCompanyId:uuid)+((extension)?'.pdf':'');
   },
   get: async function(uuid, hubspotCompanyId, companyModel) {
     return new Promise(async (resolve, reject) => {
@@ -18,7 +18,7 @@ module.exports = {
       try{
 
         let html = await this.getHTML(uuid, companyModel);
-        let pdfLocation = webConfig.rootDir+'/public/trucking-insurance-application/'+this.getFileName(uuid, hubspotCompanyId, true);
+        let pdfLocation = webConfig.rootDir+'/public/app/'+this.getFileName(uuid, hubspotCompanyId, true);
 
         let pdfOptions = {
           "paperSize": {

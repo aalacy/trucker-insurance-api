@@ -1341,7 +1341,7 @@ styles["rc-first-label"] = ParagraphStyle(
 styles["rc-normal-text"] = ParagraphStyle(
     "rc-normal-text",
     parent=styles["rc-small-header"],
-    leading=9,
+    leading=10,
     fontSize=8,
     justifyBreaks=0,
     fontName="Arial",
@@ -1446,5 +1446,11 @@ styles["rc-small-underline"] = ParagraphStyle(
     spaceBefore=0,
     leftIndent=0,
     spaceAfter=0,
+    leading=0,
+)
+
+styles["rc-underline-text"] = ParagraphStyle(
+    "rc-underline-text",
+    parent=styles["rc-small-content"],
     leading=0,
 )

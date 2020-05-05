@@ -10,7 +10,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from coi import coi
-from nico import nico
 
 BASE_PATH = os.getcwd()
 config_path = BASE_PATH + '/config/config.json'
@@ -31,7 +30,7 @@ def _escape(val):
     else:
         return val
 
-def generate_old_pdf(data, args):
+def generate_pdf(data, args):
     pdf_output = os.path.abspath(os.curdir) + args.old_path
     with open(os.path.expanduser(pdf_output), "wb+") as output_file:
         shutil.copyfileobj(
@@ -39,16 +38,6 @@ def generate_old_pdf(data, args):
             output_file,
         )
     print("completed old coi")
-
-def generate_nico_pdf(data, args):
-    pdf_output = os.path.abspath(os.curdir) + args.new_path
-    # pdf_output = os.path.abspath(os.curdir) + 'text-nico.pdf'
-    with open(os.path.expanduser(pdf_output), "wb+") as output_file:
-        shutil.copyfileobj(
-            nico(name=_escape(args.name), address=_escape(args.address), policy=args.policy),
-            output_file,
-        )
-    print("completed new nico coi")
 
 def read_sf(config, userId):
     # read sf info stored in db and check expired (1 hour)
@@ -82,7 +71,6 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--dotId', type=str, required=False, help="US DOT ID")
     parser.add_argument('-u', '--userId', type=str, required=False, help="User ID")
     parser.add_argument('-i', '--old_path', type=str, required=False, help="old coi path")
-    parser.add_argument('-c', '--new_path', type=str, required=False, help="new nico path")
 
     args = parser.parse_args()
 
@@ -105,6 +93,5 @@ if __name__ == "__main__":
         else:
             print("something wrong with salesforce access_token url")
     else:
-        generate_old_pdf({}, args)
-        generate_nico_pdf({}, args)
+        generate_pdf({}, args)
 
