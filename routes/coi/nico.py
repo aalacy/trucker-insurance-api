@@ -274,7 +274,7 @@ class ROCReport:
             else:
                 driver = self.drivers_information_list[number]
 
-            dob = '{}-{}-{}'.format(driver['dobY'], driver['dobM'], driver['dobD'])
+            dob = '{}-{}-{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
             if number >= len(self.drivers_information_list):
                 dob = ''
             drivers.append(
@@ -545,14 +545,17 @@ class ROCReport:
                     rowHeights=(4*mm, 12*mm, 4*mm)
                 ),
 
-    def _section_content(self):        
+    def _section_content(self):     
+        name_dba = self.name
+        if self.dba:
+            name_dba += '({})'.format(self.dba)   
         elems = [
             Table(
                 [
                     [   
                         self.right_header("1."),
                         Paragraph('Name (and "dba")', extend_style(styles["rc-first-label"])),
-                        self.underline('{} ({})'.format(self.name, self.dba))
+                        self.underline(name_dba)
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2999,7 +3002,7 @@ class ROCReport:
                 [
                     [   
                         None,
-                        Paragraph("(a)  With whome has such agreement(s) been made?", extend_style(styles["rc-first-label"])),
+                        Paragraph("(a)  With whom has such agreement(s) been made?", extend_style(styles["rc-first-label"])),
                         self.underline()
                     ]
                 ],
