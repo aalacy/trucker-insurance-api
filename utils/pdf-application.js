@@ -12,6 +12,7 @@ module.exports = {
   getFileName: function(uuid, hubspotCompanyId, extension){
     return 'app-'+((hubspotCompanyId)?hubspotCompanyId:uuid)+((extension)?'.pdf':'');
   },
+
   get: async function(uuid, hubspotCompanyId, companyModel) {
     return new Promise(async (resolve, reject) => {
 
@@ -158,6 +159,7 @@ module.exports = {
 
     })
   },
+
   getHTML: async function(uuid, companyModel) {
     return new Promise(async (resolve, reject) => {
 
@@ -344,5 +346,5 @@ module.exports = {
 
       resolve(html);
     });
-  }
+  },
 };

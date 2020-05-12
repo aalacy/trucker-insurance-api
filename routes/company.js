@@ -177,8 +177,7 @@ module.exports = (app) => {
       return;
     }
 
-    // const shellPython = __dirname + '/coi/venv/bin/python ' + __dirname + '/coi/run_nico.py'
-    const shellPython = 'python ' + __dirname + '/coi/run_nico.py'
+    const shellPython = config.python + ' ' + __dirname + '/coi/run_nico.py'
     let shellCommand = `${shellPython} --uuid ${uuid}`
 
     const pdfPath = __dirname + `/../public/nico/nico-${uuid}.pdf`
@@ -264,6 +263,7 @@ module.exports = (app) => {
     })
   })
 
+  // Get the vin code in vehicle and trailer step in multi step forms
   router.all('/vin', async (req, res, next) => {
 
     if (!req.body.vin && !req.query.vin) {
@@ -307,7 +307,10 @@ module.exports = (app) => {
     }
   })
 
+  // home company search by dot Id
   router.all('/search', async (req, res, next) => {
+
+    const { userId } = req.query
 
     if (!req.body.keyword && !req.query.keyword) {
       return res.send({
@@ -330,17 +333,40 @@ module.exports = (app) => {
           usdot: so['USDOT Number'],
           location: `${_address[index-4]} ${_address[index-3]}`
         }]
-        res.send({
-            status: "OK",
-            type: 'USDOT',
-            data: data,
-            message: ""
+        // check if the user already submitted the app with this dot Id
+        let isSubmitted = false
+        console.log('id', userId)
+        const user = await new model.User().findUser({ id: userId }).catch(e => {
+          console.log(e)
         })
+        console.log(user)
+        try {
+          const Company = await new model.Company().findByUserId(userId)
+          console.log(Company)
+          if (Company) {
+            isSubmitted = true
+          }
+        } catch(e) {
+        }
+        if (isSubmitted) {
+          res.send({
+            type: "submitted",
+            status: "Error",
+            message: "You cannot use a new DOT # for submitting a new quote. If your DOT # is changed, <a href='/contactus'>Click here.</a>"
+          })
+        } else {
+          res.send({
+              status: "OK",
+              type: 'USDOT',
+              data: data,
+              message: ""
+          })
+        }
       } else {
         res.send({
             type: "USDOT",
             status: "Error",
-            message: 'If your company is new, feel welcome to call us at <a href="tel:15135062400 " style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> and we can help set up your authority, otherwise check the number and search again.'
+            message: 'If your company is new, feel welcome to call us at <a href="tel:15135062400" style="color: rgb(0, 123, 255); font-weight: bold; white-space: nowrap;">1-513-506-2400</a> and we can help set up your authority, otherwise check the number and search again.'
         })
       }
     } else{
@@ -377,6 +403,33 @@ module.exports = (app) => {
     }
   })
 
+  // Check if the user already signed up and submitted the quotes to SF,
+  // if then, the user cannot submitted the quote with new dot Id
+  router.get('/checkQuotedWithDotId', async (req, res, next) => {
+      const { usdot, userId } = req.body;
+      const user = await new model.User().findUser({ id: userId }).catch(e => {
+        res.json({
+          status: 'Failed',
+          submitted: false
+        })
+      })
+      if (user) {
+        try {
+          const Company = await new model.Company().findByUserId(user.id)
+          res.json({
+            status: 'Ok',
+            submitted: true
+          })
+        } catch (e) {
+          res.json({
+            status: 'Ok',
+            submitted: false
+          })
+        }
+      }
+  })
+
+  // Create a temporary application from selected dot from search
   router.all('/create', async (req, res, next) => {
     const { usdot, userId } = req.body;
     if ( !usdot ) {
@@ -506,7 +559,7 @@ module.exports = (app) => {
     })
   }
 
-
+  // Get the current application in multi step forms with the given uuid saved in the localstorage
   router.get('/current', async (req, res, next) => {
     let uuid;
     if(req.query.uuid) uuid = req.query.uuid;
@@ -541,6 +594,7 @@ module.exports = (app) => {
 
   })
 
+  // we moved from hubspot to salesforce, so don't use it anymore
   router.all('/hubspot', async (req, res, next) => {
     console.log("hubspot1 req",req);
     console.log("hubspot1 res",res);

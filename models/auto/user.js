@@ -196,7 +196,6 @@ module.exports = (sequelize, DataTypes) => {
         }
             
         return data;
-
     }
 
     User.prototype.updateProfileImage = async (user, files) => {
@@ -270,11 +269,11 @@ module.exports = (sequelize, DataTypes) => {
                         user.UserDatum = datum
                         resolve(user)
                     }).catch(err => {
-                        // console.log(err)
+                        console.log(err)
                         reject(stringHelper.sequelizeValidationErrorsToArray(Object.assign({}, err).errors))
                     })
                 }).catch(err => {
-                    // console.log(err)
+                    console.log(err)
                     reject(err)
                 })
             }).catch(err => {
@@ -304,6 +303,18 @@ module.exports = (sequelize, DataTypes) => {
                 resolve(user)
                 return
             }).catch(err => {
+                reject(err)
+            })
+        })
+    }
+
+    User.prototype.findAll = () => {
+        return new Promise((resolve, reject) => {
+            User.findAll({                
+            }).then(users => {
+                return resolve(users)
+            }).catch(err => {
+                console.log(err)
                 reject(err)
             })
         })

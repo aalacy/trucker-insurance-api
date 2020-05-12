@@ -4,7 +4,10 @@ const parseAddress = require('parse-address');
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../../config/config.json')[env];
 const request = require('request');
+let User = require("./user");
 let pdfApplication = require('../../utils/pdf-application');
+var fs = require('fs');
+const { exec } = require("child_process");
 const hubspot = new Hubspot({ 
   apiKey: config.hapikey,
   checkLimit: false // (Optional) Specify whether or not to check the API limit on each call. Default: true 
@@ -49,6 +52,19 @@ module.exports = (sequelize, DataTypes) => {
   Company.associate = function(models) {
     // associations can be defined here
   };
+
+  Company.prototype.findByUserId = async (user_id) => {
+    return new Promise((resolve, reject) => {
+      Company.findOne({
+            where: { user_id },
+        }).then(company => {
+            resolve(company)
+            return
+        }).catch(err => {
+            reject(err)
+        })
+    })
+  }
 
   Company.prototype.findByUUID = async (uuid) => {
     return new Promise((resolve, reject) => {
@@ -215,7 +231,7 @@ module.exports = (sequelize, DataTypes) => {
     };
   }  
 
-  Company.prototype.updateSalesforce = async (uuid, userId, authSF,) => {
+  Company.prototype.updateSalesforce = async (uuid, userId, authSF, nicoPdf, oldPdf) => {
     let accessToken = authSF.access_token;
     let instanceUrl = authSF.instance_url;       
     let sfCAUrl = `${instanceUrl}/services/apexrest/applications`;
@@ -234,9 +250,23 @@ module.exports = (sequelize, DataTypes) => {
         newAttachmentList.push(attachment);
       }
     });
+
+    // signature image
     newAttachmentList.push({
       name: "signature.jpeg",
       content: _v(imageSign)
+    })
+
+    // Old application pdf 
+    newAttachmentList.push({
+      name: `Application for ${profile.name}.pdf`,
+      content: _v(oldPdf)
+    })
+
+    // Nico app pdf
+    newAttachmentList.push({
+      name: `Application for ${profile.name} - NICO.pdf`,
+      content: _v(nicoPdf)
     })
 
     let sfRequestBody = {
@@ -274,11 +304,17 @@ module.exports = (sequelize, DataTypes) => {
                     ).catch(err => {
                       console.log(err);
                     })
+                    sequelize.models.User.update({ 
+                      dotId: profile.dotNumber
+                    }, { where: { id: userId }}).catch(err => {
+                      console.log(err);
+                    })
                   })
                   .catch(err => {
+                    console.log(err)
                     Company.update(
                       {
-                        sf_status: err
+                        sf_status: JSON.stringify(err)
                       },
                       {where: {uuid} },
                     ).catch(err => {
@@ -478,7 +514,27 @@ module.exports = (sequelize, DataTypes) => {
         })
 
         if (options.signSignature) {
-          new Company().updateSalesforce(uuid, userId, authSF);
+            // generate nico pdf
+            const shellPython = config.python + ' ' + __dirname + '/../../routes/coi/run_nico.py'
+            let shellCommand = `${shellPython} --uuid ${uuid}`
+
+            const pdfPath = __dirname + `/../../public/nico/nico-${uuid}.pdf`
+
+            exec(shellCommand, async (error, stdout, stderr) => {
+              console.log(stdout)
+              if (error || stderr) {
+                console.log(error, stderr)
+              }
+
+              fs.readFile(pdfPath, function (err, nicoPdf){
+                // Read old app pdf
+                pdfApplication.get(uuid, 0, new Company()).then(location => {
+                  fs.readFile(location, function (err, oldPdf){
+                      new Company().updateSalesforce(uuid, userId, authSF, nicoPdf, oldPdf);
+                    });
+                  })
+               });
+            })
         }
         resolve('Ok');
       }
