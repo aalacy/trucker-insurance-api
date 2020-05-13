@@ -6,3 +6,4 @@ public/trucking-insurance-application
 public/coi
 tmp
 __pycache__
+.pyc
