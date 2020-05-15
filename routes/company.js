@@ -64,6 +64,9 @@ module.exports = (app) => {
     return state;
   }
 
+  router.get('/testcoi', (req, res, next) => {
+  })
+
   router.post('/coi/new', async (req, res, next) => {
     const { certData, userId } = req.body;
 
@@ -160,6 +163,42 @@ module.exports = (app) => {
       }
     });
   })
+
+  // Generate old application pdf in the multi step forms
+  router.get('/testpdf', async (req, res, next) => {
+    let uuid;
+    if(req.query.uuid)uuid = req.query.uuid;
+    else if(req.body.uuid)uuid = req.body.uuid;
+    else if(req.cookies.uuid)uuid = req.cookies.uuid;
+
+    if(!uuid){
+      res.send({
+        status: "OK",
+        data: 'uuid is empty',
+        messages: []
+      })
+      return;
+    }
+
+    const shellPython = config.python + ' ' + __dirname + '/coi/run_pdf.py'
+    let shellCommand = `${shellPython} --uuid ${uuid}`
+
+    const pdfPath = __dirname + `/../public/pdf/app-${uuid}.pdf`
+
+    exec(shellCommand, async (error, stdout, stderr) => {
+      console.log(stdout)
+      if (error || stderr) {
+        console.log(error, stderr)
+      }
+
+      fs.readFile(pdfPath, function (err, data){
+        // console.log('FsData:'+ JSON.stringify(data));
+        res.contentType("application/pdf");
+        res.send(data);
+       });
+    })
+  })
+
 
   // Generate Nico PDF in the multi step forms
   router.get('/nico', async (req, res, next) => {
@@ -325,6 +364,7 @@ module.exports = (app) => {
     let so;
     if(!isNaN(keyword)){
       so = await companySnapshot.get(keyword).catch(err => console.log(err));
+      console.log('=======================', so)
       if (Object.keys(so).length !== 0 && so.constructor === Object) {
         let _address = so['Physical Address'].split(' ');
         const index = _address.length;

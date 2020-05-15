@@ -673,6 +673,13 @@ styles["rc-divider-table"] = TableStyle(
     ]
 )
 
+styles["rc-pdfdivider-table"] = TableStyle(
+    [
+        ("BACKGROUND", (0, 0), (-1, -1), "#5f98f8"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]
+)
+
 styles["citation_table_header"] = TableStyle(
     [
         ("BACKGROUND", (0, 0), (-1, -1), colors.red),
@@ -1237,13 +1244,50 @@ styles["rc-right-header"] = ParagraphStyle(
     fontName="LiberationSerif",
 )
 
-
 styles["rc-medium-content"] = ParagraphStyle(
     "rc-medium-content",
     parent=styles["rc-small-header"],
     fontSize=9,
     leading=10,
     fontName="Arial",
+)
+
+styles["rc-white-text"] = ParagraphStyle(
+    "rc-white-text",
+    parent=styles["rc-medium-content"],
+    textColor="white",
+    fontSize=9,
+    fontName="Arial-Bold",
+)
+
+styles["rc-blue-text"] = ParagraphStyle(
+    "rc-blue-text",
+    parent=styles["rc-medium-content"],
+    textColor="#5f98f8",
+    fontName="Arial-Bold",
+    alignment=TA_CENTER
+)
+
+styles["rc-blue-text1"] = ParagraphStyle(
+    "rc-blue-text1",
+    parent=styles["rc-blue-text"],
+    alignment=TA_LEFT
+)
+
+
+styles["rc-main-content"] = ParagraphStyle(
+    "rc-main-content",
+    parent=styles["rc-medium-content"],
+    leftIndent=0.8*mm,
+    alignment=TA_LEFT
+)
+
+styles["rc-long-content"] = ParagraphStyle(
+    "rc-long-content",
+    parent=styles["rc-main-content"],
+    leading=16,
+    fontSize=10,
+    alignment=TA_JUSTIFY
 )
 
 styles["rc-medium-content-justify"] = ParagraphStyle(
@@ -1283,6 +1327,14 @@ styles["rc-medium-header"] = ParagraphStyle(
     leftIndent=1.3 * mm,
 )
 
+styles["rc-bold-header"] = ParagraphStyle(
+    "rc-bold-header",
+    parent=styles["rc-medium-header"],
+    leading=15,
+    textColor="#5f98f8",
+    fontSize=12,
+)
+
 styles["rc-medium-header-underline"] = ParagraphStyle(
     "rc-medium-header-underline",
     parent=styles["rc-medium-header"],
@@ -1309,6 +1361,16 @@ styles["rc-my-doc-header"] = ParagraphStyle(
     leading=22,
     fontSize=17,
     fontName="Times-Bold",
+)
+
+styles["rc-pdf-header"] = ParagraphStyle(
+    "rc-pdf-header",
+    parent=styles["rc-my-doc-header"],
+    fontSize=22,
+    textColor="#5f98f8",
+    leading=12,
+    fontName="Arial-Bold",
+    alignment=TA_CENTER,
 )
 
 styles["rc-nico-header"] = ParagraphStyle(
@@ -1428,6 +1490,7 @@ styles["rc-normal-text1"] = ParagraphStyle(
     firstLineIndent=13,
     fontSize=9,
     fontName="Arial",
+    alignment=TA_JUSTIFY,
 )
 
 styles["rc-header-text"] = ParagraphStyle(
@@ -1453,4 +1516,10 @@ styles["rc-underline-text"] = ParagraphStyle(
     "rc-underline-text",
     parent=styles["rc-small-content"],
     leading=0,
+)
+
+styles["rc-underline-text1"] = ParagraphStyle(
+    "rc-underline-text1",
+    parent=styles["rc-medium-content"],
+    leading=16,
 )
