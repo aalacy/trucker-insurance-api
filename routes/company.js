@@ -287,27 +287,26 @@ module.exports = (app) => {
       return;
     }
 
-    pdfApplication.get(uuid, 0, new model.Company()).then(location => {
-      if(req.body.email == undefined){
-        fs.readFile(location, function (err,data){
-          // console.log('FsData:'+ JSON.stringify(data));
-           res.contentType("application/pdf");
-           res.send(data);
-         });
-      }else{
-        res.send({
-          status: "Success",
-          data: JSON.stringify(location),
-          messages: "success"
-        })
-      }
+    const shellPython = config.python + ' ' + __dirname + '/coi/run_pdf.py'
+    let shellCommand = `${shellPython} --uuid ${uuid}`
 
-    }).catch(err => {
-      res.send({
-        status: "ERROR",
-        data: 'find by uuid',
-        messages: err
-      })
+    const pdfPath = __dirname + `/../public/pdf/app-${uuid}.pdf`
+
+    exec(shellCommand, async (error, stdout, stderr) => {
+      console.log(stdout)
+      if (error || stderr) {
+        res.send({
+          status: "ERROR",
+          data: 'find by uuid',
+          messages: err
+        })
+      } else {
+        fs.readFile(pdfPath, function (err, data){
+          // console.log('FsData:'+ JSON.stringify(data));
+          res.contentType("application/pdf");
+          res.send(data);
+        });
+      }
     })
   })
 

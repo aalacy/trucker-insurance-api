@@ -4,7 +4,7 @@ from datetime import datetime as date
 import json
 
 from document_specific_styles import *
-from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, Paragraph, Table, Spacer
+from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, Paragraph, Table, Spacer, PageBreak
 
 L_S = 2.2 
 
@@ -48,6 +48,24 @@ class ROCReport:
             return ""
 
     def create_report(self, buff=None):
+        def page_number(canv, doc):
+            page_num = Table(
+                [
+                    [   
+                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
+                       Paragraph("Truck Application Page {} of 4".format(str(doc.page)), extend_style(styles["rc-normal-end"])),
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ]),
+                colWidths=(90*mm, 122*mm),
+                rowHeights=6*mm
+            )
+            page_num.wrapOn(canv, self.page_size[0], 0)
+            page_num.drawOn(canv, 0, 3.8*mm)
+
         def get_method(section):
             try:
                 method = getattr(self, "_section_" + section)
@@ -75,7 +93,7 @@ class ROCReport:
                 rightPadding=0,
                 topPadding=self.page_margin[0] / 5,
             )
-        ])
+        ], onPage=page_number)
         doc_t = BaseDocTemplate(
             buff,
             pagesize=letter,
@@ -1372,23 +1390,7 @@ class ROCReport:
             ),
         ]
 
-        # 1 page footer
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
-                       Paragraph("Truck Application Page 1 of 4", extend_style(styles["rc-normal-end"])),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("TOPPADDING", (0, 0), (-1, -1), 12),
-                ]),
-                colWidths=(90*mm, 112*mm),
-                rowHeights=6*mm
-            ),
-        ]
+        elems += [PageBreak()]
 
         elems += [
             Table(
@@ -2010,23 +2012,7 @@ class ROCReport:
             ),
         ]
 
-        # 2 page footer
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
-                       Paragraph("Truck Application Page 2 of 4", extend_style(styles["rc-normal-end"])),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("TOPPADDING", (0, 0), (-1, -1), 12),
-                ]),
-                colWidths=(90*mm, 112*mm),
-                rowHeights=6*mm
-            ),
-        ]
+        elems += [ PageBreak() ]
 
         elems += [
             Table(
@@ -3107,23 +3093,7 @@ class ROCReport:
             ),
         ]
 
-        # 3 page footer
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
-                       Paragraph("Truck Application Page 3 of 4", extend_style(styles["rc-normal-end"])),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ]),
-                colWidths=(90*mm, 112*mm),
-                rowHeights=5*mm
-            ),
-        ]
+        elems += [PageBreak()]
 
         elems += [
             Table(
@@ -3445,23 +3415,5 @@ class ROCReport:
             ),
         ]
 
-
-        # footer page 4
-        elems += [
-            Table(
-                [
-                    [   
-                       Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
-                       Paragraph("Truck Application Page 4 of 4", extend_style(styles["rc-normal-end"])),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("TOPPADDING", (0, 0), (-1, -1), 12),
-                ]),
-                colWidths=(90*mm, 112*mm),
-                rowHeights=6*mm
-            ),
-        ]
 
         return elems
