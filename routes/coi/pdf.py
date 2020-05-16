@@ -350,7 +350,7 @@ class ROCReport:
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("GRID", (0, 0), (-1, -1), .45, "black"),
                 ]),
-                colWidths=(45*mm, 65*mm, 94*mm),
+                colWidths=(65*mm, 45*mm, 94*mm),
             ))
         return owners
 
@@ -743,7 +743,7 @@ class ROCReport:
                 	("GRID", (0, 0), (-1, -1), .45, "black"),
                 	("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]),
-                colWidths=(45*mm, 65*mm, 94*mm),
+                colWidths=(65*mm, 45*mm, 94*mm),
                 rowHeights=(10*mm)
             ),
         ]
@@ -981,7 +981,7 @@ class ROCReport:
 			        	Table(
 			                [
 			                    [   
-			                        Paragraph("<img src='{}' width='220' height='35'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
+			                        Paragraph("<img src='{}' width='220' height='55'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
 			                    ],
 			                    [   
 			                        Paragraph("Applicant's Signature", extend_style(styles["rc-underline-text1"])),

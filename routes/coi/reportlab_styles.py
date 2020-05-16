@@ -1219,7 +1219,7 @@ styles["rc-small-header"] = ParagraphStyle(
     "rc-small-header",
     parent=styles["rc-main-header"],
     fontSize=6,
-    leading=8,
+    leading=5,
     spaceBefore=0,
     spaceAfter=0,
     leftIndent=1.3 * mm,
@@ -1231,6 +1231,7 @@ styles["rc-small-content"] = ParagraphStyle(
     "rc-small-content",
     parent=styles["rc-small-header"],
     fontSize=5,
+    leading=6,
     spaceAfter=0,
     fontName="Arial",
 )

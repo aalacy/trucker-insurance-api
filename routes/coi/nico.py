@@ -3186,6 +3186,8 @@ class ROCReport:
             ),
         ]
 
+        elems += [Spacer(width=0, height=10)]
+
         elems += [
             Table(
                 [
@@ -3196,7 +3198,7 @@ class ROCReport:
                                     Paragraph("", extend_style(styles["rc-small-underline"])),
                                 ],
                                 [   
-                                    Paragraph("Witness", extend_style(styles["rc-small-underline"])),
+                                    Paragraph("Witness", extend_style(styles["rc-underline-text1"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -3210,14 +3212,14 @@ class ROCReport:
                         Table(
                             [
                                 [   
-                                    Paragraph("<img src='{}' width='220' height='15'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
+                                    Paragraph("<img src='{}' width='220' height='55'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
                                 ],
                                 [   
-                                    Paragraph("Applicant's Signature", extend_style(styles["rc-small-underline"])),
+                                    Paragraph("Applicant's Signature", extend_style(styles["rc-underline-text1"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                                 ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
                             ]),
                             colWidths=(82*mm),
@@ -3230,11 +3232,11 @@ class ROCReport:
                                     Paragraph(date.now().strftime('%y-%d-%m %H:%M:%S'), extend_style(styles["rc-normal-text"])),
                                 ],
                                 [   
-                                    Paragraph("Date", extend_style(styles["rc-small-underline"])),
+                                    Paragraph("Date", extend_style(styles["rc-underline-text1"])),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
-                                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                                 ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
                             ]),
                             colWidths=(30*mm),

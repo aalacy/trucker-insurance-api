@@ -222,7 +222,7 @@ class ROCReport:
                                                         ],
                                                     ],
                                                     style=extend_table_style(styles["rc-main-table"], [
-                                                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                                                     ]),
                                                 ),
                                                 Paragraph(self.name, styles["rc-tdwp-main-chk"]),
@@ -927,7 +927,7 @@ class ROCReport:
                             style=extend_table_style(styles["rc-main-table"], [
                                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                             ]),
-                            rowHeights=(2.2*mm, 18*mm)
+                            rowHeights=(2.2*mm, 13*mm)
                         ),
                     ],
                 ],
@@ -969,10 +969,10 @@ class ROCReport:
                                         ],
                                          style=extend_table_style(styles["rc-main-table"], [
                                             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                                            ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
                                             ("RIGHTPADDING", (0, 0), (-1, -1), 6),
                                             ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                                            ("TOPPADDING", (0, 0), (-1, -1), 8),
+                                            ("TOPPADDING", (0, 0), (-1, -1), 2),
                                         ]),
                                     )
                                 ],
@@ -1020,9 +1020,10 @@ class ROCReport:
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                     ("GRID", (0, 0), (-1, -1), 1, "black"),
                 ]),
+                colWidths=(101*mm, 101*mm)
             ),
 
-            Spacer(0, 4.2 * mm),
+            Spacer(0, 2.2 * mm),
 
             Paragraph("The ACORD name and logo are registered marks of ACORD", styles["rc-medium-header-center"]),
         ]       
