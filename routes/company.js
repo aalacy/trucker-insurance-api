@@ -384,7 +384,7 @@ module.exports = (app) => {
   // home company search by dot Id
   router.all('/search', async (req, res, next) => {
 
-    const { userId } = req.query
+    const { userId, dotId } = req.query
 
     if (!req.body.keyword && !req.query.keyword) {
       return res.send({
@@ -409,13 +409,12 @@ module.exports = (app) => {
         }]
         // check if the user already submitted the app with this dot Id
         let isSubmitted = false
-        console.log('id', userId)
         const user = await new model.User().findUser({ id: userId }).catch(e => {
           console.log(e)
         })
         try {
           const company = await new model.Company().findByUserId(userId)
-          if (company && company.length && company[0].sf_status == 'ok') {
+          if (company && company.length && company[0].sf_status == 'ok' && company.dotNumber != dotId) {
             isSubmitted = true
           }
         } catch(e) {
@@ -634,7 +633,7 @@ module.exports = (app) => {
 
   // Get the current application in multi step forms with the given uuid saved in the localstorage
   router.get('/current', async (req, res, next) => {
-    const { userId } = req.query
+    const { userId, dotId } = req.query
     let uuid;
     if(req.query.uuid) uuid = req.query.uuid;
     else if(req.body.uuid) uuid = req.body.uuid;
