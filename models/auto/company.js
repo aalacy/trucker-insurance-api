@@ -55,10 +55,13 @@ module.exports = (sequelize, DataTypes) => {
 
   Company.prototype.findByUserId = async (user_id) => {
     return new Promise((resolve, reject) => {
-      Company.findOne({
-            where: { user_id },
-        }).then(company => {
-            resolve(company)
+      Company.findAll({
+          where: { user_id },
+           order: [
+            ['createdAt', 'DESC'],
+          ],
+        }).then(companies => {
+            resolve(companies)
             return
         }).catch(err => {
             reject(err)

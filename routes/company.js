@@ -295,10 +295,11 @@ module.exports = (app) => {
     exec(shellCommand, async (error, stdout, stderr) => {
       console.log(stdout)
       if (error || stderr) {
+        console.log(error)
         res.send({
           status: "ERROR",
           data: 'find by uuid',
-          messages: err
+          messages: error
         })
       } else {
         fs.readFile(pdfPath, function (err, data){
@@ -351,7 +352,6 @@ module.exports = (app) => {
     let vin = (req.body.vin)?req.body.vin:req.query.vin;
     try{
       let result = await LookupVehicle.lookup(vin);
-      console.log(result.data.Results);
 
       let vehiclesTrailers = { model: ''};
       if(result.data && result.data.Results){
@@ -399,7 +399,6 @@ module.exports = (app) => {
     let so;
     if(!isNaN(keyword)){
       so = await companySnapshot.get(keyword).catch(err => console.log(err));
-      console.log('=======================', so)
       if (Object.keys(so).length !== 0 && so.constructor === Object) {
         let _address = so['Physical Address'].split(' ');
         const index = _address.length;
@@ -414,11 +413,9 @@ module.exports = (app) => {
         const user = await new model.User().findUser({ id: userId }).catch(e => {
           console.log(e)
         })
-        console.log(user)
         try {
-          const Company = await new model.Company().findByUserId(userId)
-          console.log(Company)
-          if (Company) {
+          const company = await new model.Company().findByUserId(userId)
+          if (company && company.length && company[0].sf_status == 'ok') {
             isSubmitted = true
           }
         } catch(e) {
@@ -489,18 +486,19 @@ module.exports = (app) => {
         })
       })
       if (user) {
+        let submitted = false
         try {
-          const Company = await new model.Company().findByUserId(user.id)
-          res.json({
-            status: 'Ok',
-            submitted: true
-          })
+          const company = await new model.Company().findByUserId(user.id)
+          if (company && company.length && company[0].sf_status == 'ok') {
+            submitted = true
+          }
         } catch (e) {
-          res.json({
-            status: 'Ok',
-            submitted: false
-          })
+          console.log(e)
         }
+        res.json({
+          status: 'Ok',
+          submitted: true
+        })
       }
   })
 
@@ -636,11 +634,38 @@ module.exports = (app) => {
 
   // Get the current application in multi step forms with the given uuid saved in the localstorage
   router.get('/current', async (req, res, next) => {
+    const { userId } = req.query
     let uuid;
     if(req.query.uuid) uuid = req.query.uuid;
     else if(req.body.uuid) uuid = req.body.uuid;
     else if(req.cookies.uuid) uuid = req.cookies.uuid;
-    
+
+    if(!uuid){
+      res.send({
+        status: "OK",
+        data: 'uuid is empty',
+        messages: []
+      })
+      return;
+    }
+
+    let submitted = false
+    if (userId) {
+      const user = await new model.User().findUser({ id: userId }).catch(e => {
+        console.log(e)
+      })
+      if (user) {
+        try {
+          const company = await new model.Company().findByUserId(user.id)
+          if (company && company.length && company[0].sf_status == 'ok') {
+            submitted = true
+          }
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+  
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({
@@ -649,7 +674,8 @@ module.exports = (app) => {
             company,
             uuid,
           },
-          messages: []
+          messages: [],
+          submitted
         })
     }).catch(err => {
       res.send({
