@@ -163,7 +163,7 @@ module.exports = (sequelize, DataTypes) => {
         sf_token:DataTypes.STRING,
         sf_instance_url:DataTypes.STRING,
         sf_token_expired:DataTypes.DATE,
-        account_status:DataTypes.STRING,
+        account_status:DataTypes.STRING, // submitted or empty for salesforce
     }, {
         passwordConfirm: null,
         oldPassword: null,
@@ -726,6 +726,21 @@ module.exports = (sequelize, DataTypes) => {
                     sf_token,
                     sf_instance_url,
                     sf_token_expired: moment().add(30, 'minutes').format('YYYY-MM-DD hh:mm:ss')
+                },
+              {where: {id} },
+            ).catch(err => {
+                console.log(err);
+                reject(e)
+            })
+            resolve('ok')
+        });
+    }
+
+    User.prototype.updateSubmitStatus = async (id, account_status) => {
+        return new Promise((resolve, reject) => {
+            User.update(
+                {
+                    account_status,
                 },
               {where: {id} },
             ).catch(err => {

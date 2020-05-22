@@ -308,7 +308,8 @@ module.exports = (sequelize, DataTypes) => {
                       console.log(err);
                     })
                     sequelize.models.User.update({ 
-                      dotId: profile.dotNumber
+                      dotId: profile.dotNumber,
+                      account_status: 'submitted'
                     }, { where: { id: userId }}).catch(err => {
                       console.log(err);
                     })
@@ -524,7 +525,6 @@ module.exports = (sequelize, DataTypes) => {
             const pdfPath = __dirname + `/../../public/nico/nico-${uuid}.pdf`
 
             exec(shellCommand, async (error, stdout, stderr) => {
-              console.log(stdout)
               if (error || stderr) {
                 console.log(error, stderr)
               }

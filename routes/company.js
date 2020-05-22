@@ -408,18 +408,16 @@ module.exports = (app) => {
           location: `${_address[index-4]} ${_address[index-3]}`
         }]
         // check if the user already submitted the app with this dot Id
-        let isSubmitted = false
-        const user = await new model.User().findUser({ id: userId }).catch(e => {
-          console.log(e)
-        })
+        let submitted = false
         try {
-          const company = await new model.Company().findByUserId(userId)
-          if (company && company.length && company[0].sf_status == 'ok' && company.dotNumber != dotId) {
-            isSubmitted = true
+          const user = await new model.User().findUser({ id: userId })
+          if (user && user.account_status == 'submitted') {
+            submitted = true
           }
         } catch(e) {
+          console.log(e)
         }
-        if (isSubmitted) {
+        if (submitted) {
           res.send({
             type: "submitted",
             status: "Error",
@@ -478,27 +476,19 @@ module.exports = (app) => {
   // if then, the user cannot submitted the quote with new dot Id
   router.get('/checkQuotedWithDotId', async (req, res, next) => {
       const { usdot, userId } = req.body;
-      const user = await new model.User().findUser({ id: userId }).catch(e => {
-        res.json({
-          status: 'Failed',
-          submitted: false
-        })
-      })
-      if (user) {
-        let submitted = false
-        try {
-          const company = await new model.Company().findByUserId(user.id)
-          if (company && company.length && company[0].sf_status == 'ok') {
-            submitted = true
-          }
-        } catch (e) {
-          console.log(e)
+      let submitted = false
+      try {
+        const user = await new model.User().findUser({ id: userId })
+        if (user && user.account_status == 'submitted') {
+          submitted = true
         }
-        res.json({
-          status: 'Ok',
-          submitted: true
-        })
+      } catch(e) {
+        console.log(e)
       }
+      res.json({
+        status: 'Ok',
+        submitted: true
+      })
   })
 
   // Create a temporary application from selected dot from search
@@ -649,20 +639,13 @@ module.exports = (app) => {
     }
 
     let submitted = false
-    if (userId) {
-      const user = await new model.User().findUser({ id: userId }).catch(e => {
-        console.log(e)
-      })
-      if (user) {
-        try {
-          const company = await new model.Company().findByUserId(user.id)
-          if (company && company.length && company[0].sf_status == 'ok') {
-            submitted = true
-          }
-        } catch (e) {
-          console.log(e)
-        }
+    try {
+      const user = await new model.User().findUser({ id: userId })
+      if (user && user.account_status == 'submitted') {
+        submitted = true
       }
+    } catch(e) {
+      console.log(e)
     }
   
     if (uuid) {
