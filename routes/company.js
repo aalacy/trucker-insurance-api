@@ -474,8 +474,8 @@ module.exports = (app) => {
 
   // Check if the user already signed up and submitted the quotes to SF,
   // if then, the user cannot submitted the quote with new dot Id
-  router.get('/checkQuotedWithDotId', async (req, res, next) => {
-      const { usdot, userId } = req.body;
+  router.post('/checkQuotedWithDotId', async (req, res, next) => {
+      const { userId } = req.body;
       let submitted = false
       try {
         const user = await new model.User().findUser({ id: userId })
@@ -487,7 +487,7 @@ module.exports = (app) => {
       }
       res.json({
         status: 'Ok',
-        submitted: true
+        submitted
       })
   })
 
@@ -986,19 +986,29 @@ module.exports = (app) => {
     let instanceUrl = authSF.instance_url;       
     let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?luckyTruckId=${userId}`;
 
-    let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
+    try {
+      let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                    .then(res => res.json()) // expecting a json response
 
-    if (sfCARes.status == 'error') {
+      console.log(sfCARes)
+      if (sfCARes.status == 'error') {
+        res.status(404).json({
+          status: "failure",
+          certs: [],
+          message: sfCARes.message
+        })
+      } else {
+        res.json({
+          status: "ok",
+          certs: sfCARes,
+        })
+      } 
+    } catch (e) {
       res.json({
-        status: "failure",
-        certs: [],
-      })
-    } else {
-      res.json({
-        status: "ok",
-        certs: sfCARes,
-      })
+          status: "failure",
+          certs: [],
+          message: 'Something wrong happend on the server.'
+        })
     }
   });
 
@@ -1012,22 +1022,29 @@ module.exports = (app) => {
     let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/luckytruck/insurancequote?luckyTruckId=${userId}`;
     // let sfReadAccountQuotesUrl = `${instanceUrl}/services/apexrest/account/quote?dotId=${dotId}`;
 
-    let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
-
-    if (sfCARes.status != 'error') {
-      res.json({
-        status: "ok",
-        quoteList: sfCARes,
-        message: ''
-      })
-    } else {
+    try {
+      let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+                    .then(res => res.json())
+      if (sfCARes.status != 'error') {
+        res.json({
+          status: "ok",
+          quoteList: sfCARes,
+          message: ''
+        })
+      } else {
+        res.json({
+          status: "failure",
+          quoteList: [],
+          message: sfCARes.message
+        })
+      }
+    } catch (e) {
       res.json({
         status: "failure",
         quoteList: [],
-        message: sfCARes.message
+        message: 'Something wrong happened on server side'
       })
-    }
+    } 
   });
 
   // Edit quote
