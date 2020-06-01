@@ -40,6 +40,8 @@ class ROCReport:
         self.cargo_hauled_list = json.loads(company['cargoHauled'])
         self.owners_list = json.loads(company['ownerInformationList'])
         self.signature = json.loads(company['signSignature'])['imageSign']   
+        self.current_carrier = ', '.join(json.loads(company['currentCarrier']))
+        self.current_Eld_provider = ', '.join(json.loads(company['currentEldProvider']))
 
     def validate(self, val):
         if val:
@@ -48,7 +50,7 @@ class ROCReport:
             return ""
 
     def create_report(self, buff=None):
-    	def page_number(canv, doc):
+        def page_number(canv, doc):
             page_num = Table(
                 [
                     [   
@@ -72,7 +74,7 @@ class ROCReport:
             except AttributeError:
                 raise Exception("Section method not found: " + section)
             return method
-        
+
         if not buff:
             buff = io.BytesIO()
 
@@ -195,12 +197,12 @@ class ROCReport:
         ]
 
     def dot_text(self, text):
-    	return [
+        return [
             Table(
                 [
-                    [	
-	                    None,
-                    	Paragraph(
+                    [    
+                        None,
+                       Paragraph(
                             "&bull;",                
                             extend_style(styles["rc-medium-content"])
                         ),
@@ -211,7 +213,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                   ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]),
                 colWidths=(5*mm, 5*mm, 80*mm),
                 rowHeights=(6*mm)
@@ -302,12 +304,12 @@ class ROCReport:
         return vehicles
 
     def cargo_hauled(self):
-    	res = []
-    	hauled = []
+        res = []
+        hauled = []
         for key, value in self.cargo_hauled_list.items():
-        	hauled.append(key + ': ' + ','.join(value))
+            hauled.append(key + ': ' + ','.join(value))
         if len(hauled) < 3:
-        	hauled += ['&nbsp;'] * (3-len(hauled))
+            hauled += ['&nbsp;'] * (3-len(hauled))
         for value in hauled:
             res.append(Table(
                 [
@@ -334,9 +336,9 @@ class ROCReport:
                     'mailing_address': '&nbsp;',
                 }
             else:
-            	_owner = self.owners_list[number]
+                _owner = self.owners_list[number]
                 owner = {
-            	 	'first_name': _owner['firstName'],
+                    'first_name': _owner['firstName'],
                     'dob': '{}-{}-{}'.format(_owner['dobM'], _owner['dobD'], _owner['dobY']),
                     'mailing_address': '{} {}, {} {}'.format(_owner['address'], _owner['city'], _owner['state'], _owner['zip']),
                 }
@@ -370,7 +372,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "TOP"),
+                   ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ]),
                 rowHeights=12.4 * mm
             ),
@@ -478,7 +480,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(42*mm, 70*mm, 5*mm, 23*mm, 30*mm, 30*mm),
                 rowHeights=(7*mm)
@@ -489,7 +491,7 @@ class ROCReport:
             Table(
                 [
                     [ 
-                     	Paragraph("Mailing Address:", extend_style(styles["rc-main-content"])),
+                        Paragraph("Mailing Address:", extend_style(styles["rc-main-content"])),
                         self.underline(self.mailing_address['address']),
                         Paragraph("City:", extend_style(styles["rc-main-content"])),
                         self.underline(self.mailing_address['city']),
@@ -500,7 +502,7 @@ class ROCReport:
                         None
                     ],
                     [ 
-                     	Paragraph("Garaging Address:", extend_style(styles["rc-main-content"])),
+                        Paragraph("Garaging Address:", extend_style(styles["rc-main-content"])),
                         self.underline(self.mailing_address['address']),
                         Paragraph("City:", extend_style(styles["rc-main-content"])),
                         self.underline(self.mailing_address['city']),
@@ -512,7 +514,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(28*mm, 70*mm, 8*mm, 30*mm, 10*mm, 16*mm, 8*mm, 20*mm, 10*mm),
                 rowHeights=(7*mm)
@@ -532,7 +534,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(25*mm, 50*mm, 5*mm, 30*mm, 30*mm, 60*mm),
                 rowHeights=(7*mm)
@@ -552,7 +554,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(22*mm, 40*mm, 5*mm, 20*mm, 30*mm, 83*mm),
                 rowHeights=(7*mm)
@@ -566,15 +568,29 @@ class ROCReport:
                         Paragraph('Radius of travel:', styles["rc-main-content"]),
                         self.underline(str(self.radius_of_travel)),
                         Paragraph('Current Carrier:', styles["rc-main-content"]),
-                        self.underline(),
-                        Paragraph('Current ELD Provider:', styles["rc-main-content"]),
-                        self.underline(),
+                        self.underline(self.current_carrier),
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
-                colWidths=(26*mm, 30*mm, 25*mm, 40*mm, 34*mm, 45*mm),
+                colWidths=(26*mm, 30*mm, 25*mm, 119*mm),
+                rowHeights=(7*mm)
+            ),
+        ]
+
+        elems += [
+            Table(
+                [
+                    [ 
+                        Paragraph('Current ELD Provider:', styles["rc-main-content"]),
+                        self.underline(self.current_Eld_provider),
+                    ],
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                ]),
+                colWidths=(34*mm, 166*mm),
                 rowHeights=(7*mm)
             ),
         ]
@@ -611,8 +627,8 @@ class ROCReport:
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("GRID", (0, 0), (-1, -1), .45, "black"),
-                	("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                   ("GRID", (0, 0), (-1, -1), .45, "black"),
+                   ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]),
                 colWidths=(40*mm, 20*mm, 15*mm, 40*mm, 20*mm, 24*mm, 45*mm),
                 rowHeights=(17*mm)
@@ -621,7 +637,7 @@ class ROCReport:
 
         elems += self.driver_information()
 
-     	elems += self.line_spacer()
+        elems += self.line_spacer()
         elems += self.line_spacer()
         elems += self.line_spacer()
 
@@ -653,8 +669,8 @@ class ROCReport:
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("GRID", (0, 0), (-1, -1), .45, "black"),
-                	("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                   ("GRID", (0, 0), (-1, -1), .45, "black"),
+                   ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]),
                 colWidths=(44*mm, 12*mm, 25*mm, 30*mm, 25*mm, 53*mm, 15*mm),
                 rowHeights=(17*mm)
@@ -676,7 +692,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "TOP"),
+                   ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ]),
                 rowHeights=12.4 * mm
             ),
@@ -707,8 +723,8 @@ class ROCReport:
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("GRID", (0, 0), (-1, -1), .45, "black"),
-                	("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                   ("GRID", (0, 0), (-1, -1), .45, "black"),
+                   ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]),
                 colWidths=(110*mm, 94*mm),
                 rowHeights=(10*mm)
@@ -743,8 +759,8 @@ class ROCReport:
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("GRID", (0, 0), (-1, -1), .45, "black"),
-                	("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                   ("GRID", (0, 0), (-1, -1), .45, "black"),
+                   ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]),
                 colWidths=(65*mm, 45*mm, 94*mm),
                 rowHeights=(10*mm)
@@ -782,7 +798,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(40*mm, 20*mm, 37*mm, 20*mm, 66*mm, 21*mm),
                 rowHeights=(7*mm)
@@ -801,7 +817,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(60*mm, 25*mm, 71*mm, 25*mm, 23*mm),
                 rowHeights=(7*mm)
@@ -819,7 +835,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(125*mm, 23*mm, 32*mm, 24*mm),
                 rowHeights=(7*mm)
@@ -838,7 +854,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(67*mm, 23*mm, 70*mm, 21*mm, 23*mm),
                 rowHeights=(7*mm)
@@ -857,7 +873,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(70*mm, 23*mm, 42*mm, 21*mm, 48*mm),
                 rowHeights=(7*mm)
@@ -876,7 +892,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(79*mm, 23*mm, 67*mm, 21*mm, 14*mm),
                 rowHeights=(7*mm)
@@ -893,7 +909,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(110*mm, 23*mm, 71*mm),
                 rowHeights=(7*mm)
@@ -911,7 +927,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(20*mm, 184*mm),
             ),
@@ -930,7 +946,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "TOP"),
+                   ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ]),
                 rowHeights=12.4 * mm
             ),
@@ -939,7 +955,7 @@ class ROCReport:
         elems += [Spacer(width=0, height=10)]
 
         elems += [
-        	Paragraph("No coverage is bound until the Company (LuckyTruck, Inc.) advises the Applicant or its representative that a policy will be issued and then only as of the policy effective date and in accordance with all policy terms. The Applicant acknowledges that the Applicant's Representative named below is acting as Applicant's agent and not on behalf of the Company. The Applicant's Representative has no authority to bind coverage, may not accept any funds for the Company, and may not modify or interpret the terms of the policy. The Applicant agrees that the foregoing statements and answers are true and correct. The Applicant requests the Company to rely on its statements and answers in issuing any policy or subsequent renewal. The Applicant agrees that if its statements and answers are materially false, the Company may deny a claim on any policy or subsequent renewal it may issue. If any jurisdiction in which the Applicant intends to operate or the Federal Highway Administration requires a special endorsement to be attached to the policy which increases the Company's liability, the Applicant agrees to reimburse the Company in accordance with the terms of that endorsement. The Applicant agrees that any inspection of autos, vehicles, equipment, premises, operations, or inspection of any other matter relating to insurance that may be provided by the Company, is made for the use and benefit of the Company only, and is not to be relied upon by the Applicant or any other party in any respect. The Applicant understands that an inquiry may be made into the character, finances, driving records, and other personal and business background information the Company deems necessary in determining whether to bind or maintain coverage. Upon written request, additional information will be provided to the Applicant regarding any investigation. The Applicant represents that she/he has completed all relevant sections of this Application prior to execution and that the Applicant has personally signed below (or if Applicant is a Corporation, a corporate officer has signed below).",                
+           Paragraph("No coverage is bound until the Company (LuckyTruck, Inc.) advises the Applicant or its representative that a policy will be issued and then only as of the policy effective date and in accordance with all policy terms. The Applicant acknowledges that the Applicant's Representative named below is acting as Applicant's agent and not on behalf of the Company. The Applicant's Representative has no authority to bind coverage, may not accept any funds for the Company, and may not modify or interpret the terms of the policy. The Applicant agrees that the foregoing statements and answers are true and correct. The Applicant requests the Company to rely on its statements and answers in issuing any policy or subsequent renewal. The Applicant agrees that if its statements and answers are materially false, the Company may deny a claim on any policy or subsequent renewal it may issue. If any jurisdiction in which the Applicant intends to operate or the Federal Highway Administration requires a special endorsement to be attached to the policy which increases the Company's liability, the Applicant agrees to reimburse the Company in accordance with the terms of that endorsement. The Applicant agrees that any inspection of autos, vehicles, equipment, premises, operations, or inspection of any other matter relating to insurance that may be provided by the Company, is made for the use and benefit of the Company only, and is not to be relied upon by the Applicant or any other party in any respect. The Applicant understands that an inquiry may be made into the character, finances, driving records, and other personal and business background information the Company deems necessary in determining whether to bind or maintain coverage. Upon written request, additional information will be provided to the Applicant regarding any investigation. The Applicant represents that she/he has completed all relevant sections of this Application prior to execution and that the Applicant has personally signed below (or if Applicant is a Corporation, a corporate officer has signed below).",                
                             extend_style(styles["rc-long-content"]))
         ]
 
@@ -954,7 +970,7 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 colWidths=(57*mm, 145*mm),
                 rowHeights=(7*mm)
@@ -971,33 +987,33 @@ class ROCReport:
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
-                	("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                   ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
                 rowHeights=(7*mm)
             ),
         ]
 
         elems += [
-        	 Table(
+            Table(
                 [
                     [  
-			        	Table(
-			                [
-			                    [   
-			                        Paragraph("<img src='{}' width='220' height='55'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
-			                    ],
-			                    [   
-			                        Paragraph("Applicant's Signature", extend_style(styles["rc-underline-text1"])),
-			                    ],
-			                ],
-			                style=extend_table_style(styles["rc-main-table"], [
-			                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
-			                    ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
-			                ]),
-			                colWidths=(102*mm),
-			                rowHeights=(6*mm)
-			            ),
-			            None,
+                       Table(
+                            [
+                                [   
+                                    Paragraph("<img src='{}' width='220' height='55'/>".format(self.signature), extend_style(styles["rc-underline-text"])),
+                                ],
+                                [   
+                                    Paragraph("Applicant's Signature", extend_style(styles["rc-underline-text1"])),
+                                ],
+                            ],
+                            style=extend_table_style(styles["rc-main-table"], [
+                                ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                                ("LINEABOVE", (0, -1), (-1, -1), 0.75, 'black')
+                            ]),
+                            colWidths=(102*mm),
+                            rowHeights=(6*mm)
+                        ),
+                        None,
                         Table(
                             [
                                 [   
@@ -1015,7 +1031,7 @@ class ROCReport:
                             rowHeights=(6*mm)
                         ),
                         None
-		         	]
+                    ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -1026,44 +1042,44 @@ class ROCReport:
         ]
 
         elems += [
-        	Table(
+           Table(
                 [
                     [   
                         Paragraph("Request to Company General Agent:", extend_style(styles["rc-blue-text1"])),
                     ],
                     [   
                         Table(
-			                [
-			                    [   
-			                        self.checkbox_text('Please quote', 25),
-			                        None,
-			                        self.checkbox_text('Please bind at the earliest possible date and issue policy', 165),
-			                    ],
-			                ],
-			                style=extend_table_style(styles["rc-main-table"], [
-			                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-			                ]),
-			                colWidths=(25*mm, 10*mm, 165*mm),
-			                rowHeights=(6*mm)
-			            ),
+                            [
+                                [   
+                                    self.checkbox_text('Please quote', 25),
+                                    None,
+                                    self.checkbox_text('Please bind at the earliest possible date and issue policy', 165),
+                                ],
+                            ],
+                            style=extend_table_style(styles["rc-main-table"], [
+                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                            ]),
+                            colWidths=(25*mm, 10*mm, 165*mm),
+                            rowHeights=(6*mm)
+                        ),
                     ],
                     [   
                         Table(
-			                [
-			                    [   
-			                        self.checkbox_text('Please issue policy effective', 40),
-			                        self.underline(),
-			                        Paragraph("Coverage was bound by", extend_style(styles["rc-main-content"])),
-			                        self.underline(),
-			                        None
-			                    ],
-			                ],
-			                style=extend_table_style(styles["rc-main-table"], [
-			                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-			                ]),
-			                colWidths=(40*mm, 35*mm, 40*mm, 31*mm, 30*mm,),
-			                rowHeights=(6*mm)
-			            ),
+                            [
+                                [   
+                                    self.checkbox_text('Please issue policy effective', 40),
+                                    self.underline(),
+                                    Paragraph("Coverage was bound by", extend_style(styles["rc-main-content"])),
+                                    self.underline(),
+                                    None
+                                ],
+                            ],
+                            style=extend_table_style(styles["rc-main-table"], [
+                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                            ]),
+                            colWidths=(40*mm, 35*mm, 40*mm, 31*mm, 30*mm,),
+                            rowHeights=(6*mm)
+                        ),
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [

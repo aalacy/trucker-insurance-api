@@ -565,7 +565,6 @@ module.exports = (app) => {
 
       res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
       new model.Company().findByUUID(uuid).then(profile => {
-        console.log(profile)
         res.send({
             status: "OK",
             data:{
