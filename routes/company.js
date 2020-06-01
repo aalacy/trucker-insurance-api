@@ -27,7 +27,6 @@ module.exports = (app) => {
   const uuidv4 = require('uuid/v4');
   var fs = require('fs');
   const LookupVehicle = require('lookup_vehicle');
-  const parseAddress = require('parse-address');
   const { exec } = require("child_process");
   const moment = require('moment');
   const pdf2base64 = require('pdf-to-base64');
@@ -62,6 +61,22 @@ module.exports = (app) => {
     }
 
     return state;
+  }
+
+  const checkDotDuplication = async (userId) => {
+    let submitted = false
+    if (userId) {
+      try {
+        const user = await new model.User().findUser({ id: userId })
+        if (user && user.account_status == 'submitted') {
+          submitted = true
+        }
+      } catch(e) {
+        console.log(e)
+      }
+    }
+
+    return submitted
   }
 
   router.get('/testcoi', (req, res, next) => {
@@ -408,15 +423,7 @@ module.exports = (app) => {
           location: `${_address[index-4]} ${_address[index-3]}`
         }]
         // check if the user already submitted the app with this dot Id
-        let submitted = false
-        try {
-          const user = await new model.User().findUser({ id: userId })
-          if (user && user.account_status == 'submitted') {
-            submitted = true
-          }
-        } catch(e) {
-          console.log(e)
-        }
+        const submitted = await checkDotDuplication(userId)
         if (submitted) {
           res.send({
             type: "submitted",
@@ -476,15 +483,7 @@ module.exports = (app) => {
   // if then, the user cannot submitted the quote with new dot Id
   router.post('/checkQuotedWithDotId', async (req, res, next) => {
       const { userId } = req.body;
-      let submitted = false
-      try {
-        const user = await new model.User().findUser({ id: userId })
-        if (user && user.account_status == 'submitted') {
-          submitted = true
-        }
-      } catch(e) {
-        console.log(e)
-      }
+      let submitted = await checkDotDuplication(userId)
       res.json({
         status: 'Ok',
         submitted
@@ -638,15 +637,7 @@ module.exports = (app) => {
       return;
     }
 
-    let submitted = false
-    try {
-      const user = await new model.User().findUser({ id: userId })
-      if (user && user.account_status == 'submitted') {
-        submitted = true
-      }
-    } catch(e) {
-      console.log(e)
-    }
+    let submitted = await checkDotDuplication(userId)
   
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
