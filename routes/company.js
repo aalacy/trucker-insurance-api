@@ -1014,7 +1014,8 @@ module.exports = (app) => {
 
     try {
       let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                    .then(res => res.json())
+      const code = sfCARes.status
+      sfCARes = await sfCARes.json()
       if (sfCARes.status != 'error') {
         res.json({
           status: "ok",
@@ -1025,6 +1026,7 @@ module.exports = (app) => {
         res.json({
           status: "failure",
           quoteList: [],
+          code,
           message: sfCARes.message
         })
       }
