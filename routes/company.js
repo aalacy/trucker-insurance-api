@@ -187,17 +187,17 @@ module.exports = (app) => {
   })
 
   router.post('/coi', async (req, res, next) => {
-    const { name, address, uuid, dotId, policy, userId } = req.body;
+    const { name, comments, address, newpdf, dotId, policy, userId } = req.body;
     // if(!uuid)uuid = await getNewUUID();
 
     const shellPath =  __dirname + '/coi/run_coi.py'
     let _name = name.replace("'", "###*###").replace('"', '\\"')
     let _address = address.replace("'", "###*###").replace('"', '\\"')
-    const path = `/public/coi/coi-${_name}${uuid}.pdf`
+    const path = `/public/coi/coi-${_name}${userId}.pdf`
     let shellCommand = `python ${shellPath} --userId '${userId}' --old_path '${path}' `
-    if (dotId) {
-      shellCommand += ` --dotId ${dotId} `
-    }
+    // if (dotId) {
+    //   shellCommand += ` --dotId ${dotId} `
+    // }
     if (_name) {
       shellCommand += `--name "${_name}" `
     }
@@ -218,36 +218,77 @@ module.exports = (app) => {
       }
 
       // upload pdf
-      const pdfContent = await pdf2base64(webConfig.rootDir+path);
+      const content = await pdf2base64(webConfig.rootDir+path);
 
-      const authSF = await new model.User().getSFToken(userId);
-      let accessToken = authSF.access_token;
-      let instanceUrl = authSF.instance_url;       
-      let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi`;
+      // no longer update data to SF
+      // const authSF = await new model.User().getSFToken(userId);
+      // let accessToken = authSF.access_token;
+      // let instanceUrl = authSF.instance_url;       
+      // let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi`;
 
-      const sfRequestBody = {
-        policyId: JSON.parse(policy).policyId,
-        pdfContent
-      }
+      // const sfRequestBody = {
+      //   policyId: JSON.parse(policy).policyId,
+      //   pdfContent
+      // }
 
-      const sfCARes = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) 
+      // const sfCARes = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
+      //             .then(res => res.json()) 
 
-      console.log(sfCARes)
-      if (sfCARes.status == 'error') {
-        return res.json({
-          status: 'failure',
-          message: sfCARes.message
-        })
+      // save policy data into db
+      const title = `Certificate of Insurance - ${moment().format('MM/DD/YYYY')}.pdf`
+      if (!newpdf) {
+        const data = {
+          title,
+          type: 'pdf',
+          content,
+          data: {
+            name,
+            address,
+            comments
+          },
+          UserId: userId
+        }
+
+        try {
+          const response = await new model.Policy().create(data);
+          return res.json({
+            status: 'ok',
+            message: response,
+            pdf: {
+              content,
+              name: title
+            }
+          })
+        } catch (e) {
+          return res.json({
+            status: 'failure',
+            message: e
+          })
+        }
       } else {
         return res.json({
           status: 'ok',
           pdf: {
-            content: pdfContent,
-            name: 'COI.pdf'
+            content,
+            name: title
           }
         })
       }
+
+      // if (sfCARes.status == 'error') {
+      //   return res.json({
+      //     status: 'failure',
+      //     message: sfCARes.message
+      //   })
+      // } else {
+      //   return res.json({
+      //     status: 'ok',
+      //     pdf: {
+      //       content: pdfContent,
+      //       name: title
+      //     }
+      //   })
+      // }
     });
   })
 
