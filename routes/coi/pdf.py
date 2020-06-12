@@ -23,6 +23,7 @@ class ROCReport:
         self.title = title
         self.author = author
         self.company = company
+        self.comments = self.company['comments'] if self.company['comments'] else '&nbsp;'
         self.name = company['name']
         self.dba = company['dba']
         self.mc_number = company['mcNumber']
@@ -923,7 +924,7 @@ class ROCReport:
                 [
                     [ 
                         Paragraph('COMMENTS', styles["rc-main-content"]),
-                        self.underline(self.company['comments']),
+                        self.underline(self.comments),
                     ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [

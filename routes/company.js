@@ -187,7 +187,7 @@ module.exports = (app) => {
   })
 
   router.post('/coi', async (req, res, next) => {
-    const { name, comments, address, newpdf, dotId, policy, userId } = req.body;
+    const { name, comments, address, newpdf, dotId, policy, userId, policyId, id } = req.body;
     // if(!uuid)uuid = await getNewUUID();
 
     const shellPath =  __dirname + '/coi/run_coi.py'
@@ -246,25 +246,47 @@ module.exports = (app) => {
             address,
             comments
           },
+          policyId,
           UserId: userId
         }
 
-        try {
-          const response = await new model.Policy().create(data);
-          return res.json({
-            status: 'ok',
-            message: response,
-            pdf: {
-              content,
-              name: title
-            }
-          })
-        } catch (e) {
-          return res.json({
-            status: 'failure',
-            message: e
-          })
+        // update the cert
+        if (id) {
+          try {
+            const response = await new model.Certificate().update(data, id)
+            return res.json({
+              status: 'ok',
+              message: response,
+              pdf: {
+                content,
+                name: title
+              }
+            })
+          } catch (e) {
+            return res.json({
+              status: 'failure',
+              message: e
+            })
+          }
+        } else {
+          try {
+            const response = await new model.Certificate().create(data)
+            return res.json({
+              status: 'ok',
+              message: response,
+              pdf: {
+                content,
+                name: title
+              }
+            })
+          } catch (e) {
+            return res.json({
+              status: 'failure',
+              message: e
+            })
+          }
         }
+
       } else {
         return res.json({
           status: 'ok',
@@ -1012,30 +1034,16 @@ module.exports = (app) => {
   router.post('/accountinfo/pastcerts', async (req, res, next) => {
     let { body: { userId } } = req;
 
-    const authSF = await new model.User().getSFToken(userId);
-    let accessToken = authSF.access_token;
-    let instanceUrl = authSF.instance_url;       
-    let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/luckytruck/coi?luckyTruckId=${userId}`;
-
     try {
-      let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                    .then(res => res.json()) // expecting a json response
+      let certs = await new model.Certificate().findAll(userId)
 
-      console.log(sfCARes)
-      if (sfCARes.status == 'error') {
-        res.status(404).json({
-          status: "failure",
-          certs: [],
-          message: sfCARes.message
-        })
-      } else {
-        res.json({
-          status: "ok",
-          certs: sfCARes,
-        })
-      } 
-    } catch (e) {
       res.json({
+        status: "ok",
+        certs: certs,
+      })
+    } catch (e) {
+      console.log(e)
+      res.status(400).json({
           status: "failure",
           certs: [],
           message: 'Something wrong happend on the server.'
