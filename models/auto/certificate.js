@@ -3,7 +3,7 @@
 module.exports = (sequelize, DataTypes) => {
     const Certificate = sequelize.define('Certificate', {
         policyId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false
         },
         title: {

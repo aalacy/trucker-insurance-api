@@ -3,8 +3,8 @@ node_modules__
 .env
 routes/coi/venv
 public/trucking-insurance-application
-public/coi
-public/nico
+public/coi/*
+public/nico/*
 tmp
 __pycache__
-.pyc
+*.pyc
