@@ -827,7 +827,7 @@ module.exports = (app) => {
               filename: 'fbbd26d530b42ecdf1a43bacc134e705',
               path: 'public/company/fbbd26d530b42ecdf1a43bacc134e705',
               size: 3351277 }*/
-              console.log('Rw....',theFile.fieldname)
+              console.log('Rw....',theFile)
 
               if(theFile.fieldname === 'imageRegistration'){
                   try{
@@ -848,13 +848,13 @@ module.exports = (app) => {
                   }catch(e){
                     log[groupName][theFile.originalname] = e;
                   }
-              }else if(theFile.fieldname === 'imageIdFront'){
+              }else if(theFile.fieldname === 'imageDOT'){
                 console.log('p.........',theFile.path);
-                    result = await driverLicenseSnapshot.scan(theFile.path);
-                    console.log('p.........',result);
-                    await new model.Company().add(uuid, 'personalInfo', result, false);
-                    await new model.Company().add(uuid, 'drivers', [result], true);
-                    log[groupName][theFile.originalname] = result;
+                result = await driverLicenseSnapshot.scan(theFile.path);
+                console.log('p.........',result);
+                await new model.Company().add(uuid, 'personalInfo', result, false);
+                await new model.Company().add(uuid, 'drivers', [result], true);
+                log[groupName][theFile.originalname] = result;
               }else if(theFile.fieldname === 'imageSign'){
                 
                 console.log('p.........',theFile.path);
@@ -936,11 +936,13 @@ module.exports = (app) => {
       const { uuid } = req.cookie;
     }
 
-    if (!uuid) {
+    if (!uuid || uuid == 'null') {
       uuid = await getNewUUID();
     }
 
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
+
+    console.log('uuid', uuid)
 
     // Update salesforce if this the last step, sign signature, of form wizard
     let authSF = {}

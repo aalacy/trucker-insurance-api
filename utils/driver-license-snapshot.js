@@ -16,7 +16,7 @@ module.exports = {
 
       let ret;
       try{
-        console.log('peet.........');
+        console.log('peet.........', location);
           ret = await client.textDetection(location);
           console.log('kkk.........',ret);
         }catch(e){
@@ -157,6 +157,30 @@ module.exports = {
       // }
     })
   },
+
+  dot: async function(location, callback) {
+   try{
+      const [result] = await client.labelDetection(location);
+      const labels = result.labelAnnotations;
+      console.log('Labels:');
+      labels.forEach(label => console.log(label.description));
+      
+      if(!ret || ret.length === 0){
+        reject('Cannot find out the dot number');
+        return;
+      }
+
+      const fullText = ret.fullTextAnnotation.text
+      const items = fullText.split('\n')
+      for (var i = 0; i < items.length; i++) {
+        const item = items[i]
+      }
+    } catch(e){
+      console.log('error in dot scan',e);
+      return
+    }
+  },
+
   test: function() {
     let html = fs.readFileSync('test4.html', 'utf8');
     return this.parseHTML(html);
