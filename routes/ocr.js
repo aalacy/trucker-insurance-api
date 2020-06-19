@@ -69,6 +69,7 @@ module.exports = (app) => {
     }
 
     let log = {};
+    
     Object.keys(req.files).forEach(async groupName => {
       try{
         if(!log[groupName])log[groupName] = {};

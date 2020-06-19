@@ -49,13 +49,13 @@ module.exports = {
 					blocks.forEach(block => {
 						const regex = /VIN ([a-zA-Z0-9_-]){17,19}$/;
 						const found = block.trim().match(regex);
+						console.log(found)
 						if (found) {
 							value = block.split(' ')[1].trim()
 						}
 					})
 					
-					console.log(value)
-					if (value > 0) {
+					if (value) {
 						resolve({ status: 'success', value, message: 'Successfully read the VIN number'})
 					} else {
 						reject({ status: 'danger', message:'Sorry, A VIN not found. Please try with different image.'})
