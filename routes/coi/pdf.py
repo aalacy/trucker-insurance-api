@@ -37,7 +37,10 @@ class ROCReport:
         self.vehicles_trailers_list = json.loads(company['vehicleInformationList'])['vehicle'] + json.loads(company['vehicleInformationList'])['trailer']
         self.radius_of_travel = 0
         for vehicle in self.vehicles_trailers_list:
-            self.radius_of_travel += int(vehicle.get('radiusOfTravelVehicle'))
+            if vehicle.get('radiusOfTravelVehicle'):
+                self.radius_of_travel += int(vehicle.get('radiusOfTravelVehicle'))
+            else:
+                self.radius_of_travel += int(vehicle.get('radiusOfTravelTrailer'))
         self.cargo_hauled_list = json.loads(company['cargoHauled'])
         self.owners_list = json.loads(company['ownerInformationList'])
         self.signature = json.loads(company['signSignature'])['imageSign']   
