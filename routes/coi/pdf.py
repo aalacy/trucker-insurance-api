@@ -44,7 +44,8 @@ class ROCReport:
         self.cargo_hauled_list = json.loads(company['cargoHauled'])
         self.owners_list = json.loads(company['ownerInformationList'])
         self.signature = json.loads(company['signSignature'])['imageSign']   
-        self.current_carrier = ', '.join(json.loads(company['currentCarrier']))
+        # self.current_carrier = ', '.join(json.loads(company['currentCarrier']))
+        self.current_carrier = None
         self.current_Eld_provider = ', '.join(json.loads(company['currentEldProvider']))
 
     def validate(self, val):
