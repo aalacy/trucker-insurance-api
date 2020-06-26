@@ -8,6 +8,35 @@ from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, P
 
 L_S = 2.2 
 
+nico_tuple = {
+    'Is this your primary business?': 'This is your primary business.',
+    'Have you ever filed for bankruptcy?': 'You have never filed for bankruptcy.',
+    'Are you a common carrier?': 'You are a common carrier.',
+    'Do you haul for hire?': 'You haul for hire.',
+    'Are you a contract hauler?': 'You are not a contract hauler.',
+    'Do you haul any hazardous or extra hazardous substances or materials as defined by EPA?': "You don't haul hazardous materials.",
+    'Do you haul your own cargo exclusively?': "You don't only haul your own cargo.",
+    'Do you pull double trailer?': "You don't pull double trailers.",
+    'Triple trailer?': "You don't pull triple trailers.",
+    'Do you rent or lease your vehicles to others?': "You don't rent or lease your equipment to others.",
+    'Are drivers covered by workers compensation?': 'Your drivers aren’t covered by workers compensation.',
+    'Are drivers ever allowed to take vehicles home at night?': 'Drivers are allowed to take their vehicles home at night.',
+    'If yes, will family members drive?': "Family members without CDL/not listed in the driver section aren't allowed to drive.",
+    "Do you order MVRs on all drivers prior to hiring?": 'You order MVRs on all drivers prior to hiring.',
+    'Do you agree to report all newly hired operators?': 'You agree to report all newly hired operators.',
+    'Select Type of Coverage Desired:': 'You want broad form peril coverage for cargo (if you need cargo).',
+    'Have you ever changed your operating name?': 'You have never changed your operating name.',
+    'Do you operate under any other name?': "You don't operate under another name.",
+    'Do you operate as a subsidiary of another company?': "You don't operate as a subsidiary of another company.",
+    'Do you own or manage any other transportation operations that are not covered?': "You don't own or manage any other transportation operations that aren’t covered.",
+    'Do you lease your authority?': "You don't lease your authority.",
+    'Do you appoint agents or hire independent contractors to operate on your behalf?': "You don't appoint agents or hire independent contractors to operate on your behalf.",
+    'Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc.)?': "You have never lost or had your authority withdrawn or been under probation by any regulatory authority.",
+    'Is evidence/certificate(s) of coverage required?': 'You need proof of coverage.',
+    'Do you have agreements with other carriers for the interchange of equipment or transportation of loads?': "You don't have agreements with other carriers for the interchange of equipment or transportation of loads.",
+    'Do you barter, hire or lease any vehicles?': "You don't barter, hire, or lease any vehicles."
+}
+
 def nico(title='nico.pdf', author="Luckytruck", company={}):
     cr =ROCReport(title=title, company=company)
     buff = cStringIO.StringIO()
@@ -33,13 +62,28 @@ class ROCReport:
         self.business_structure = company['businessStructure']
         self.drivers_information_list =json.loads( company['driverInformationList'])
         self.vehicles_trailers_list = json.loads(company['vehicleInformationList'])['vehicle'] + json.loads(company['vehicleInformationList'])['trailer']
-        self.signature = json.loads(company['signSignature'])['imageSign']        
+        self.signature = json.loads(company['signSignature'])['imageSign']
+        self.nico_questions = json.loads(company['nico_questions'])    
 
     def check_business_type(self, type):
         if type in self.business_structure:
             return True
         else:
             return False
+
+    def _26_ques(self, ques):
+        mark = 'No'
+        _ques = nico_tuple[ques]
+        if self.nico_questions.get(_ques, False):
+            mark = 'Yes'
+
+        return mark
+
+    def _select_type(self, ques):
+        if self.nico_questions.get('You want broad form peril coverage for cargo (if you need cargo).') and ques == 'Broad Form':
+            return 'x'
+        elif not self.nico_questions.get('You want broad form peril coverage for cargo (if you need cargo).') and ques == 'Named Perils':
+            return 'x'
 
     def validate(self, val):
         if val:
@@ -198,13 +242,13 @@ class ROCReport:
             rowHeights=(height*mm)
         )
 
-    def yes_no(self):
+    def yes_no(self, mark=None):
         return Table(
             [
                 [
-                    self.checkbox(size='small'),
+                    self.checkbox(size='small', checked=mark=='Yes'),
                     Paragraph("Yes", styles["rc-checkbox-text-small"]),
-                    self.checkbox(size='small'),
+                    self.checkbox(size='small', checked=mark=='No'),
                     Paragraph("No", styles["rc-checkbox-text-small"]),
                 ]
             ],
@@ -214,14 +258,14 @@ class ROCReport:
             colWidths=(3*mm, 8*mm, 3*mm, 7*mm),
         )
 
-    def checkbox_text(self, text, width, bold=False):
+    def checkbox_text(self, text, width, bold=False, checked=None):
         text_style = "rc-checkbox-text-small"
         if bold:
             text_style = "rc-bold-text"
         return Table(
             [
                 [
-                    self.checkbox(size='small'),
+                    self.checkbox(size='small', checked=checked),
                     Paragraph(text, styles[text_style]),
                 ]
             ],
@@ -771,7 +815,7 @@ class ROCReport:
                     [   
                         self.right_header("7."),
                         Paragraph("Is this your primary business?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Is this your primary business?")),
                         Paragraph("If no, explain", extend_style(styles["rc-first-label"])),
                         self.underline()
                     ]
@@ -805,7 +849,7 @@ class ROCReport:
                     [   
                         self.right_header("8."),
                         Paragraph("Have you ever filed for bankruptcy?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Have you ever filed for bankruptcy?")),
                         Paragraph("If yes, when", extend_style(styles["rc-first-label"])),
                         self.underline(),
                         Paragraph("Explain", extend_style(styles["rc-first-label"])),
@@ -868,7 +912,7 @@ class ROCReport:
                     [   
                         self.right_header("11."),
                         Paragraph("Do you haul for hire?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you haul for hire?")),
                         Paragraph("Show largest cities entered", extend_style(styles["rc-first-label"])),
                         self.underline(),
                     ]
@@ -908,9 +952,9 @@ class ROCReport:
                     [   
                         self.right_header("13."),
                         Paragraph("Are you a common carrier?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Are you a common carrier?")),
                         Paragraph("Are you a contract hauler?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Are you a contract hauler?")),
                         Paragraph("If yes, for whom", extend_style(styles["rc-first-label"])),
                         self.underline(),
                     ]
@@ -948,7 +992,7 @@ class ROCReport:
                     [   
                         self.right_header("15."),
                         Paragraph("Do you haul any hazardous or extra hazardous substances or materials as defined by EPA?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you haul any hazardous or extra hazardous substances or materials as defined by EPA?")),
                         Paragraph("If yes, provide the complete listing", extend_style(styles["rc-first-label"])),
                        
                     ]
@@ -985,8 +1029,8 @@ class ROCReport:
                 [
                     [   
                         self.right_header("16."),
-                        Paragraph("Do you haul your cargo exclusively?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        Paragraph("Do you haul your own cargo exclusively?", extend_style(styles["rc-first-label"])),
+                        self.yes_no(self._26_ques("Do you haul your own cargo exclusively?")),
                         Paragraph("If not, who owns it?", extend_style(styles["rc-first-label"])),
                         self.underline(),
                     ]
@@ -1006,9 +1050,9 @@ class ROCReport:
                     [   
                         self.right_header("17."),
                         Paragraph("Do you pull double trailer?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you pull double trailer?")),
                         Paragraph("Triple trailer?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Triple trailer?")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1026,7 +1070,7 @@ class ROCReport:
                     [   
                         self.right_header("18."),
                         Paragraph("Do you rent or lease your vehicles to others?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you rent or lease your vehicles to others?")),
                         Paragraph("If yes, attach copy of rental or lease agreement form uses.", extend_style(styles["rc-first-label"])),
                     ]
                 ],
@@ -1537,8 +1581,8 @@ class ROCReport:
                 [
                     [   
                         self.right_header("20."),
-                        Paragraph("Are drivers covered by Workers Compensation?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        Paragraph("Are drivers covered by workers compensation?", extend_style(styles["rc-first-label"])),
+                        self.yes_no(self._26_ques("Are drivers covered by workers compensation?")),
                         Paragraph("If yes, name of carrier?", extend_style(styles["rc-first-label"])),
                         self.underline(),
                     ]
@@ -1579,9 +1623,9 @@ class ROCReport:
                     [   
                         self.right_header("22."),
                         Paragraph("Are drivers ever allowed to take vehicles home at night?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Are drivers ever allowed to take vehicles home at night?")),
                         Paragraph("If yes, will family members drive?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("If yes, will family members drive?")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1598,8 +1642,8 @@ class ROCReport:
                 [
                     [   
                         self.right_header("23."),
-                        Paragraph("Do you order MVR's on all drivers prior to hiring?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        Paragraph("Do you order MVRs on all drivers prior to hiring?", extend_style(styles["rc-first-label"])),
+                        self.yes_no(self._26_ques("Do you order MVRs on all drivers prior to hiring?")),
                         Paragraph("Drivers maximum driving hours", extend_style(styles["rc-first-label"])),
                         self.underline(),
                         Paragraph("daily,", extend_style(styles["rc-first-label"])),
@@ -1622,7 +1666,7 @@ class ROCReport:
                     [   
                         self.right_header("24."),
                         Paragraph("Do you agree to report all newly hired operators?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you agree to report all newly hired operators?")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2452,9 +2496,9 @@ class ROCReport:
                 [
                     [   
                         self.right_header("32."),
-                        Paragraph("Select type of coverage desired:", extend_style(styles["rc-first-label"])),
-                        self.checkbox_text("Named Perils or", 24),
-                        self.checkbox_text("Broad Form", 18),
+                        Paragraph("Select Type of Coverage Desired:", extend_style(styles["rc-first-label"])),
+                        self.checkbox_text("Named Perils or", 24, checked=self._select_type("Named Perils")),
+                        self.checkbox_text("Broad Form", 18, checked=self._select_type("Broad Form")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2800,9 +2844,9 @@ class ROCReport:
                                 [   
                                     self.right_header("44."),
                                     Paragraph("Have you ever changed your operating name?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Have you ever changed your operating name?")),
                                     Paragraph("Do you operate under any other name?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Do you operate under any other name?")),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2817,7 +2861,7 @@ class ROCReport:
                                 [   
                                     self.right_header("45."),
                                     Paragraph("Do you operate as a subsidiary of another company?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Do you operate as a subsidiary of another company?")),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2832,7 +2876,7 @@ class ROCReport:
                                 [   
                                     self.right_header("46."),
                                     Paragraph("Do you own or manage any other transportation operations that are not covered?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Do you own or manage any other transportation operations that are not covered?")),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2847,9 +2891,9 @@ class ROCReport:
                                 [   
                                     self.right_header("47."),
                                     Paragraph("Do you lease your authority?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Do you lease your authority?")),
                                     Paragraph("Do you appoint agents or hire independent contractors to operate on your behalf?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Do you appoint agents or hire independent contractors to operate on your behalf?")),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2878,8 +2922,8 @@ class ROCReport:
                             [
                                 [   
                                     self.right_header("49."),
-                                    Paragraph("Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc)?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    Paragraph("Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc.)?", extend_style(styles["rc-first-label"])),
+                                    self.yes_no(self._26_ques("Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc.)?")),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2894,7 +2938,7 @@ class ROCReport:
                                 [   
                                     self.right_header("50."),
                                     Paragraph("Is evidence/certificate(s) of coverage required?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques("Is evidence/certificate(s) of coverage required?")),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2953,7 +2997,7 @@ class ROCReport:
                     [   
                         self.right_header("52."),
                         Paragraph("Do you have agreements with other carriers for the interchange of equipment or transportation of loads?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you have agreements with other carriers for the interchange of equipment or transportation of loads?")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3079,7 +3123,7 @@ class ROCReport:
                     [   
                         self.right_header("53."),
                         Paragraph("Do you barter, hire or lease any vehicles?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques("Do you barter, hire or lease any vehicles?")),
                         Paragraph("If yes, explain", extend_style(styles["rc-first-label"])),
                         self.underline()
                     ]

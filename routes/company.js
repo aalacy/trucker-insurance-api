@@ -699,8 +699,9 @@ module.exports = (app) => {
       return;
     }
 
-    let submitted = await checkDotDuplication(userId)
+    let submitted   = await checkDotDuplication(userId)
   
+    console.log('uuid', uuid)
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({

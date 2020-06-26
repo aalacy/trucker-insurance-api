@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       businessStructureRaw: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       name: {
         type: Sequelize.STRING
@@ -27,10 +27,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       mailingAddress: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       garagingAddress: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       emailAddress: {
         type: Sequelize.STRING
@@ -45,16 +45,16 @@ module.exports = {
         type: Sequelize.STRING
       },
       currentCarrier: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       currentEldProvider: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       cargoHauled: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       cargoGroup: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       ownerName: {
         type: Sequelize.STRING
@@ -66,22 +66,22 @@ module.exports = {
         type: Sequelize.STRING
       },
       driverInformationList: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       ownerInformationList: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       vehicleInformationList: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       comments: {
         type: Sequelize.TEXT
       },
       attachmentList: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       signSignature: {
-        type: Sequelize.JSON
+        type: Sequelize.BLOB
       },
       createdAt: {
         allowNull: false,

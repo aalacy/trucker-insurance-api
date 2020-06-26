@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     comments: DataTypes.TEXT,
     attachmentList: DataTypes.JSON,
     signSignature: DataTypes.JSON,
+    nico_questions: DataTypes.JSON,
     imageIdFront: DataTypes.JSON,
     imageIdBack: DataTypes.JSON,
     imageDOT: DataTypes.JSON,
