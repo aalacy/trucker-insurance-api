@@ -61,9 +61,17 @@ class ROCReport:
         self.garaging_addr = json.loads(company['garagingAddress'])
         self.business_structure = company['businessStructure']
         self.drivers_information_list =json.loads( company['driverInformationList'])
+        self.cargo_hauled_list = json.loads(company['cargoHauled'])
         self.vehicles_trailers_list = json.loads(company['vehicleInformationList'])['vehicle'] + json.loads(company['vehicleInformationList'])['trailer']
         self.signature = json.loads(company['signSignature'])['imageSign']
         self.nico_questions = json.loads(company['nico_questions'])    
+
+    def get_cargo_haulded(self):
+        hauled = ''
+        for key, value in self.cargo_hauled_list.items():
+            hauled += key + ': ' + ','.join(value) + ' - '
+
+        return hauled
 
     def check_business_type(self, type):
         if type in self.business_structure:
@@ -336,7 +344,7 @@ class ROCReport:
             else:
                 driver = self.drivers_information_list[number]
 
-            dob = '{}-{}-{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
+            dob = '{}/{}/{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
             if number >= len(self.drivers_information_list):
                 dob = ''
             drivers.append(
@@ -364,13 +372,26 @@ class ROCReport:
 
         return drivers
 
-    def driver_information_continued(self, number):
+    def driver_information_continued(self):
+        drivers_continue = []
+        for number in range(0, 5):
+            if number >= len(self.drivers_information_list):
+                driver = {
+                    'CDL': '',
+                    'doh': ''
+                }
+            else:
+                _driver = self.drivers_information_list[number]
+                driver = {
+                    'CDL': _driver.get('CDL', ''),
+                    'doh': '{}/{}/{}'.format(_driver["dohM"], _driver["dohD"], _driver["dohY"])
+                }
 
-        return Table(
+            drivers_continue.append(Table(
                 [
                     [   
-                       Paragraph(number, extend_style(styles["rc-normal-header"])),
-                       None,
+                       Paragraph(str(number+1) + '.', extend_style(styles["rc-normal-header"])),
+                       Paragraph(driver['doh'], extend_style(styles["rc-normal-text"])),
                        None,
                        None,
                        None,
@@ -386,7 +407,9 @@ class ROCReport:
                 ]),
                 colWidths=(20*mm, 22*mm, 17*mm, 22*mm, 17*mm, 22*mm, 40*mm, 20*mm, 22*mm),
                 rowHeights=4.5*mm
-            ),
+            )),
+
+        return drivers_continue
 
     def schedule_detail(self):
         vehicles = []
@@ -974,7 +997,7 @@ class ROCReport:
                     [   
                         self.right_header("14."),
                         Paragraph("List all types of cargo hauled", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.get_cargo_haulded()),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1461,94 +1484,83 @@ class ROCReport:
             Table(
                 [
                     [   
+                        Paragraph("No. Years<br/>Previous<br/>Commercial<br/>Driving<br/>Experience", extend_style(styles["rc-normal-center"])),
+                        Paragraph("Date of Hire", extend_style(styles["rc-normal-center"])),
                         Table(
                             [
                                 [   
-                                    Paragraph("No. Years<br/>Previous<br/>Commercial<br/>Driving<br/>Experience", extend_style(styles["rc-normal-center"])),
-                                    Paragraph("Date of Hire", extend_style(styles["rc-normal-center"])),
+                                    Paragraph("Accidents and Minor Moving Traffic <br/> Violations in Past 5 Years", extend_style(styles["rc-normal-center"])),
+                                ],
+                                [
                                     Table(
                                         [
                                             [   
-                                                Paragraph("Accidents and Minor Moving Traffic <br/> Violations in Past 5 Years", extend_style(styles["rc-normal-center"])),
-                                            ],
-                                            [
-                                                Table(
-                                                    [
-                                                        [   
-                                                           Paragraph("No. of<br/> Accidents", extend_style(styles["rc-normal-center"])),
-                                                           Paragraph("Date(s)", extend_style(styles["rc-normal-center"])),
-                                                           Paragraph("No. of<br/> Violations", extend_style(styles["rc-normal-center"])),
-                                                           Paragraph("Date(s)", extend_style(styles["rc-normal-center"])),
-                                                        ]
-                                                    ],
-                                                    style=extend_table_style(styles["rc-main-table"], [
-                                                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                                        ("GRID", (0, 0), (-1, -1), .75, "black"),
-                                                    ]),
-                                                    colWidths=(17*mm, 22*mm, 17*mm, 22*mm),
-                                                    rowHeights=(7*mm)
-                                                ),
+                                               Paragraph("No. of<br/> Accidents", extend_style(styles["rc-normal-center"])),
+                                               Paragraph("Date(s)", extend_style(styles["rc-normal-center"])),
+                                               Paragraph("No. of<br/> Violations", extend_style(styles["rc-normal-center"])),
+                                               Paragraph("Date(s)", extend_style(styles["rc-normal-center"])),
                                             ]
                                         ],
                                         style=extend_table_style(styles["rc-main-table"], [
                                             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                                             ("GRID", (0, 0), (-1, -1), .75, "black"),
                                         ]),
-                                        rowHeights=(15*mm, 7*mm)
+                                        colWidths=(17*mm, 22*mm, 17*mm, 22*mm),
+                                        rowHeights=(7*mm)
                                     ),
-                                    Table(
-                                        [
-                                            [   
-                                                Paragraph("Major Convictions<br/>(DWI/DUI, Hit & Run, Manslaughter, Rechless, <br/>Driving While Suspended/ Revoked, Speed<br/> Contest, other felony)", extend_style(styles["rc-normal-center"])),
-                                            ],
-                                            [
-                                                Table(
-                                                    [
-                                                        [   
-                                                           Paragraph("Describe Conviction", extend_style(styles["rc-normal-center"])),
-                                                           Paragraph("Date(s)", extend_style(styles["rc-normal-center"])),
-                                                        ]
-                                                    ],
-                                                    style=extend_table_style(styles["rc-main-table"], [
-                                                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                                        ("GRID", (0, 0), (-1, -1), .75, "black"),
-                                                    ]),
-                                                    colWidths=(40*mm, 20*mm),
-                                                    rowHeights=(7*mm)
-                                                ),
-                                            ]
-                                        ],
-                                        style=extend_table_style(styles["rc-main-table"], [
-                                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                            ("GRID", (0, 0), (-1, -1), .75, "black"),
-                                        ]),
-                                        rowHeights=(15*mm, 7*mm)
-                                    ),
-                                    Paragraph("Employee (E)<br/>Ind Cont. (IC)<br/>Owner/Op. (O/O)<br/>Franchisee (F)<br/>", extend_style(styles["rc-normal-center"])),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
                                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                                 ("GRID", (0, 0), (-1, -1), .75, "black"),
                             ]),
-                            colWidths=(20*mm, 22*mm, 78*mm, 60*mm, 22*mm),
-                            rowHeights=22*mm
+                            rowHeights=(15*mm, 7*mm)
                         ),
-                    ],
+                        Table(
+                            [
+                                [   
+                                    Paragraph("Major Convictions<br/>(DWI/DUI, Hit & Run, Manslaughter, Rechless, <br/>Driving While Suspended/ Revoked, Speed<br/> Contest, other felony)", extend_style(styles["rc-normal-center"])),
+                                ],
+                                [
+                                    Table(
+                                        [
+                                            [   
+                                               Paragraph("Describe Conviction", extend_style(styles["rc-normal-center"])),
+                                               Paragraph("Date(s)", extend_style(styles["rc-normal-center"])),
+                                            ]
+                                        ],
+                                        style=extend_table_style(styles["rc-main-table"], [
+                                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                            ("GRID", (0, 0), (-1, -1), .75, "black"),
+                                        ]),
+                                        colWidths=(40*mm, 20*mm),
+                                        rowHeights=(7*mm)
+                                    ),
+                                ]
+                            ],
+                            style=extend_table_style(styles["rc-main-table"], [
+                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                ("GRID", (0, 0), (-1, -1), .75, "black"),
+                            ]),
+                            rowHeights=(15*mm, 7*mm)
+                        ),
+                        Paragraph("Employee (E)<br/>Ind Cont. (IC)<br/>Owner/Op. (O/O)<br/>Franchisee (F)<br/>", extend_style(styles["rc-normal-center"])),
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), .75, "black"),
+                ]),
+                colWidths=(20*mm, 22*mm, 78*mm, 60*mm, 22*mm),
+                rowHeights=22*mm
+            ),
+        ]
+
+        elems += [
+            Table(
+                [
                     [
-                        self.driver_information_continued("1.")
-                    ],
-                    [
-                        self.driver_information_continued("2.")
-                    ],
-                    [
-                        self.driver_information_continued("3.")
-                    ],
-                    [
-                        self.driver_information_continued("4.")
-                    ],
-                    [
-                        self.driver_information_continued("5.")
+                        self.driver_information_continued()
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1556,7 +1568,7 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(22*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm, 4.5*mm)
+                rowHeights=(22.5*mm)
             ),
         ]
 

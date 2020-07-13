@@ -44,8 +44,8 @@ class ROCReport:
         self.cargo_hauled_list = json.loads(company['cargoHauled'])
         self.owners_list = json.loads(company['ownerInformationList'])
         self.signature = json.loads(company['signSignature'])['imageSign']   
-        # self.current_carrier = ', '.join(json.loads(company['currentCarrier']))
-        self.current_carrier = None
+        self.current_carrier = ', '.join(json.loads(company['currentCarrier']))
+        # self.current_carrier = None
         self.current_Eld_provider = ', '.join(json.loads(company['currentEldProvider']))
 
     def validate(self, val):
@@ -245,8 +245,8 @@ class ROCReport:
             else:
                 driver = self.drivers_information_list[number]
 
-            dob = '{}-{}-{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
-            doh = '{}-{}-{}'.format(driver['dohM'], driver['dohD'], driver['dohY'])
+            dob = '{}/{}/{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
+            doh = '{}/{}/{}'.format(driver['dohM'], driver['dohD'], driver['dohY'])
             if number >= len(self.drivers_information_list):
                 dob = ''
                 doh = ''
@@ -336,22 +336,22 @@ class ROCReport:
         for number in range(0, max(3, len(self.owners_list))):
             if number >= len(self.owners_list):
                 owner = {
-                    'first_name': '&nbsp;',
+                    'full_name': '&nbsp;',
                     'dob': '&nbsp;',
                     'mailing_address': '&nbsp;',
                 }
             else:
                 _owner = self.owners_list[number]
                 owner = {
-                    'first_name': _owner['firstName'],
-                    'dob': '{}-{}-{}'.format(_owner['dobM'], _owner['dobD'], _owner['dobY']),
+                    'full_name': "{} {}".format(_owner['firstName'], _owner['lastName']),
+                    'dob': '{}/{}/{}'.format(_owner['dobM'], _owner['dobD'], _owner['dobY']),
                     'mailing_address': '{} {}, {} {}'.format(_owner['address'], _owner['city'], _owner['state'], _owner['zip']),
                 }
 
             owners.append(Table(
                 [
                     [   
-                       Paragraph(str(owner['first_name']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(owner['full_name']), extend_style(styles["rc-normal-text"])),
                        Paragraph(str(owner['dob']), extend_style(styles["rc-normal-text"])),
                        Paragraph(str(owner['mailing_address']), extend_style(styles["rc-normal-text"])),
                     ]
