@@ -11,7 +11,8 @@ L_S = 2.2
 def nico(title='nico.pdf', author="Luckytruck", company={}):
     cr =ROCReport(title=title, company=company)
     buff = cStringIO.StringIO()
-    return cr.create_report(buff)
+    page_count = cr.get_page_count(buff)    
+    return cr.create_report(buff, page_count)
 
 class ROCReport:
     BASE_PATH = os.path.abspath(os.curdir) + '/routes/coi'
@@ -166,13 +167,55 @@ class ROCReport:
         else:
             return ""
 
-    def create_report(self, buff=None):
+    def get_page_count(self, buff=None):
+        def get_method(section):
+            try:
+                method = getattr(self, "_section_" + section)
+            except AttributeError:
+                raise Exception("Section method not found: " + section)
+            return method
+        
+        if not buff:
+            buff = io.BytesIO()
+        story = []
+        for section in self.sections:
+            elems = get_method(section)()
+            for elem in elems:
+                story.append(elem)
+        page_t = PageTemplate('normal', [
+            Frame(
+                self.page_margin[0],
+                self.page_margin[1],
+                self.page_size[0] - self.page_margin[0] * 2,
+                self.page_size[1] - self.page_margin[1] * 2,
+                leftPadding=0,
+                bottomPadding=0,
+                rightPadding=0,
+                topPadding=0,
+            )
+        ])
+        doc_t = BaseDocTemplate(
+            buff,
+            pagesize=letter,
+            title=self.title,
+            author=self.author,
+            leftMargin=self.page_margin[0],
+            rightMargin=self.page_margin[0],
+            topMargin=self.page_margin[1],
+            bottomMargin=self.page_margin[1],
+        )
+        doc_t.addPageTemplates(page_t)
+        doc_t.build(story)
+        return doc_t.page
+
+
+    def create_report(self, buff=None, page_count=None):
         def page_number(canv, doc):
             page_num = Table(
                 [
                     [   
                        Paragraph("M-4467d VA (12/2007)", extend_style(styles["rc-bold-text"])),
-                       Paragraph("Truck Application Page {} of 4".format(str(doc.page)), extend_style(styles["rc-normal-end"])),
+                       Paragraph("Truck Application Page {} of {}".format(str(doc.page), page_count), extend_style(styles["rc-normal-end"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2845,7 +2888,7 @@ class ROCReport:
                     [   
                         self.right_header("36."),
                         Paragraph("If you are interstate regulated carrier, identify your registration or base state", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q112']),
+                        self.underline(self.partial_text('Q112', 98)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2856,6 +2899,9 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q112', 98)[2]:
+            elems += self.get_lines('Q112', self.partial_text('Q112', 98)[1])
+
         elems += [
             Table(
                 [
@@ -2864,7 +2910,7 @@ class ROCReport:
                         Paragraph("Is an intrastate filing needed?", extend_style(styles["rc-first-label"])),
                         self.yes_no(self._26_ques('Q113')),
                         Paragraph("If yes, show state and permit number", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q114']),
+                        self.underline(self.partial_text('Q114', 81)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2875,13 +2921,16 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q114', 81)[2]:
+            elems += self.get_lines('Q114', self.partial_text('Q114', 81)[1])
+
         elems += [
             Table(
                 [
                     [   
                         None,
                         Paragraph("List states for which insured requires CARGO FILINGS (check name on permits)", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q115']),
+                        self.underline(self.partial_text('Q115', 88)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2892,13 +2941,16 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q115', 88)[2]:
+            elems += self.get_lines('Q115', self.partial_text('Q115', 88)[1])
+
         elems += [
             Table(
                 [
                     [   
                         self.right_header("38."),
                         Paragraph("Show exact name and address in which permits are issued", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q116']),
+                        self.underline(self.partial_text('Q116', 116)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2909,6 +2961,9 @@ class ROCReport:
                 rowHeights=4*mm
             ),
         ]   
+
+        if self.partial_text('Q116', 116)[2]:
+            elems += self.get_lines('Q116', self.partial_text('Q116', 116)[1])
 
         elems += [
             Table(
@@ -2959,7 +3014,7 @@ class ROCReport:
                         Paragraph("Are oversize, overweight commodities hauled?", extend_style(styles["rc-first-label"])),
                         self.yes_no(self._26_ques('Q120')),
                         Paragraph("If filing required, show states", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q121'])
+                        self.underline(self.partial_text('Q121', 66)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2970,6 +3025,9 @@ class ROCReport:
                 rowHeights=4*mm
             ),
         ]
+
+        if self.partial_text('Q121', 66)[2]:
+            elems += self.get_lines('Q121', self.partial_text('Q121', 66)[1])
 
         elems += [
             Table(
@@ -3209,7 +3267,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(a)  With whom has such agreement(s) been made?", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q126'])
+                        self.underline(self.partial_text('Q126', 117)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3220,6 +3278,9 @@ class ROCReport:
                 rowHeights=4*mm
             ),
         ]
+
+        if self.partial_text('Q126', 117)[2]:
+            elems += self.get_lines('Q126', self.partial_text('Q126', 117)[1])
 
         elems += [
             Table(
@@ -3245,7 +3306,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("If yes, name of insurance company and limits of liability (Bodily Injury & Property Damage)", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q128'])
+                        self.underline(self.partial_text('Q128', 69)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3257,13 +3318,16 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q128', 69)[2]:
+            elems += self.get_lines('Q128', self.partial_text('Q128', 69)[1])
+
         elems += [
             Table(
                 [
                     [   
                         None,
                         Paragraph("(c)  Under whose permit does each of the parties to the agreement(s) operate?", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q129'])
+                        self.underline(self.partial_text('Q129', 87)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3274,6 +3338,9 @@ class ROCReport:
                 rowHeights=4*mm
             ),
         ]
+
+        if self.partial_text('Q129', 87)[2]:
+            elems += self.get_lines('Q129', self.partial_text('Q129', 87)[1])
 
         elems += [
             Table(
@@ -3355,7 +3422,7 @@ class ROCReport:
                                    Paragraph("Will premium financed?", extend_style(styles["rc-first-label"])),
                                    self.yes_no(self._26_ques('Q132')),
                                    Paragraph("If yes, with whome", extend_style(styles["rc-normal-text"])),
-                                   self.underline(self.nico_questions['Q133'])
+                                   self.underline(self.partial_text('Q133', 92)[0])
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -3365,12 +3432,6 @@ class ROCReport:
                             rowHeights=5*mm
                         ),
                     ],
-                    [
-                        None
-                    ],
-                    [
-                        None
-                    ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
@@ -3379,7 +3440,10 @@ class ROCReport:
             ),
         ]
 
-        elems += [Spacer(width=0, height=10)]
+        if self.partial_text('Q131', 94)[2]:
+            elems += self.get_lines('Q131', self.partial_text('Q131', 94)[1])
+
+        elems += [Spacer(width=0, height=60)]
 
         elems += [
             Table(
@@ -3621,22 +3685,5 @@ class ROCReport:
                 rowHeights=5*mm
             ),
         ]
-
-        elems += [
-            Table(
-                [
-                    [
-                        None
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("TOPPADDING", (0, 0), (-1, -1), 12),
-                ]),
-                colWidths=(202*mm),
-                rowHeights=76*mm
-            ),
-        ]
-
 
         return elems
