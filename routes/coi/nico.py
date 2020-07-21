@@ -65,11 +65,7 @@ class ROCReport:
             return 'x'
 
     def title_policy_term_from(self):
-        policyEffectiveDate = date.strptime(self.nico_questions['policyEffectiveDate'], '%Y-%m-%d')
-
-        policyExpirationDate = date.strptime(self.nico_questions['policyExpirationDate'], '%Y-%m-%d')
-
-        return policyEffectiveDate.strftime('%m/%d/%Y') + ' to ' + policyExpirationDate.strftime('%m/%d/%Y')
+        return self.formatDate('policyEffectiveDate') + ' to ' + self.formatDate('policyExpirationDate')
 
     def _get_lines(self, description, begin_idx=0, font='Arial', font_size=8):
         w_temp = description.split(' ')
@@ -155,8 +151,14 @@ class ROCReport:
         return self._partial_text(self.nico_questions[idx], width, font, font_size)
 
     def formatDate(self, val):
-        _val = date.strptime(self.nico_questions[val], '%Y-%m-%d')
-        return _val.strftime('%m/%d/%Y')
+        value = ''
+        try:
+            _val = date.strptime(self.nico_questions[val], '%Y-%m-%d')
+            value = _val.strftime('%m/%d/%Y')
+        except:
+            pass
+
+        return value
 
     def validate(self, val):
         if val:
