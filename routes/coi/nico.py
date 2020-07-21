@@ -8,35 +8,6 @@ from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Flowable, P
 
 L_S = 2.2 
 
-nico_tuple = {
-    'Is this your primary business?': 'This is your primary business.',
-    'Have you ever filed for bankruptcy?': 'You have never filed for bankruptcy.',
-    'Are you a common carrier?': 'You are a common carrier.',
-    'Do you haul for hire?': 'You haul for hire.',
-    'Are you a contract hauler?': 'You are not a contract hauler.',
-    'Do you haul any hazardous or extra hazardous substances or materials as defined by EPA?': "You don't haul hazardous materials.",
-    'Do you haul your own cargo exclusively?': "You don't only haul your own cargo.",
-    'Do you pull double trailer?': "You don't pull double trailers.",
-    'Triple trailer?': "You don't pull triple trailers.",
-    'Do you rent or lease your vehicles to others?': "You don't rent or lease your equipment to others.",
-    'Are drivers covered by workers compensation?': 'Your drivers aren’t covered by workers compensation.',
-    'Are drivers ever allowed to take vehicles home at night?': 'Drivers are allowed to take their vehicles home at night.',
-    'If yes, will family members drive?': "Family members without CDL/not listed in the driver section aren't allowed to drive.",
-    "Do you order MVRs on all drivers prior to hiring?": 'You order MVRs on all drivers prior to hiring.',
-    'Do you agree to report all newly hired operators?': 'You agree to report all newly hired operators.',
-    'Select Type of Coverage Desired:': 'You want broad form peril coverage for cargo (if you need cargo).',
-    'Have you ever changed your operating name?': 'You have never changed your operating name.',
-    'Do you operate under any other name?': "You don't operate under another name.",
-    'Do you operate as a subsidiary of another company?': "You don't operate as a subsidiary of another company.",
-    'Do you own or manage any other transportation operations that are not covered?': "You don't own or manage any other transportation operations that aren’t covered.",
-    'Do you lease your authority?': "You don't lease your authority.",
-    'Do you appoint agents or hire independent contractors to operate on your behalf?': "You don't appoint agents or hire independent contractors to operate on your behalf.",
-    'Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc.)?': "You have never lost or had your authority withdrawn or been under probation by any regulatory authority.",
-    'Is evidence/certificate(s) of coverage required?': 'You need proof of coverage.',
-    'Do you have agreements with other carriers for the interchange of equipment or transportation of loads?': "You don't have agreements with other carriers for the interchange of equipment or transportation of loads.",
-    'Do you barter, hire or lease any vehicles?': "You don't barter, hire, or lease any vehicles."
-}
-
 def nico(title='nico.pdf', author="Luckytruck", company={}):
     cr =ROCReport(title=title, company=company)
     buff = cStringIO.StringIO()
@@ -81,8 +52,8 @@ class ROCReport:
 
     def _26_ques(self, ques):
         mark = 'No'
-        _ques = nico_tuple[ques]
-        if self.nico_questions.get(_ques, False):
+        # _ques = nico_tuple[ques]
+        if self.nico_questions.get(ques, False):
             mark = 'Yes'
 
         return mark
@@ -92,6 +63,100 @@ class ROCReport:
             return 'x'
         elif not self.nico_questions.get('You want broad form peril coverage for cargo (if you need cargo).') and ques == 'Named Perils':
             return 'x'
+
+    def title_policy_term_from(self):
+        policyEffectiveDate = date.strptime(self.nico_questions['policyEffectiveDate'], '%Y-%m-%d')
+
+        policyExpirationDate = date.strptime(self.nico_questions['policyExpirationDate'], '%Y-%m-%d')
+
+        return policyEffectiveDate.strftime('%m/%d/%Y') + ' to ' + policyExpirationDate.strftime('%m/%d/%Y')
+
+    def _get_lines(self, description, begin_idx=0, font='Arial', font_size=8):
+        w_temp = description.split(' ')
+        word_list = []
+        for word in w_temp:
+            if word != '':
+                word_list.append(word)
+        lines = []
+        idx = 0        
+        while idx <= len(word_list):
+            line = ' '.join(word_list[begin_idx:idx])
+            t_len = stringWidth(line, "Times-Roman", 10)
+            if t_len > 645.0:                
+                if t_len > 648.0:
+                    line = ' '.join(word_list[begin_idx:idx-1])
+                    begin_idx = idx-1
+                else:
+                    begin_idx = idx
+                lines += [
+                    Table(
+                        [
+                            [
+                                Paragraph(line, styles["rc-normal-text"])
+                            ]
+                        ],
+                        style=extend_table_style(styles["rc-main-table"], [
+                            ("TOPPADDING", (0, 0), (-1, -1), 3),
+                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                            ("LINEBELOW", (0, 0), (-1, -1), .45, "black"),
+                        ]),
+                    )
+                ]
+            idx += 1
+        lines += [
+            Table(
+                [
+                    [
+                        Paragraph(line, styles["rc-normal-text"])
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("TOPPADDING", (0, 0), (-1, -1), 3),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("LINEBELOW", (0, 0), (-1, -1), .45, "black"),
+                ]),
+            )
+        ]
+
+        return lines
+
+    def get_lines(self, idx, begin_idx=0, font='Arial', font_size=8):
+        description = self.nico_questions[idx].replace('\n','').replace('\t', '')
+        return self._get_lines(description, begin_idx, font, font_size)
+
+    def _partial_text(self, description, width, font='Arial', font_size=8):
+        w_temp = description.split(' ')
+        word_list = []
+        for word in w_temp:
+            if word != '':
+                word_list.append(word)
+        lines = []
+        begin_idx = 0
+        idx = 0   
+        is_continued = False     
+        while idx <= len(word_list):
+            line = ' '.join(word_list[begin_idx:idx])
+            t_len = stringWidth(line, font, font_size)
+            if t_len > width*2.8-3:                
+                if t_len > width*2.8:
+                    line = ' '.join(word_list[begin_idx:idx-1])
+                    begin_idx = idx-1
+                else:
+                    begin_idx = idx
+                
+                is_continued = True
+                break
+
+            idx += 1
+
+        return line, idx-1, is_continued
+
+    def partial_text(self, idx, width, font='Arial', font_size=8):
+        return self._partial_text(self.nico_questions[idx], width, font, font_size)
+
+    def formatDate(self, val):
+        _val = date.strptime(self.nico_questions[val], '%Y-%m-%d')
+        return _val.strftime('%m/%d/%Y')
 
     def validate(self, val):
         if val:
@@ -206,7 +271,7 @@ class ROCReport:
                         Table(
                             [
                                 [ 
-                                    Paragraph("", styles["rc-small-content"]),
+                                    Paragraph(self.title_policy_term_from(), styles["rc-medium-content"]),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -339,10 +404,16 @@ class ROCReport:
                     'dobD': '',
                     'state': '',
                     'licenseNumber': '',
-                    'CDL': ''
+                    'CDL': '',
+                    'years_licensed': '',
+                    'type_of_units': '',
+                    'no_of_years': ''
                 }
             else:
                 driver = self.drivers_information_list[number]
+                driver['years_licensed'] = self.nico_questions['Q38']
+                driver['type_of_units'] = self.nico_questions['Q39']
+                driver['no_of_years'] = self.nico_questions['Q40']
 
             dob = '{}/{}/{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
             if number >= len(self.drivers_information_list):
@@ -356,9 +427,9 @@ class ROCReport:
                            Paragraph(str(driver['state']), extend_style(styles["rc-normal-text"])),
                            Paragraph(str(driver['licenseNumber']), extend_style(styles["rc-normal-text"])),
                            Paragraph(str(driver['CDL']), extend_style(styles["rc-normal-text"])),
-                           Paragraph("", extend_style(styles["rc-normal-text"])),
-                           None,
-                           None,
+                           Paragraph(driver['years_licensed'], extend_style(styles["rc-normal-text"])),
+                           Paragraph(driver['type_of_units'], extend_style(styles["rc-normal-text"])),
+                           Paragraph(driver['no_of_years'], extend_style(styles["rc-normal-text"])),
                         ]
                     ],
                     style=extend_table_style(styles["rc-main-table"], [
@@ -378,27 +449,41 @@ class ROCReport:
             if number >= len(self.drivers_information_list):
                 driver = {
                     'CDL': '',
-                    'doh': ''
+                    'doh': '',
+                    'no_of_accidents': '',
+                    'no_of_accidents_dates': '',
+                    'no_of_violations': '',
+                    'no_of_violations_dates': '',
+                    'conviction': '',
+                    'conviction_dates': '',
+                    'E_IC_OO_F': ''
                 }
             else:
                 _driver = self.drivers_information_list[number]
                 driver = {
-                    'CDL': _driver.get('CDL', ''),
-                    'doh': '{}/{}/{}'.format(_driver["dohM"], _driver["dohD"], _driver["dohY"])
+                    'CDL': self.nico_questions['Q41'],
+                    'doh': '{}/{}/{}'.format(_driver["dohM"], _driver["dohD"], _driver["dohY"]),
+                    'no_of_accidents': self.nico_questions['Q42'],
+                    'no_of_accidents_dates': self.formatDate('Q43'),
+                    'no_of_violations': self.nico_questions['Q44'],
+                    'no_of_violations_dates': self.formatDate('Q45'),
+                    'conviction': self.nico_questions['Q46'],
+                    'conviction_dates': self.formatDate('Q47'),
+                    'E_IC_OO_F': self.nico_questions['Q48'],
                 }
 
             drivers_continue.append(Table(
                 [
                     [   
-                       Paragraph(str(number+1) + '.', extend_style(styles["rc-normal-header"])),
+                       Paragraph("{}.&nbsp;&nbsp;&nbsp;{}".format(number+1, driver['CDL']), extend_style(styles["rc-normal-header"])),
                        Paragraph(driver['doh'], extend_style(styles["rc-normal-text"])),
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
-                       None,
+                       Paragraph(driver['no_of_accidents'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['no_of_accidents_dates'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['no_of_violations'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['no_of_violations_dates'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['conviction'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['conviction_dates'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['E_IC_OO_F'], extend_style(styles["rc-normal-text"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -406,7 +491,6 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(20*mm, 22*mm, 17*mm, 22*mm, 17*mm, 22*mm, 40*mm, 20*mm, 22*mm),
-                rowHeights=4.5*mm
             )),
 
         return drivers_continue
@@ -421,9 +505,19 @@ class ROCReport:
                     'vehicleType': '',
                     'VIN': '',
                     'radiusOfTravelVehicle': '',
+                    'GVW': '',
+                    'total_no_of_rear_axles': '',
+                    'PGL': '',
+                    'AMPV': '',
+                    'AB': ''
                 }
             else:
                 vehicle = self.vehicles_trailers_list[number]
+                vehicle['GVW'] = self.nico_questions['Q55']
+                vehicle['total_no_of_rear_axles'] = self.nico_questions['Q56']
+                vehicle['PGL'] = self.nico_questions['Q57']
+                vehicle['AMPV'] = self.nico_questions['Q58']
+                vehicle['AB'] = self.nico_questions['Q59']
 
             vehicles.append(Table(
                 [
@@ -433,202 +527,284 @@ class ROCReport:
                        Paragraph(str(vehicle['model']), extend_style(styles["rc-normal-text"])),
                        Paragraph(vehicle.get('vehicleType', ''), extend_style(styles["rc-normal-text"])),
                        Paragraph(str(vehicle['VIN']), extend_style(styles["rc-normal-text"])),
-                       None,
-                       None,
-                       None,
+                       Paragraph(str(vehicle['GVW']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['total_no_of_rear_axles']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['PGL']), extend_style(styles["rc-normal-text"])),
                        Paragraph(str(vehicle.get('radiusOfTravelVehicle', '')), extend_style(styles["rc-normal-text"])),
-                       None,
-                       None,
+                       Paragraph(str(vehicle['AMPV']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['AB']), extend_style(styles["rc-normal-text"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
-                colWidths=(7*mm, 9*mm, 22*mm, 38*mm, 32*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
-                rowHeights=4.5*mm
+                colWidths=(7*mm, 11*mm, 22*mm, 36*mm, 32*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
             ))
         return vehicles
 
+    def physical_detail_with_values(self, number):
+        return Table(
+            [
+                [   
+                    Paragraph(number, extend_style(styles["rc-normal-header"])),
+                    Paragraph(self.formatDate('Q65'), extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q66'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q67'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q68'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q69'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q70'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q71'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q72'], extend_style(styles["rc-normal-text"])),
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(8*mm, 21*mm, 21*mm, 32*mm, 32*mm, 22*mm, 27*mm, 19*mm, 20*mm),
+        ),
+
     def physical_detail(self, number):
         return Table(
-                [
-                    [   
-                        Paragraph(number, extend_style(styles["rc-normal-header"])),
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("GRID", (0, 0), (-1, -1), .25, "black"),
-                ]),
-                colWidths=(8*mm, 21*mm, 21*mm, 32*mm, 32*mm, 22*mm, 27*mm, 19*mm, 20*mm),
-                rowHeights=4.7*mm
-            ),
+            [
+                [   
+                    Paragraph(number, extend_style(styles["rc-normal-header"])),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(8*mm, 21*mm, 21*mm, 32*mm, 32*mm, 22*mm, 27*mm, 19*mm, 20*mm),
+        ),
+
+    def loss_experience_with_value(self):
+        return Table(
+            [
+                [   
+                    Paragraph(self.formatDate('Q78'), extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.formatDate('Q79'), extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q80'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q81'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q82'], extend_style(styles["rc-normal-center"])),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(17.5*mm, 17.5*mm, 38*mm, 20*mm, 16*mm, 17.5*mm, 17.5*mm, 14.5*mm, 14.5*mm, 14.5*mm, 14.5*mm),
+        ),
 
     def loss_experience(self):
         return Table(
-                [
-                    [   
-                        Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
-                        Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("GRID", (0, 0), (-1, -1), .25, "black"),
-                ]),
-                colWidths=(17.5*mm, 17.5*mm, 38*mm, 20*mm, 16*mm, 17.5*mm, 17.5*mm, 14.5*mm, 14.5*mm, 14.5*mm, 14.5*mm),
-                rowHeights=5*mm
-            ),
+            [
+                [   
+                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
+                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(17.5*mm, 17.5*mm, 38*mm, 20*mm, 16*mm, 17.5*mm, 17.5*mm, 14.5*mm, 14.5*mm, 14.5*mm, 14.5*mm),
+        ),
+
+    def cargo_information_with_value(self):
+        return Table(
+            [
+                [   
+                    Paragraph(self.formatDate('Q94'), extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.formatDate('Q95'), extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q96'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q97'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q98'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q99'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q100'], extend_style(styles["rc-normal-center"])),
+                    None,
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(17.5*mm, 17.5*mm, 48*mm, 20*mm, 16*mm, 35*mm, 23*mm, 25*mm),
+        ),
 
     def cargo_information(self):
         return Table(
-                [
-                    [   
-                        Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                    ]
+            [
+                [   
+                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
+                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(17.5*mm, 17.5*mm, 48*mm, 20*mm, 16*mm, 35*mm, 23*mm, 25*mm),
+        ),
+
+    def describe_cargo_with_value(self):
+        return  Table(
+            [
+                [   
+                    None,
+                    Paragraph("", extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q102'], extend_style(styles["rc-normal-center"])),
+                    Paragraph(self.nico_questions['Q101'], extend_style(styles["rc-normal-center"])),
                 ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("GRID", (0, 0), (-1, -1), .25, "black"),
-                ]),
-                colWidths=(17.5*mm, 17.5*mm, 48*mm, 20*mm, 16*mm, 35*mm, 23*mm, 25*mm),
-                rowHeights=4*mm
-            ),
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(80*mm, 24*mm, 24*mm, 24*mm),
+            rowHeights=5*mm
+        ),
 
     def describe_cargo(self):
         return  Table(
-                    [
-                        [   
-                            None,
-                            None,
-                            None,
-                            None,
-                        ],
-                    ],
-                    style=extend_table_style(styles["rc-main-table"], [
-                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                        ("TOPPADDING", (0, 0), (-1, -1), 0),
-                        ("GRID", (0, 0), (-1, -1), .25, "black"),
-                    ]),
-                    colWidths=(80*mm, 24*mm, 24*mm, 24*mm),
-                    rowHeights=5*mm
-                ),
+            [
+                [   
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("GRID", (0, 0), (-1, -1), .25, "black"),
+            ]),
+            colWidths=(80*mm, 24*mm, 24*mm, 24*mm),
+            rowHeights=5*mm
+        ),
 
     def unisured_motorist_coverage(self):
         return  Table(
-                    [
+            [
+                [
+                    Paragraph("UNINSURED MOTORIST COVERAGE", extend_style(styles["rc-normal-center"])),
+                ],
+                [
+                    Table(
                         [
-                            Paragraph("UNINSURED MOTORIST COVERAGE", extend_style(styles["rc-normal-center"])),
-                        ],
-                        [
-                            Table(
-                                [
+                            [
+                                Paragraph("Single Limit", extend_style(styles["rc-normal-center"])),
+                                Table(
                                     [
-                                        Paragraph("Single Limit", extend_style(styles["rc-normal-center"])),
-                                        Table(
-                                            [
+                                        [
+                                            Paragraph("Split Limits", extend_style(styles["rc-normal-center"])),
+                                        ],
+                                        [
+                                            Paragraph("Bodily Injury", extend_style(styles["rc-normal-center"])),
+                                        ],
+                                        [
+                                            Table(
                                                 [
-                                                    Paragraph("Split Limits", extend_style(styles["rc-normal-center"])),
-                                                ],
-                                                [
-                                                    Paragraph("Bodily Injury", extend_style(styles["rc-normal-center"])),
-                                                ],
-                                                [
-                                                    Table(
-                                                        [
+                                                    [
+                                                        Table(
                                                             [
-                                                                Table(
-                                                                    [
-                                                                        [
-                                                                            Paragraph("Per Person", extend_style(styles["rc-normal-center"])),
-                                                                            Paragraph("Per Accident", extend_style(styles["rc-normal-center"])),
-                                                                        ]
-                                                                    ],
-                                                                    style=extend_table_style(styles["rc-main-table"], [
-                                                                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                                                        ("GRID", (0, 0), (-1, -1), .75, "black"),
-                                                                    ]),
-                                                                    rowHeights=(4*mm)
-                                                                ),
-                                                            ]
-                                                        ],
-                                                        style=extend_table_style(styles["rc-main-table"], [
-                                                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                                            ("GRID", (0, 0), (-1, -1), .75, "black"),
-                                                        ]),
-                                                        rowHeights=(4*mm)
-                                                    ),
-                                                ]
-                                            ],
-                                            style=extend_table_style(styles["rc-main-table"], [
-                                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                                ("GRID", (0, 0), (-1, -1), .75, "black"),
-                                            ]),
-                                            rowHeights=(4*mm)
-                                        ),
-                                    ]
-                                ],
-                                style=extend_table_style(styles["rc-main-table"], [
-                                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                    ("LINEAFTER", (0, 0), (0, -1), .45, "black"),
-                                ]),
-                                colWidths=(33*mm, 50*mm),
-                                rowHeights=(12*mm)
-                            ),
+                                                                [
+                                                                    Paragraph("Per Person", extend_style(styles["rc-normal-center"])),
+                                                                    Paragraph("Per Accident", extend_style(styles["rc-normal-center"])),
+                                                                ]
+                                                            ],
+                                                            style=extend_table_style(styles["rc-main-table"], [
+                                                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                                                ("GRID", (0, 0), (-1, -1), .75, "black"),
+                                                            ]),
+                                                            rowHeights=(4*mm)
+                                                        ),
+                                                    ]
+                                                ],
+                                                style=extend_table_style(styles["rc-main-table"], [
+                                                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                                    ("GRID", (0, 0), (-1, -1), .75, "black"),
+                                                ]),
+                                                rowHeights=(4*mm)
+                                            ),
+                                        ]
+                                    ],
+                                    style=extend_table_style(styles["rc-main-table"], [
+                                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                        ("GRID", (0, 0), (-1, -1), .75, "black"),
+                                    ]),
+                                    rowHeights=(4*mm)
+                                ),
+                            ]
                         ],
+                        style=extend_table_style(styles["rc-main-table"], [
+                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                            ("LINEAFTER", (0, 0), (0, -1), .45, "black"),
+                        ]),
+                        colWidths=(33*mm, 50*mm),
+                        rowHeights=(12*mm)
+                    ),
+                ],
+                [
+                    Table(
                         [
-                            Table(
-                                [
-                                    [
-                                        None,
-                                        None,
-                                        None,
-                                    ]
-                                ],
-                                style=extend_table_style(styles["rc-main-table"], [
-                                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                                    ("LINEAFTER", (0, 0), (0, -1), .45, "black"),
-                                    ("LINEAFTER", (0, 0), (1, -1), .45, "black"),
-                                    ("LINEAFTER", (0, 0), (2, -1), .45, "black"),
-                                ]),
-                                colWidths=(33*mm, 25*mm, 25*mm),
-                                rowHeights=(4*mm)
-                            ),
-                        ]
-                    ],
-                    style=extend_table_style(styles["rc-main-table"], [
-                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                        ("GRID", (0, 0), (-1, -1), .75, "black"),
-                    ]),
-                    colWidths=(83*mm),
-                    rowHeights=(4*mm, 12*mm, 4*mm)
-                ),
+                            [
+                                Paragraph(self.nico_questions['Q36'], extend_style(styles["rc-normal-center"])),
+                                Paragraph(self.nico_questions['Q37_1'], extend_style(styles["rc-normal-center"])),
+                                Paragraph(self.nico_questions['Q37_2'], extend_style(styles["rc-normal-center"])),
+                            ]
+                        ],
+                        style=extend_table_style(styles["rc-main-table"], [
+                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                            ("LINEAFTER", (0, 0), (0, -1), .45, "black"),
+                            ("LINEAFTER", (0, 0), (1, -1), .45, "black"),
+                            ("LINEAFTER", (0, 0), (2, -1), .45, "black"),
+                        ]),
+                        colWidths=(33*mm, 25*mm, 25*mm),
+                        rowHeights=(4*mm)
+                    ),
+                ]
+            ],
+            style=extend_table_style(styles["rc-main-table"], [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("GRID", (0, 0), (-1, -1), .75, "black"),
+            ]),
+            colWidths=(83*mm),
+            rowHeights=(4*mm, 12*mm, 4*mm)
+        ),
 
     def _section_content(self):     
         name_dba = self.name
@@ -736,7 +912,7 @@ class ROCReport:
                     [   
                         self.right_header("4."),
                         Paragraph("Person to contact for inspection (name and phone number)", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.nico_questions['contactName'] + ' ' + self.nico_questions['phoneNumber'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -753,7 +929,7 @@ class ROCReport:
                     [   
                         self.right_header("5."),
                         Paragraph("Have you ever had insurance with one of the companies listed at the top of this page?", styles["rc-checkbox-text"]),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q5')),
                         None,
                     ]
                 ],
@@ -768,9 +944,9 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("If yes, Policy Number(s)", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q6_policyNumber']),
                         Paragraph("Effective Date(s)", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.formatDate('Q6_policyNumberEffectiveDate'))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -802,7 +978,7 @@ class ROCReport:
                     [   
                         self.right_header("6."),
                         Paragraph("Descibe business", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.partial_text('Q7', 172)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -810,17 +986,22 @@ class ROCReport:
                     ("TOPPADDING", (0, 0), (-1, -1), L_S),
                 ]),
                 colWidths=( 5 * mm, 25 * mm, 172 * mm),
-            ),
+            )]
+
+        if self.partial_text('Q7', 172)[2]:
+            elems += self.get_lines('Q7', self.partial_text('Q7', 172)[1])
+
+        elems += [    
             Table(
                 [
                     [   
                         None,
                         Paragraph("Years experience", extend_style(styles["rc-first-label"])),
-                        self.underline(),
-                        Paragraph("New Venture? ", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
-                        Paragraph("If you are a tow truck operation, do you do repossessions?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.underline(self.nico_questions['yearsExperience']),
+                        Paragraph("New Venture?", extend_style(styles["rc-first-label"])),
+                        self.yes_no(self._26_ques('Q9')),
+                        Paragraph("If you are a low truck operation, do you do repossessions?", extend_style(styles["rc-first-label"])),
+                        self.yes_no(self._26_ques('Q10')),
                         None,
                     ]
                 ],
@@ -838,9 +1019,9 @@ class ROCReport:
                     [   
                         self.right_header("7."),
                         Paragraph("Is this your primary business?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Is this your primary business?")),
+                        self.yes_no(self._26_ques("Q11_0")),
                         Paragraph("If no, explain", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.partial_text('Q11', 110)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -848,13 +1029,18 @@ class ROCReport:
                     ("TOPPADDING", (0, 0), (-1, -1), L_S),
                 ]),
                 colWidths=( 5 * mm, 42 * mm, 25*mm, 20*mm, 110 * mm),
-            ),
+            )]
+
+        if self.partial_text('Q11', 110)[2]:
+            elems += self.get_lines('Q11', self.partial_text('Q11', 110)[1])
+
+        elems += [
             Table(
                 [
                     [   
                         None,
                         Paragraph("Seasonal?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q12')),
                         None,
                     ]
                 ],
@@ -872,20 +1058,23 @@ class ROCReport:
                     [   
                         self.right_header("8."),
                         Paragraph("Have you ever filed for bankruptcy?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Have you ever filed for bankruptcy?")),
+                        self.yes_no(self._26_ques("Q13_0")),
                         Paragraph("If yes, when", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q13']),
                         Paragraph("Explain", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.partial_text('Q14', 78)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                     ("TOPPADDING", (0, 0), (-1, -1), L_S),
                 ]),
-                colWidths=( 5 * mm, 48 * mm, 25*mm, 18*mm, 15*mm, 13*mm, 78*mm),
+                colWidths=( 5 * mm, 48 * mm, 23*mm, 18*mm, 17*mm, 13*mm, 78*mm),
             ),
         ]
+
+        if self.partial_text('Q14', 78)[2]:
+            elems += self.get_lines('Q14', self.partial_text('Q14', 78)[1])
 
         elems += [
             Table(
@@ -893,11 +1082,11 @@ class ROCReport:
                     [   
                         self.right_header("9."),
                         Paragraph("Gross receipts last year", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q15']),
                         Paragraph("Estimate for coming year", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q16']),
                         Paragraph("Business for sale?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q17')),
                         None,
                     ]
                 ],
@@ -915,9 +1104,9 @@ class ROCReport:
                     [   
                         self.right_header("10."),
                         Paragraph("Do you operate in more than one state?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q18')),
                         Paragraph("If yes, list states", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(','.join(self.nico_questions['Q19'])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -935,9 +1124,9 @@ class ROCReport:
                     [   
                         self.right_header("11."),
                         Paragraph("Do you haul for hire?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you haul for hire?")),
+                        self.yes_no(self._26_ques("Q20_0")),
                         Paragraph("Show largest cities entered", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q20']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -955,9 +1144,9 @@ class ROCReport:
                     [   
                         self.right_header("12."),
                         Paragraph("Do you operate over a regular route?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q21')),
                         Paragraph("If yes, show towns operated between", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q22', 69)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -969,17 +1158,20 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q22', 69)[2]:
+            elems += self.get_lines('Q22', self.partial_text('Q22', 69)[1])
+
         elems += [
             Table(
                 [
                     [   
                         self.right_header("13."),
                         Paragraph("Are you a common carrier?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Are you a common carrier?")),
+                        self.yes_no(self._26_ques("Q23_0")),
                         Paragraph("Are you a contract hauler?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Are you a contract hauler?")),
+                        self.yes_no(self._26_ques("Q23_1")),
                         Paragraph("If yes, for whom", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q23', 45)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -991,13 +1183,16 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q23', 45)[2]:
+            elems += self.get_lines('Q23', self.partial_text('Q23', 45)[1])
+
         elems += [
             Table(
                 [
                     [   
                         self.right_header("14."),
                         Paragraph("List all types of cargo hauled", extend_style(styles["rc-first-label"])),
-                        self.underline(self.get_cargo_haulded()),
+                        self.underline(self._partial_text(self.get_cargo_haulded(), 156)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1009,13 +1204,16 @@ class ROCReport:
             ),
         ]
 
+        if self._partial_text(self.get_cargo_haulded(), 156)[2]:
+            elems += self._get_lines(self.get_cargo_haulded(), self._partial_text(self.get_cargo_haulded(), 156)[1])
+
         elems += [
             Table(
                 [
                     [   
                         self.right_header("15."),
                         Paragraph("Do you haul any hazardous or extra hazardous substances or materials as defined by EPA?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you haul any hazardous or extra hazardous substances or materials as defined by EPA?")),
+                        self.yes_no(self._26_ques("Q24_0")),
                         Paragraph("If yes, provide the complete listing", extend_style(styles["rc-first-label"])),
                        
                     ]
@@ -1035,7 +1233,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("identifying all materials(s) and/or chemical content:", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q24', 130)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1047,15 +1245,18 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q24', 130)[2]:
+            elems += self.get_lines('Q24', self.partial_text('Q24', 130)[1])
+
         elems += [
             Table(
                 [
                     [   
                         self.right_header("16."),
                         Paragraph("Do you haul your own cargo exclusively?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you haul your own cargo exclusively?")),
+                        self.yes_no(self._26_ques("Q25_0")),
                         Paragraph("If not, who owns it?", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q25', 91)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1063,9 +1264,12 @@ class ROCReport:
                     ("ALIGNMENT", (0, 0), (-1, -1), "LEFT"),
                     ("TOPPADDING", (0, 0), (-1, -1), L_S),
                 ]),
-                colWidths=( 6 * mm, 49*mm, 25*mm, 28*mm, 94*mm),
+                colWidths=( 6 * mm, 56*mm, 21*mm, 28*mm, 91*mm),
             ),
         ]
+
+        if self.partial_text('Q25', 91)[2]:
+            elems += self.get_lines('Q25', self.partial_text('Q25', 91)[1])
 
         elems += [
             Table(
@@ -1073,9 +1277,9 @@ class ROCReport:
                     [   
                         self.right_header("17."),
                         Paragraph("Do you pull double trailer?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you pull double trailer?")),
+                        self.yes_no(self._26_ques("Q25_17_1")),
                         Paragraph("Triple trailer?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Triple trailer?")),
+                        self.yes_no(self._26_ques("Q25_17_2")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1093,7 +1297,7 @@ class ROCReport:
                     [   
                         self.right_header("18."),
                         Paragraph("Do you rent or lease your vehicles to others?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you rent or lease your vehicles to others?")),
+                        self.yes_no(self._26_ques("Q26_0")),
                         Paragraph("If yes, attach copy of rental or lease agreement form uses.", extend_style(styles["rc-first-label"])),
                     ]
                 ],
@@ -1112,7 +1316,7 @@ class ROCReport:
                     [   
                         self.right_header("19."),
                         Paragraph("Do you hire any vehicles?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q27')),
                         Paragraph("Complete Hired and Non-Owned Supplemental Questionnaire if coverage is desired.", extend_style(styles["rc-first-label"])),
                     ]
                 ],
@@ -1231,10 +1435,10 @@ class ROCReport:
                                     Table(
                                         [
                                             [
-                                                None,
-                                                None,
-                                                None,
-                                                None,
+                                                Paragraph(self.nico_questions['Q30'], extend_style(styles["rc-normal-center"])),
+                                                Paragraph(self.nico_questions['Q31_1'], extend_style(styles["rc-normal-center"])),
+                                                Paragraph(self.nico_questions['Q31_2'], extend_style(styles["rc-normal-center"])),
+                                                Paragraph(self.nico_questions['Q32'], extend_style(styles["rc-normal-center"]))
                                             ]
                                         ],
                                         style=extend_table_style(styles["rc-main-table"], [
@@ -1268,7 +1472,7 @@ class ROCReport:
                                                             Paragraph("Medical Payments", extend_style(styles["rc-normal-center"])),
                                                         ],
                                                         [
-                                                            None
+                                                            Paragraph(self.nico_questions['Q33'], extend_style(styles["rc-normal-center"]))
                                                         ]
                                                     ],
                                                     style=extend_table_style(styles["rc-main-table"], [
@@ -1283,7 +1487,7 @@ class ROCReport:
                                                             Paragraph("Personal <br /> Injury <br /> Projection <br /> (where <br /> applicable)", extend_style(styles["rc-normal-center"])),
                                                         ],
                                                         [
-                                                            None
+                                                            Paragraph(self.nico_questions['Q34'], extend_style(styles["rc-normal-center"]))
                                                         ]
                                                     ],
                                                     style=extend_table_style(styles["rc-main-table"], [
@@ -1457,7 +1661,9 @@ class ROCReport:
             ),
         ]
 
-        elems += [PageBreak()]
+        # elems += [PageBreak()]
+
+        elems += self.line_spacer()
 
         elems += [
             Table(
@@ -1568,7 +1774,7 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(22.5*mm)
+                # rowHeights=(22.5*mm)
             ),
         ]
 
@@ -1594,9 +1800,9 @@ class ROCReport:
                     [   
                         self.right_header("20."),
                         Paragraph("Are drivers covered by workers compensation?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Are drivers covered by workers compensation?")),
+                        self.yes_no(self._26_ques("Q49_0")),
                         Paragraph("If yes, name of carrier?", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q49']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1614,10 +1820,10 @@ class ROCReport:
                     [   
                         self.right_header("21."),
                         Paragraph("Minimum years driving experience required", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q50']),
                         None,
                         Paragraph("Are vehicles owner-driven only?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q51')),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1635,9 +1841,9 @@ class ROCReport:
                     [   
                         self.right_header("22."),
                         Paragraph("Are drivers ever allowed to take vehicles home at night?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Are drivers ever allowed to take vehicles home at night?")),
+                        self.yes_no(self._26_ques("Q51_22_1")),
                         Paragraph("If yes, will family members drive?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("If yes, will family members drive?")),
+                        self.yes_no(self._26_ques("Q51_22_2")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1655,11 +1861,11 @@ class ROCReport:
                     [   
                         self.right_header("23."),
                         Paragraph("Do you order MVRs on all drivers prior to hiring?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you order MVRs on all drivers prior to hiring?")),
+                        self.yes_no(self._26_ques("Q52_0")),
                         Paragraph("Drivers maximum driving hours", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q52_daily']),
                         Paragraph("daily,", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q52_weekly']),
                         Paragraph("weekly", extend_style(styles["rc-first-label"])),
                     ]
                 ],
@@ -1678,7 +1884,7 @@ class ROCReport:
                     [   
                         self.right_header("24."),
                         Paragraph("Do you agree to report all newly hired operators?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you agree to report all newly hired operators?")),
+                        self.yes_no(self._26_ques("Q52_24")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1696,12 +1902,12 @@ class ROCReport:
                     [   
                         self.right_header("25."),
                         Paragraph("What is the basis for driver(s) pay?", extend_style(styles["rc-first-label"])),
-                        self.checkbox_text("Hourly", 17),
-                        self.checkbox_text("Trip", 11),
-                        self.checkbox_text("Mileage", 25),
-                        self.checkbox_text("Other,", 12),
+                        self.checkbox_text(text="Hourly", width=17, checked=self.nico_questions['Q53']=='Hourly'),
+                        self.checkbox_text(text="Trip", width=11, checked=self.nico_questions['Q53']=='Trip'),
+                        self.checkbox_text(text="Mileage", width=25, checked=self.nico_questions['Q53']=='Mileage'),
+                        self.checkbox_text(text="Other,", width=12, checked=self.nico_questions['Q53']=='Other'),
                         Paragraph("Explain", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.partial_text('Q53_explain', 62)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1713,6 +1919,11 @@ class ROCReport:
                 rowHeights=6*mm
             ),
         ]
+
+        if self.partial_text('Q53_explain', 62)[2]:
+            elems += self.get_lines('Q53_explain', self.partial_text('Q53_explain', 62)[1])
+
+        elems += self.line_spacer()
 
         elems += [
             Table(
@@ -1759,7 +1970,7 @@ class ROCReport:
                                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                                 ("GRID", (0, 0), (-1, -1), .75, "black"),
                             ]),
-                            colWidths=(7*mm, 9*mm, 22*mm, 38*mm, 32*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
+                            colWidths=(7*mm, 11*mm, 22*mm, 36*mm, 32*mm, 18*mm, 9*mm, 30*mm, 10*mm, 15*mm, 12*mm),
                             rowHeights=(18*mm)
                         ),
                     ]
@@ -1785,7 +1996,6 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=( 202*mm),
-                rowHeights=45*mm
             ),
         ]
 
@@ -1795,9 +2005,9 @@ class ROCReport:
                     [   
                         self.right_header("26."),
                         Paragraph("Will lessor be added as additional insured?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q60')),
                         Paragraph("If yes, give me name and address of lessor of each vehicle", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q61', 37)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1809,22 +2019,8 @@ class ROCReport:
             ),
         ]
 
-        elems += [
-            Table(
-                [
-                    [   
-                        None,
-                        self.underline(),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
-                    ("TOPPADDING", (0, 0), (-1, -1), L_S),
-                ]),
-                colWidths=( 7*mm, 195*mm ),
-                rowHeights=5*mm
-            ),
-        ]
+        if self.partial_text('Q61', 37)[2]:
+            elems += self.get_lines('Q61', self.partial_text('Q61', 37)[1])
 
         elems += [
             Table(
@@ -1833,17 +2029,17 @@ class ROCReport:
                         self.right_header("27."),
                         Paragraph("Number of vehicles owned:", extend_style(styles["rc-first-label"])),
                         Paragraph("Pick-Ups", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q62_pick_ups']),
                         Paragraph("Trucks", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q62_trucks']),
                         Paragraph("Tractors", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q62_tractors']),
                         Paragraph("Semi-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q62_semi_trailers']),
                         Paragraph("Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(),
-                        Paragraph("Pup Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q62_trailers']),
+                        Paragraph("Pup-Trailers", extend_style(styles["rc-first-label"])),
+                        self.underline(self.nico_questions['Q62_pup_trailers']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1862,17 +2058,17 @@ class ROCReport:
                         self.right_header("28."),
                         Paragraph("Number of vehicles leased:", extend_style(styles["rc-first-label"])),
                         Paragraph("Pick-Ups", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q63_pick_ups']),
                         Paragraph("Trucks", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q63_trucks']),
                         Paragraph("Tractors", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q63_tractors']),
                         Paragraph("Semi-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q63_semi_trailers']),
                         Paragraph("Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q63_trailers']),
                         Paragraph("Pup-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q63_pup_trailers']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1887,28 +2083,27 @@ class ROCReport:
 
         elems += [
             Table(
-                [
-                    [   
-                       Paragraph("PHYSICAL DAMAGE COVERAGE", extend_style(styles["rc-normal-header"])),
-                       Paragraph("- Complete spaces below in detail for each respective auto/vehicle described above.", extend_style(styles["rc-bold-text"])),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BACKGROUND", (0, 0), (-1, -1), "#d1d1d1"),
-                    ("LINEABOVE", (0, 0), (-1, 0), .75, "black"),
-                    ("LINEBEFORE", (0, 0), (0, -1), .75, "black"),
-                    ("LINEAFTER", (-1, 0), (-1, -1), .75, "black"),
-                ]),
-                colWidths=(58*mm, 144*mm),
-                rowHeights=5*mm
-            ),
-        ]
-
-        elems += [
-            Table(
                 [   
+                    [   
+                       Table(
+                            [
+                                [   
+                                   Paragraph("PHYSICAL DAMAGE COVERAGE", extend_style(styles["rc-normal-header"])),
+                                   Paragraph("- Complete spaces below in detail for each respective auto/vehicle described above.", extend_style(styles["rc-bold-text"])),
+                                ]
+                            ],
+                            style=extend_table_style(styles["rc-main-table"], [
+                                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                                ("BACKGROUND", (0, 0), (-1, -1), "#d1d1d1"),
+                                ("LINEABOVE", (0, 0), (-1, 0), .75, "black"),
+                                ("LINEBEFORE", (0, 0), (0, -1), .75, "black"),
+                                ("LINEAFTER", (-1, 0), (-1, -1), .75, "black"),
+                            ]),
+                            colWidths=(58*mm, 144*mm),
+                            rowHeights=5*mm
+                        ),
+                    ],
                     [   
                         Table(
                             [
@@ -1984,7 +2179,6 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(14*mm)
             ),
         ]
 
@@ -1992,7 +2186,7 @@ class ROCReport:
             Table(
                 [   
                     [   
-                        self.physical_detail("1.")
+                        self.physical_detail_with_values("1.")
                     ],
                     [   
                         self.physical_detail("2.")
@@ -2027,7 +2221,6 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(4.7*mm)
             ),
         ]
 
@@ -2037,9 +2230,9 @@ class ROCReport:
                     [   
                         self.right_header("29."),
                         Paragraph("Any loss payees?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q74')),
                         Paragraph("If yes, give me name and address of mortgagee/loss of each vehicle", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q75', 58)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2051,24 +2244,29 @@ class ROCReport:
             ),
         ]
 
-        elems += [
-            Table(
-                [
-                    [   
-                        None,
-                        self.underline(),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
-                    ("TOPPADDING", (0, 0), (-1, -1), L_S),
-                ]),
-                colWidths=( 7*mm, 195*mm ),
-                rowHeights=5*mm
-            ),
-        ]
+        if self.partial_text('Q75', 58)[2]:
+            elems += self.get_lines('Q75', self.partial_text('Q75', 58)[1])
 
-        elems += [ PageBreak() ]
+        # elems += [
+        #     Table(
+        #         [
+        #             [   
+        #                 None,
+        #                 self.underline(),
+        #             ]
+        #         ],
+        #         style=extend_table_style(styles["rc-main-table"], [
+        #             ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+        #             ("TOPPADDING", (0, 0), (-1, -1), L_S),
+        #         ]),
+        #         colWidths=( 7*mm, 195*mm ),
+        #         rowHeights=5*mm
+        #     ),
+        # ]
+
+        # elems += [ PageBreak() ]
+
+        elems += self.line_spacer()
 
         elems += [
             Table(
@@ -2206,7 +2404,7 @@ class ROCReport:
             Table(
                 [   
                     [   
-                        self.loss_experience()
+                        self.loss_experience_with_value()
                     ],
                     [   
                         self.loss_experience()
@@ -2220,7 +2418,6 @@ class ROCReport:
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(5*mm)
             ),
         ]
 
@@ -2247,9 +2444,9 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("sought in this application?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q89')),
                         Paragraph("If yes, provide complete details", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q90', 93)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2261,15 +2458,18 @@ class ROCReport:
             ),
         ]
 
+        if self.partial_text('Q90', 93)[2]:
+            elems += self.get_lines('Q90', self.partial_text('Q90', 93)[1])
+
         elems += [
             Table(
                 [
                     [   
                         self.right_header("31."),
                         Paragraph("Have you ever been declined, cancelled or non-renewed for this kind of insurance?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q91')),
                         Paragraph("If yes, date and why", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q92', 35)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2280,6 +2480,11 @@ class ROCReport:
                 rowHeights=5*mm
             ),
         ]
+
+        if self.partial_text('Q92', 35)[2]:
+            elems += self.get_lines('Q92', self.partial_text('Q92', 35)[1])
+
+        elems += self.line_spacer()
 
         elems += [
             Table(
@@ -2378,7 +2583,7 @@ class ROCReport:
             Table(
                 [   
                     [   
-                        self.cargo_information()
+                        self.cargo_information_with_value()
                     ],
                     [   
                         self.cargo_information()
@@ -2427,7 +2632,7 @@ class ROCReport:
                         Table(
                             [
                                 [   
-                                    self.describe_cargo()
+                                    self.describe_cargo_with_value()
                                 ],
                                 [   
                                     self.describe_cargo()
@@ -2449,23 +2654,23 @@ class ROCReport:
                             [
                                 [   
                                     None,
-                                    self.checkbox_text('$500', 12),
+                                    self.checkbox_text('$500', 12, checked=self.nico_questions['Q103']=='$500'),
                                     None,
                                 ],
                                 [   
                                     None,
-                                    self.checkbox_text('$1,000', 12),
+                                    self.checkbox_text('$1,000', 12, checked=self.nico_questions['Q103']=='$1,000'),
                                     None,
                                 ],
                                 [   
                                     None,
-                                    self.checkbox_text('$2,500', 12),
+                                    self.checkbox_text('$2,500', 12, checked=self.nico_questions['Q103']=='$2,500'),
                                     None,
                                 ],
                                 [   
                                     None,
-                                    self.checkbox_text('Other', 12),
-                                    self.underline(),
+                                    self.checkbox_text('Other', 12, checked=self.nico_questions['Q103']=='Other'),
+                                    self.underline(self.nico_questions['Q103_other']),
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -2509,8 +2714,8 @@ class ROCReport:
                     [   
                         self.right_header("32."),
                         Paragraph("Select Type of Coverage Desired:", extend_style(styles["rc-first-label"])),
-                        self.checkbox_text("Named Perils or", 24, checked=self._select_type("Named Perils")),
-                        self.checkbox_text("Broad Form", 18, checked=self._select_type("Broad Form")),
+                        self.checkbox_text("Named Perils or", 24, checked=self.nico_questions['Q104']=='Named Perils'),
+                        self.checkbox_text("Broad Form", 18, checked=self.nico_questions['Q104']=='Broad Form'),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2527,8 +2732,8 @@ class ROCReport:
                     [   
                         self.right_header("33."),
                         Paragraph("Additional Coverage Options (additional premium may apply):", extend_style(styles["rc-first-label"])),
-                        self.checkbox_text("Additional Insured Endorsement (Lessee)", 55),
-                        self.checkbox_text("Loading and Unloading Coverage", 55),
+                        self.checkbox_text("Additional Insured Endorsement (Lessee)", 55, checked=self.nico_questions['Q105']=='Additional Insured Endorsement (Lessee)'),
+                        self.checkbox_text("Loading and Unloading Coverage", 55, checked=self.nico_questions['Q105']=='Loading and Unloading Coverage'),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2544,10 +2749,10 @@ class ROCReport:
                 [
                     [   
                         None,
-                        self.checkbox_text("Earned Freight Coverage", 40),
-                        self.checkbox_text("Refrigeration Breakdown Coverage", 50),
-                        self.checkbox_text("Hired Car Cargo Coverage", 35),
-                        self.checkbox_text("Exclude Theft Coverage", 35),
+                        self.checkbox_text("Earned Freight Coverage", 40, checked=self.nico_questions['Q105']=='Earned Freight Coverage'),
+                        self.checkbox_text("Refrigeration Breakdown Coverage", 50, checked=self.nico_questions['Q105']=='Refrigeration Breakdown Coverage'),
+                        self.checkbox_text("Hired Car Cargo Coverage", 35, checked=self.nico_questions['Q105']=='Hired Car Cargo Coverage'),
+                        self.checkbox_text("Exclude Theft Coverage", 35, checked=self.nico_questions['Q105']=='Exclude Theft Coverage'),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2579,9 +2784,9 @@ class ROCReport:
                     [   
                         self.right_header("34."),
                         Paragraph("Is an FHWA filing required?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q107')),
                         Paragraph("If yes, MC number", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q108']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2597,11 +2802,11 @@ class ROCReport:
                 [
                     [   
                         None,
-                        self.checkbox_text("Common", 14),
-                        self.checkbox_text("Contract", 12),
-                        self.checkbox_text("Broker", 35),
+                        self.checkbox_text("Common", 14, checked=self.nico_questions['Q109']=='Common'),
+                        self.checkbox_text("Contract", 12, checked=self.nico_questions['Q109']=='Contract'),
+                        self.checkbox_text("Broker", 35, checked=self.nico_questions['Q109']=='Broker'),
                         Paragraph("Do you require FHWA cargo filing?", extend_style(styles["rc-first-label"])),
-                        self.yes_no()
+                        self.yes_no(self._26_ques('Q110'))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2618,7 +2823,7 @@ class ROCReport:
                     [   
                         self.right_header("35."),
                         Paragraph("If you hold a Brokers license, identify name filed with FHWA, FHWA docket no. and receipts from brokerage operations", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.partial_text('Q111', 38)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2629,22 +2834,8 @@ class ROCReport:
             ),
         ]
 
-        elems += [
-            Table(
-                [
-                    [   
-                        None,
-                        self.underline(),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), L_S),
-                ]),
-                colWidths=( 8*mm, 194*mm),
-                rowHeights=3.5*mm
-            ),
-        ]
+        if self.partial_text('Q111', 38)[2]:
+            elems += self.get_lines('Q111', self.partial_text('Q111', 38)[1])
 
         elems += [
             Table(
@@ -2652,14 +2843,13 @@ class ROCReport:
                     [   
                         self.right_header("36."),
                         Paragraph("If you are interstate regulated carrier, identify your registration or base state", extend_style(styles["rc-first-label"])),
-                        self.underline(),
-                        None,
+                        self.underline(self.nico_questions['Q112']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
                 ]),
-                colWidths=( 6*mm, 98*mm, 35*mm, 63*mm),
+                colWidths=( 6*mm, 98*mm, 98*mm),
                 rowHeights=4*mm
             ),
         ]
@@ -2670,9 +2860,9 @@ class ROCReport:
                     [   
                         self.right_header("37."),
                         Paragraph("Is an intrastate filing needed?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q113')),
                         Paragraph("If yes, show state and permit number", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q114']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2689,7 +2879,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("List states for which insured requires CARGO FILINGS (check name on permits)", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q115']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2706,7 +2896,7 @@ class ROCReport:
                     [   
                         self.right_header("38."),
                         Paragraph("Show exact name and address in which permits are issued", extend_style(styles["rc-first-label"])),
-                        self.underline(),
+                        self.underline(self.nico_questions['Q116']),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2724,7 +2914,7 @@ class ROCReport:
                     [   
                         self.right_header("39."),
                         Paragraph("Is MCS 90 endorsement needed?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q117')),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2742,9 +2932,9 @@ class ROCReport:
                     [   
                         self.right_header("40."),
                         Paragraph("Is our policy to cover all vehicles owned, operated or under lease to applicant?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q118')),
                         Paragraph("If yes, explain", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.partial_text('Q119', 49)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2756,22 +2946,8 @@ class ROCReport:
             ),
         ]
 
-        elems += [
-            Table(
-                [
-                    [   
-                        None,
-                        self.underline(),
-                    ]
-                ],
-                style=extend_table_style(styles["rc-main-table"], [
-                    ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2*L_S),
-                ]),
-                colWidths=( 8*mm, 194*mm),
-                rowHeights=3.5*mm
-            ),
-        ]
+        if self.partial_text('Q119', 49)[2]:
+            elems += self.get_lines('Q119', self.partial_text('Q119', 49)[1])
 
         elems += [
             Table(
@@ -2779,9 +2955,9 @@ class ROCReport:
                     [   
                         self.right_header("41."),
                         Paragraph("Are oversize, overweight commodities hauled?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q120')),
                         Paragraph("If filing required, show states", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.nico_questions['Q121'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2799,7 +2975,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("Are escort vehicles towed on return trips?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q122')),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2817,7 +2993,7 @@ class ROCReport:
                     [   
                         self.right_header("42."),
                         Paragraph("Does your authority allow for transportation of hazardous commodities?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q123')),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2835,7 +3011,7 @@ class ROCReport:
                     [   
                         self.right_header("43."),
                         Paragraph("Do you allow others to haul hazardous commodities under your authority?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(),
+                        self.yes_no(self._26_ques('Q124')),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2856,9 +3032,9 @@ class ROCReport:
                                 [   
                                     self.right_header("44."),
                                     Paragraph("Have you ever changed your operating name?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Have you ever changed your operating name?")),
+                                    self.yes_no(self._26_ques('Q124_44_1')),
                                     Paragraph("Do you operate under any other name?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Do you operate under any other name?")),
+                                    self.yes_no(self._26_ques('Q124_44_2')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2873,7 +3049,7 @@ class ROCReport:
                                 [   
                                     self.right_header("45."),
                                     Paragraph("Do you operate as a subsidiary of another company?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Do you operate as a subsidiary of another company?")),
+                                    self.yes_no(self._26_ques('Q124_45')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2888,7 +3064,7 @@ class ROCReport:
                                 [   
                                     self.right_header("46."),
                                     Paragraph("Do you own or manage any other transportation operations that are not covered?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Do you own or manage any other transportation operations that are not covered?")),
+                                    self.yes_no(self._26_ques('Q124_46')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2903,9 +3079,9 @@ class ROCReport:
                                 [   
                                     self.right_header("47."),
                                     Paragraph("Do you lease your authority?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Do you lease your authority?")),
+                                    self.yes_no(self._26_ques('Q124_47_1')),
                                     Paragraph("Do you appoint agents or hire independent contractors to operate on your behalf?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Do you appoint agents or hire independent contractors to operate on your behalf?")),
+                                    self.yes_no(self._26_ques('Q124_47_2')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2920,7 +3096,7 @@ class ROCReport:
                                 [   
                                     self.right_header("48."),
                                     Paragraph("Have you purchased, sold or applied for authority over the past 3 years?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(),
+                                    self.yes_no(self._26_ques('Q124_48')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2935,7 +3111,7 @@ class ROCReport:
                                 [   
                                     self.right_header("49."),
                                     Paragraph("Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc.)?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Have you ever lost or had authority withdrawn, or have you been/are under probation by any regulatory authority (FHWA, PUC, etc.)?")),
+                                    self.yes_no(self._26_ques('Q124_49')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2950,7 +3126,7 @@ class ROCReport:
                                 [   
                                     self.right_header("50."),
                                     Paragraph("Is evidence/certificate(s) of coverage required?", extend_style(styles["rc-first-label"])),
-                                    self.yes_no(self._26_ques("Is evidence/certificate(s) of coverage required?")),
+                                    self.yes_no(self._26_ques('Q124_50')),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2965,7 +3141,7 @@ class ROCReport:
                                 [   
                                     self.right_header("51."),
                                     Paragraph('Please explain any "yes" answer to quetions 44 through 50', extend_style(styles["rc-first-label"])),
-                                    self.underline(),
+                                    self.underline(self.partial_text('Q125', 119)[0]),
                                 ]
                             ],
                             style=extend_table_style(styles["rc-square-table"], [
@@ -2974,25 +3150,11 @@ class ROCReport:
                             rowHeights=4*mm
                         ),
                     ],
-                    [   
-                        Table(
-                            [
-                                [   
-                                    None,
-                                    self.underline(),
-                                ]
-                            ],
-                            style=extend_table_style(styles["rc-square-table"], [
-                            ]),
-                            colWidths=( 8*mm, 196*mm),
-                            rowHeights=3.5*mm
-                        ),
-                    ]
+                    self.get_lines('Q125', self.partial_text('Q125', 119)[1])
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                     ("TOPPADDING", (0, 0), (-1, -1), L_S),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2*L_S),
                     ("LINEABOVE", (0, 0), (-1, 0), .75, "black"),
                     ("LINEBELOW", (0, -1), (-1, -1), .75, "black"),
                     ("LINEBEFORE", (0, 0), (0, -1), .75, "black"),
@@ -3009,7 +3171,7 @@ class ROCReport:
                     [   
                         self.right_header("52."),
                         Paragraph("Do you have agreements with other carriers for the interchange of equipment or transportation of loads?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you have agreements with other carriers for the interchange of equipment or transportation of loads?")),
+                        self.yes_no(self._26_ques("Q126_0")),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3045,7 +3207,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(a)  With whom has such agreement(s) been made?", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.nico_questions['Q126'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3063,7 +3225,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(b)  Do the parties names in (a) carry automobile liability insurance?", extend_style(styles["rc-first-label"])),
-                        self.yes_no()
+                        self.yes_no(self._26_ques('Q127'))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3081,7 +3243,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("If yes, name of insurance company and limits of liability (Bodily Injury & Property Damage)", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.nico_questions['Q128'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3099,7 +3261,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(c)  Under whose permit does each of the parties to the agreement(s) operate?", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.nico_questions['Q129'])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3117,7 +3279,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(d)  Is there a hold harmless in the agreement(s)?", extend_style(styles["rc-first-label"])),
-                        self.yes_no()
+                        self.yes_no(self._26_ques('Q130'))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3135,9 +3297,9 @@ class ROCReport:
                     [   
                         self.right_header("53."),
                         Paragraph("Do you barter, hire or lease any vehicles?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques("Do you barter, hire or lease any vehicles?")),
+                        self.yes_no(self._26_ques("Q131_0")),
                         Paragraph("If yes, explain", extend_style(styles["rc-first-label"])),
-                        self.underline()
+                        self.underline(self.partial_text('Q131', 94)[0])
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3148,6 +3310,9 @@ class ROCReport:
                 rowHeights=4*mm
             ),
         ]
+
+        if self.partial_text('Q131', 94)[2]:
+            elems += self.get_lines('Q131', self.partial_text('Q131', 94)[1])
 
         elems += [PageBreak()]
 
@@ -3186,9 +3351,9 @@ class ROCReport:
                             [
                                 [   
                                    Paragraph("Will premium financed?", extend_style(styles["rc-first-label"])),
-                                   self.yes_no(),
+                                   self.yes_no(self._26_ques('Q132')),
                                    Paragraph("If yes, with whome", extend_style(styles["rc-normal-text"])),
-                                   self.underline()
+                                   self.underline(self.nico_questions['Q133'])
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
@@ -3255,7 +3420,7 @@ class ROCReport:
                         Table(
                             [
                                 [   
-                                    Paragraph(date.now().strftime('%y-%d-%m %H:%M:%S'), extend_style(styles["rc-normal-text"])),
+                                    Paragraph(date.now().strftime('%Y-%d-%m %H:%M:%S'), extend_style(styles["rc-normal-text"])),
                                 ],
                                 [   
                                     Paragraph("Date", extend_style(styles["rc-underline-text1"])),
