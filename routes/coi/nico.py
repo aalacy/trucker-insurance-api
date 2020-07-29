@@ -35,7 +35,7 @@ class ROCReport:
         self.drivers_information_list =json.loads( company['driverInformationList'])
         self.cargo_hauled_list = json.loads(company['cargoHauled'])
         self.vehicles_trailers_list = json.loads(company['vehicleInformationList'])['vehicle'] + json.loads(company['vehicleInformationList'])['trailer']
-        self.signature = json.loads(company['signSignature'])['imageSign']
+        self.signature = json.loads(company['signSignature']).get('imageSign', '')
         self.nico_questions = json.loads(company['nico_questions'])    
 
     def get_cargo_haulded(self):
@@ -66,7 +66,7 @@ class ROCReport:
             return 'x'
 
     def title_policy_term_from(self):
-        return self.formatDate('policyEffectiveDate') + ' to ' + self.formatDate('policyExpirationDate')
+        return self.formatDate('policyEffectiveDate') + ' To ' + self.formatDate('policyExpirationDate')
 
     def _get_lines(self, description, begin_idx=0, font='Arial', font_size=8):
         w_temp = description.split(' ')
@@ -444,37 +444,33 @@ class ROCReport:
                 driver = {
                     'firstName': '',
                     'lastName': '',
-                    'dobY': '',
-                    'dobM': '',
-                    'dobD': '',
+                    'dob': '',
+                    'doh': '',
+                    'address': '',
                     'state': '',
+                    'city': '',
+                    'zip': '',
                     'licenseNumber': '',
                     'CDL': '',
-                    'years_licensed': '',
-                    'type_of_units': '',
-                    'no_of_years': ''
+                    'dlYearLicensed': '',
+                    'typeOfUnit': '',
+                    'noOfYearsDriving': '',
                 }
             else:
                 driver = self.drivers_information_list[number]
-                driver['years_licensed'] = self.nico_questions['Q38']
-                driver['type_of_units'] = self.nico_questions['Q39']
-                driver['no_of_years'] = self.nico_questions['Q40']
 
-            dob = '{}/{}/{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
-            if number >= len(self.drivers_information_list):
-                dob = ''
             drivers.append(
                 Table(
                     [
                         [   
                            Paragraph(str(number+1)+'. '+driver['firstName'] + ' ' + driver['lastName'], extend_style(styles["rc-normal-text"])),
-                           Paragraph(dob, extend_style(styles["rc-normal-text"])),
+                           Paragraph(driver['dob'], extend_style(styles["rc-normal-text"])),
                            Paragraph(str(driver['state']), extend_style(styles["rc-normal-text"])),
                            Paragraph(str(driver['licenseNumber']), extend_style(styles["rc-normal-text"])),
                            Paragraph(str(driver['CDL']), extend_style(styles["rc-normal-text"])),
-                           Paragraph(driver['years_licensed'], extend_style(styles["rc-normal-text"])),
-                           Paragraph(driver['type_of_units'], extend_style(styles["rc-normal-text"])),
-                           Paragraph(driver['no_of_years'], extend_style(styles["rc-normal-text"])),
+                           Paragraph(driver['dlYearLicensed'], extend_style(styles["rc-normal-text"])),
+                           Paragraph(driver['typeOfUnit'], extend_style(styles["rc-normal-text"])),
+                           Paragraph(driver['noOfYearsDriving'], extend_style(styles["rc-normal-text"])),
                         ]
                     ],
                     style=extend_table_style(styles["rc-main-table"], [
@@ -493,42 +489,31 @@ class ROCReport:
         for number in range(0, 5):
             if number >= len(self.drivers_information_list):
                 driver = {
-                    'CDL': '',
                     'doh': '',
-                    'no_of_accidents': '',
-                    'no_of_accidents_dates': '',
-                    'no_of_violations': '',
-                    'no_of_violations_dates': '',
+                    'prevCDE': '',
+                    'noOfAccidents': '',
+                    'noOfAccidentsDate': '',
+                    'noOfViolations': '',
+                    'noOfViolationsDate': '',
                     'conviction': '',
-                    'conviction_dates': '',
-                    'E_IC_OO_F': ''
+                    'convictionDate': '',
+                    'EICOOF': '',
                 }
             else:
-                _driver = self.drivers_information_list[number]
-                driver = {
-                    'CDL': self.nico_questions['Q41'],
-                    'doh': '{}/{}/{}'.format(_driver["dohM"], _driver["dohD"], _driver["dohY"]),
-                    'no_of_accidents': self.nico_questions['Q42'],
-                    'no_of_accidents_dates': self.formatDate('Q43'),
-                    'no_of_violations': self.nico_questions['Q44'],
-                    'no_of_violations_dates': self.formatDate('Q45'),
-                    'conviction': self.nico_questions['Q46'],
-                    'conviction_dates': self.formatDate('Q47'),
-                    'E_IC_OO_F': self.nico_questions['Q48'],
-                }
+                driver = self.drivers_information_list[number]
 
             drivers_continue.append(Table(
                 [
                     [   
-                       Paragraph("{}.&nbsp;&nbsp;&nbsp;{}".format(number+1, driver['CDL']), extend_style(styles["rc-normal-header"])),
+                       Paragraph("{}.&nbsp;&nbsp;&nbsp;{}".format(number+1, driver['prevCDE']), extend_style(styles["rc-normal-header"])),
                        Paragraph(driver['doh'], extend_style(styles["rc-normal-text"])),
-                       Paragraph(driver['no_of_accidents'], extend_style(styles["rc-normal-text"])),
-                       Paragraph(driver['no_of_accidents_dates'], extend_style(styles["rc-normal-text"])),
-                       Paragraph(driver['no_of_violations'], extend_style(styles["rc-normal-text"])),
-                       Paragraph(driver['no_of_violations_dates'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['noOfAccidents'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['noOfAccidentsDate'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['noOfViolations'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['noOfViolationsDate'], extend_style(styles["rc-normal-text"])),
                        Paragraph(driver['conviction'], extend_style(styles["rc-normal-text"])),
-                       Paragraph(driver['conviction_dates'], extend_style(styles["rc-normal-text"])),
-                       Paragraph(driver['E_IC_OO_F'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['convictionDate'], extend_style(styles["rc-normal-text"])),
+                       Paragraph(driver['EICOOF'], extend_style(styles["rc-normal-text"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -550,19 +535,14 @@ class ROCReport:
                     'vehicleType': '',
                     'VIN': '',
                     'radiusOfTravelVehicle': '',
-                    'GVW': '',
-                    'total_no_of_rear_axles': '',
-                    'PGL': '',
-                    'AMPV': '',
-                    'AB': ''
+                    'grossVehicleWeight': '',
+                    'totalRearAxles': '',
+                    'garagingLocation': '',
+                    'annualMileagePerVehicle': '',
+                    'antilockBrakersOrAirBags': ''
                 }
             else:
                 vehicle = self.vehicles_trailers_list[number]
-                vehicle['GVW'] = self.nico_questions['Q55']
-                vehicle['total_no_of_rear_axles'] = self.nico_questions['Q56']
-                vehicle['PGL'] = self.nico_questions['Q57']
-                vehicle['AMPV'] = self.nico_questions['Q58']
-                vehicle['AB'] = self.nico_questions['Q59']
 
             vehicles.append(Table(
                 [
@@ -572,12 +552,12 @@ class ROCReport:
                        Paragraph(str(vehicle['model']), extend_style(styles["rc-normal-text"])),
                        Paragraph(vehicle.get('vehicleType', ''), extend_style(styles["rc-normal-text"])),
                        Paragraph(str(vehicle['VIN']), extend_style(styles["rc-normal-text"])),
-                       Paragraph(str(vehicle['GVW']), extend_style(styles["rc-normal-text"])),
-                       Paragraph(str(vehicle['total_no_of_rear_axles']), extend_style(styles["rc-normal-text"])),
-                       Paragraph(str(vehicle['PGL']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['grossVehicleWeight']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['totalRearAxles']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['garagingLocation']), extend_style(styles["rc-normal-text"])),
                        Paragraph(str(vehicle.get('radiusOfTravelVehicle', '')), extend_style(styles["rc-normal-text"])),
-                       Paragraph(str(vehicle['AMPV']), extend_style(styles["rc-normal-text"])),
-                       Paragraph(str(vehicle['AB']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['annualMileagePerVehicle']), extend_style(styles["rc-normal-text"])),
+                       Paragraph(str(vehicle['antilockBrakersOrAirBags']), extend_style(styles["rc-normal-text"])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -599,8 +579,8 @@ class ROCReport:
                     Paragraph(self.nico_questions['Q68'], extend_style(styles["rc-normal-text"])),
                     Paragraph(self.nico_questions['Q69'], extend_style(styles["rc-normal-text"])),
                     Paragraph(self.nico_questions['Q70'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q71'], extend_style(styles["rc-normal-text"])),
                     Paragraph(self.nico_questions['Q72'], extend_style(styles["rc-normal-text"])),
+                    Paragraph(self.nico_questions['Q73'], extend_style(styles["rc-normal-text"])),
                 ]
             ],
             style=extend_table_style(styles["rc-main-table"], [
@@ -660,8 +640,8 @@ class ROCReport:
         return Table(
             [
                 [   
-                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
-                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
+                    None,
+                    None,
                     None,
                     None,
                     None,
@@ -705,8 +685,8 @@ class ROCReport:
         return Table(
             [
                 [   
-                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
-                    Paragraph(" /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/  ", extend_style(styles["rc-normal-center"])),
+                    None,
+                    None,
                     None,
                     None,
                     None,
@@ -2074,17 +2054,17 @@ class ROCReport:
                         self.right_header("27."),
                         Paragraph("Number of vehicles owned:", extend_style(styles["rc-first-label"])),
                         Paragraph("Pick-Ups", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q62_pick_ups']),
+                        self.underline(str(self.nico_questions['Q62_pick_ups'])),
                         Paragraph("Trucks", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q62_trucks']),
+                        self.underline(str(self.nico_questions['Q62_trucks'])),
                         Paragraph("Tractors", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q62_tractors']),
+                        self.underline(str(self.nico_questions['Q62_tractors'])),
                         Paragraph("Semi-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q62_semi_trailers']),
+                        self.underline(str(self.nico_questions['Q62_semi_trailers'])),
                         Paragraph("Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q62_trailers']),
+                        self.underline(str(self.nico_questions['Q62_trailers'])),
                         Paragraph("Pup-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q62_pup_trailers']),
+                        self.underline(str(self.nico_questions['Q62_pup_trailers'])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2103,17 +2083,17 @@ class ROCReport:
                         self.right_header("28."),
                         Paragraph("Number of vehicles leased:", extend_style(styles["rc-first-label"])),
                         Paragraph("Pick-Ups", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q63_pick_ups']),
+                        self.underline(str(self.nico_questions['Q63_pick_ups'])),
                         Paragraph("Trucks", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q63_trucks']),
+                        self.underline(str(self.nico_questions['Q63_trucks'])),
                         Paragraph("Tractors", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q63_tractors']),
+                        self.underline(str(self.nico_questions['Q63_tractors'])),
                         Paragraph("Semi-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q63_semi_trailers']),
+                        self.underline(str(self.nico_questions['Q63_semi_trailers'])),
                         Paragraph("Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q63_trailers']),
+                        self.underline(str(self.nico_questions['Q63_trailers'])),
                         Paragraph("Pup-Trailers", extend_style(styles["rc-first-label"])),
-                        self.underline(self.nico_questions['Q63_pup_trailers']),
+                        self.underline(str(self.nico_questions['Q63_pup_trailers'])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
