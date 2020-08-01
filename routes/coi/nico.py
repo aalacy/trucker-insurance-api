@@ -161,6 +161,16 @@ class ROCReport:
 
         return value
 
+    def _formatDate(self, val):
+        value = ''
+        try:
+            _val = date.strptime(val, '%Y-%m-%d')
+            value = _val.strftime('%m/%d/%Y')
+        except:
+            pass
+
+        return value
+
     def validate(self, val):
         if val:
             return val.strip()
@@ -336,6 +346,12 @@ class ROCReport:
         ]
             
         return elems
+
+    def _checkbox(self, checked=None):
+        x = ''
+        if checked:
+            x = 'x'
+        return Paragraph("{}".format(x), styles["rc-medium-content-center"]),
 
     def checkbox(self, checked=None, size='medium'):
         x = ''
@@ -569,138 +585,131 @@ class ROCReport:
         return vehicles
 
     def physical_detail_with_values(self, number):
-        return Table(
-            [
-                [   
-                    Paragraph(number, extend_style(styles["rc-normal-header"])),
-                    Paragraph(self.formatDate('Q65'), extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q66'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q67'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q68'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q69'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q70'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q72'], extend_style(styles["rc-normal-text"])),
-                    Paragraph(self.nico_questions['Q73'], extend_style(styles["rc-normal-text"])),
-                ]
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(8*mm, 21*mm, 21*mm, 32*mm, 32*mm, 22*mm, 27*mm, 19*mm, 20*mm),
-        ),
+        covs = []
+        _cov_list = self.nico_questions.get('physicalDamageCovs', [])
+        for number in range(0, 10):
+            if number >= len(_cov_list):
+                cov = {
+                    'Q65': '',
+                    'Q66': '',
+                    'Q67': '',
+                    'Q68': '',
+                    'Q69': '',
+                    'Q70': '',
+                    'Q71': '',
+                    'Q72': '',
+                    'Q73': '',
+                }
+            else:
+                cov = _cov_list[number]
 
-    def physical_detail(self, number):
-        return Table(
-            [
-                [   
-                    Paragraph(number, extend_style(styles["rc-normal-header"])),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(8*mm, 21*mm, 21*mm, 32*mm, 32*mm, 22*mm, 27*mm, 19*mm, 20*mm),
-        ),
+            covs.append(Table(
+                [
+                    [   
+                        Paragraph(str(number+1), extend_style(styles["rc-normal-header"])),
+                        Paragraph(self._formatDate(cov['Q65']), extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q66'], extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q67'], extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q68'], extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q69'], extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q70'], extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q72'], extend_style(styles["rc-normal-text"])),
+                        Paragraph(cov['Q73'], extend_style(styles["rc-normal-text"])),
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), .25, "black"),
+                ]),
+                colWidths=(8*mm, 21*mm, 21*mm, 32*mm, 32*mm, 22*mm, 27*mm, 19*mm, 20*mm),
+            ))
+        return covs
 
     def loss_experience_with_value(self):
-        return Table(
-            [
-                [   
-                    Paragraph(self.formatDate('Q78'), extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.formatDate('Q79'), extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q80'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q81'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q82'], extend_style(styles["rc-normal-center"])),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(17.5*mm, 17.5*mm, 38*mm, 20*mm, 16*mm, 17.5*mm, 17.5*mm, 14.5*mm, 14.5*mm, 14.5*mm, 14.5*mm),
-        ),
+        loss_exps = []
+        _loss_exps_list = self.nico_questions.get('lossExps', [])
+        for number in range(0, 3):
+            if number >= len(_loss_exps_list):
+                loss_exp = {
+                    'Q78': '',
+                    'Q79': '',
+                    'Q80': '',
+                    'Q81': '',
+                    'Q82': '',
+                    'Q83': '',
+                    'Q84': '',
+                    'Q85': '',
+                    'Q86': '',
+                    'Q87': '',
+                    'Q88': '',
+                }
+            else:
+                loss_exp = _loss_exps_list[number]
+        
+            loss_exps.append(Table(
+                [
+                    [   
+                        Paragraph(self._formatDate(loss_exp['Q78']), extend_style(styles["rc-normal-center"])),
+                        Paragraph(self._formatDate(loss_exp['Q79']), extend_style(styles["rc-normal-center"])),
+                        Paragraph(loss_exp['Q80'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(loss_exp['Q81'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(loss_exp['Q82'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(self._formatDate(loss_exp['Q83']), extend_style(styles["rc-normal-center"])),
+                        Paragraph(self._formatDate(loss_exp['Q84']), extend_style(styles["rc-normal-center"])),
+                        self._checkbox(checked=loss_exp['Q85']),
+                        self._checkbox(checked=loss_exp['Q86']),
+                        self._checkbox(checked=loss_exp['Q87']),
+                        self._checkbox(checked=loss_exp['Q88']),
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), .25, "black"),
+                ]),
+                colWidths=(17.5*mm, 17.5*mm, 38*mm, 20*mm, 16*mm, 17.5*mm, 17.5*mm, 14.5*mm, 14.5*mm, 14.5*mm, 14.5*mm),
+                rowHeights=(4.5*mm)
+            ))
 
-    def loss_experience(self):
-        return Table(
-            [
-                [   
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(17.5*mm, 17.5*mm, 38*mm, 20*mm, 16*mm, 17.5*mm, 17.5*mm, 14.5*mm, 14.5*mm, 14.5*mm, 14.5*mm),
-        ),
+        return loss_exps
 
     def cargo_information_with_value(self):
-        return Table(
-            [
-                [   
-                    Paragraph(self.formatDate('Q94'), extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.formatDate('Q95'), extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q96'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q97'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q98'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q99'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q100'], extend_style(styles["rc-normal-center"])),
-                    None,
-                ]
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(17.5*mm, 17.5*mm, 48*mm, 20*mm, 16*mm, 35*mm, 23*mm, 25*mm),
-        ),
+        cargo_infos = []
+        _cargo_info_list = self.nico_questions.get('cargoInfos', [])
+        for number in range(0, 3):
+            if number >= len(_cargo_info_list):
+                cargo_info = {
+                    'Q94': '',
+                    'Q95': '',
+                    'Q96': '',
+                    'Q97': '',
+                    'Q98': '',
+                    'Q99': '',
+                    'Q100': '',
+                }
+            else:
+                cargo_info = _cargo_info_list[number]
 
-    def cargo_information(self):
-        return Table(
-            [
-                [   
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(17.5*mm, 17.5*mm, 48*mm, 20*mm, 16*mm, 35*mm, 23*mm, 25*mm),
-        ),
+            cargo_infos.append(Table(
+                [
+                    [   
+                        Paragraph(self._formatDate(cargo_info['Q94']), extend_style(styles["rc-normal-center"])),
+                        Paragraph(self._formatDate(cargo_info['Q95']), extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_info['Q96'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_info['Q97'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_info['Q98'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_info['Q99'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_info['Q100'], extend_style(styles["rc-normal-center"])),
+                        None,
+                    ]
+                ],
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), .25, "black"),
+                ]),
+                colWidths=(17.5*mm, 17.5*mm, 48*mm, 20*mm, 16*mm, 35*mm, 23*mm, 25*mm),
+            ))
+
+        return cargo_infos
 
     def describe_cargo_with_value(self):
         return  Table(
@@ -1131,7 +1140,7 @@ class ROCReport:
                         Paragraph("Do you operate in more than one state?", extend_style(styles["rc-first-label"])),
                         self.yes_no(self._26_ques('Q18')),
                         Paragraph("If yes, list states", extend_style(styles["rc-first-label"])),
-                        self.underline(','.join(self.nico_questions['Q19'])),
+                        self.underline(self._partial_text(', '.join(self.nico_questions['Q19']), 92)[0]),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -1142,6 +1151,9 @@ class ROCReport:
                 colWidths=( 6 * mm, 52 * mm, 25*mm, 27*mm, 92*mm),
             ),
         ]
+
+        if self._partial_text(', '.join(self.nico_questions['Q19']), 92)[2]:
+            elems += self._get_lines(', '.join(self.nico_questions['Q19']), self._partial_text(', '.join(self.nico_questions['Q19']), 92)[1])
 
         elems += [
             Table(
@@ -2210,36 +2222,9 @@ class ROCReport:
         elems += [
             Table(
                 [   
-                    [   
+                    [
                         self.physical_detail_with_values("1.")
-                    ],
-                    [   
-                        self.physical_detail("2.")
-                    ],
-                    [   
-                        self.physical_detail("3.")
-                    ],
-                    [   
-                        self.physical_detail("4.")
-                    ],
-                    [   
-                        self.physical_detail("5.")
-                    ],
-                    [   
-                        self.physical_detail("6.")
-                    ],
-                    [   
-                        self.physical_detail("7.")
-                    ],
-                    [   
-                        self.physical_detail("8.")
-                    ],
-                    [   
-                        self.physical_detail("9.")
-                    ],
-                    [   
-                        self.physical_detail("10.")
-                    ],
+                    ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -2431,12 +2416,6 @@ class ROCReport:
                     [   
                         self.loss_experience_with_value()
                     ],
-                    [   
-                        self.loss_experience()
-                    ],
-                    [   
-                        self.loss_experience()
-                    ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -2610,19 +2589,12 @@ class ROCReport:
                     [   
                         self.cargo_information_with_value()
                     ],
-                    [   
-                        self.cargo_information()
-                    ],
-                    [   
-                        self.cargo_information()
-                    ],
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("GRID", (0, 0), (-1, -1), .75, "black"),
                 ]),
                 colWidths=(202*mm),
-                rowHeights=(4*mm)
             ),
         ]
 
@@ -3180,7 +3152,7 @@ class ROCReport:
                             [
                                 [   
                                     self.right_header("51."),
-                                    Paragraph('Please explain any "yes" answer to quetions 44 through 50', extend_style(styles["rc-first-label"])),
+                                    Paragraph('Please explain any "No" answer to quetions 44 through 50', extend_style(styles["rc-first-label"])),
                                     self.underline(self.partial_text('Q125', 119)[0]),
                                 ]
                             ],
