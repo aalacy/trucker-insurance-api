@@ -41,7 +41,7 @@ class ROCReport:
     def get_cargo_haulded(self):
         hauled = ''
         for key, value in self.cargo_hauled_list.items():
-            hauled += key + ': ' + ','.join(value) + ' - '
+            hauled += key + ': ' + ','.join(value.keys()) + '; '
 
         return hauled
 
@@ -712,23 +712,49 @@ class ROCReport:
         return cargo_infos
 
     def describe_cargo_with_value(self):
-        return  Table(
-            [
-                [   
-                    None,
-                    Paragraph("", extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q102'], extend_style(styles["rc-normal-center"])),
-                    Paragraph(self.nico_questions['Q101'], extend_style(styles["rc-normal-center"])),
+        value_list = []
+        new_hauled_dict = {}
+        for group, value in self.cargo_hauled_list.items():
+            for hauled, data in value.items():
+                key = group + ': ' + hauled
+                new_hauled_dict[key] = data
+        new_hauled_dict = sorted(new_hauled_dict.items(), key=lambda x: x[1].get('percent'), reverse=True)
+        for number in range(0, 3):
+            if number >= len(new_hauled_dict):
+                cargo_hauled = {
+                    'describe': '',
+                    'percent_of_hauling': '',
+                    'max_value': '',
+                    'avg_value': '',
+                }
+            else:
+                key = new_hauled_dict[number]
+                cargo_hauled = {
+                    'describe': key[0],
+                    'percent_of_hauling': str(key[1].get('percent')),
+                    'max_value': str(key[1].get('maxValue')),
+                    'avg_value': str(key[1].get('avgValue')),
+                }
+
+            value_list.append(Table(
+                [
+                    [   
+                        Paragraph(cargo_hauled['describe'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_hauled['percent_of_hauling'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_hauled['max_value'], extend_style(styles["rc-normal-center"])),
+                        Paragraph(cargo_hauled['avg_value'], extend_style(styles["rc-normal-center"])),
+                    ],
                 ],
-            ],
-            style=extend_table_style(styles["rc-main-table"], [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("TOPPADDING", (0, 0), (-1, -1), 0),
-                ("GRID", (0, 0), (-1, -1), .25, "black"),
-            ]),
-            colWidths=(80*mm, 24*mm, 24*mm, 24*mm),
-            rowHeights=5*mm
-        ),
+                style=extend_table_style(styles["rc-main-table"], [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 0),
+                    ("GRID", (0, 0), (-1, -1), .25, "black"),
+                ]),
+                colWidths=(80*mm, 24*mm, 24*mm, 24*mm),
+                rowHeights=5*mm
+            ))
+
+        return value_list
 
     def describe_cargo(self):
         return  Table(
@@ -2630,12 +2656,6 @@ class ROCReport:
                             [
                                 [   
                                     self.describe_cargo_with_value()
-                                ],
-                                [   
-                                    self.describe_cargo()
-                                ],
-                                [   
-                                    self.describe_cargo()
                                 ],
                             ],
                             style=extend_table_style(styles["rc-main-table"], [
