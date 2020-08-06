@@ -51,11 +51,14 @@ class ROCReport:
         else:
             return False
 
-    def _26_ques(self, ques):
-        mark = 'No'
-        # _ques = nico_tuple[ques]
-        if self.nico_questions.get(ques, False):
+    def _26_ques(self, ques, cond):
+        mark = ''
+        _ques = self.nico_questions.get(ques, False)
+        _cond = self.nico_questions.get(cond, False)
+        if _ques and _cond:
             mark = 'Yes'
+        else _ques == False and _cond:
+            mark = 'No'
 
         return mark
 
@@ -3260,7 +3263,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(b)  Do the parties names in (a) carry automobile liability insurance?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques('Q127'))
+                        self.yes_no(self._26_ques('Q127', "Q126_0"))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -3320,7 +3323,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(d)  Is there a hold harmless in the agreement(s)?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques('Q130'))
+                        self.yes_no(self._26_ques('Q130', "Q126_0"))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
