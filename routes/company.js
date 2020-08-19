@@ -701,7 +701,6 @@ module.exports = (app) => {
 
     let submitted   = await checkDotDuplication(userId)
   
-    console.log('uuid', uuid)
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({
@@ -982,6 +981,11 @@ module.exports = (app) => {
                     .then(json => json);
 
       if (sfCARes.status == 'Success') {
+        /* check if dot is verified, if then update dot_verified in users table
+        */
+        try {
+          await new model.User().updateUser({ dot_verified: true })
+        } catch (e) { console.log('/accountinfo/policies', e) }
         res.json({
           status: "ok",
           policies: sfCARes.policies

@@ -176,136 +176,116 @@ module.exports = (sequelize, DataTypes) => {
     }
     
     User.prototype.getProfileImageLocation = (profileImage) => {
-
-        profileImage = sanitize(profileImage);
-        if(!profileImage)return '';
-        return webConfig.rootDir +"/uploads/profile-images/"+profileImage;
-
+      profileImage = sanitize(profileImage);
+      if(!profileImage)return '';
+      return webConfig.rootDir +"/uploads/profile-images/"+profileImage;
     }
 
     User.prototype.getProfileImageUrl = (profileImage) => {
+      let data = {
+        raw: '', 
+        thumb: ''
+      }
 
-        let data = {
-            raw: '', 
-            thumb: ''
-        }
-
-        if(profileImage){
-            data.raw = webConfig.rootDomain+"/api/1/user/download-profile-image?fn="+profileImage;
-            data.thumb = webConfig.rootDomain+"/api/1/user/download-profile-image?fn="+profileImage+"_98x98.jpg";
-        }
-            
-        return data;
+      if(profileImage){
+        data.raw = webConfig.rootDomain+"/api/1/user/download-profile-image?fn="+profileImage;
+        data.thumb = webConfig.rootDomain+"/api/1/user/download-profile-image?fn="+profileImage+"_98x98.jpg";
+      }
+          
+      return data;
     }
 
     User.prototype.updateProfileImage = async (user, files) => {
-        return new Promise((resolve, reject) => {
-
-            try{
-            
-                if(files.length){
-
-                    let physical_docs = [];
-                    for(let c = 0; c < 1; c++){//files.length
-
-                        let _file = files[c];
-                        //console.log("a file detected! >>>>"+_file['originalname']);
-
-                        if(_file['fieldname'] !== 'profileImage[]')continue;
-                        //console.log("fieldname is good! >>>>"+_file['originalname']);
-                        im.resize({
-                            srcPath: _file['path'],
-                            dstPath: _file['path']+'_98x98.jpg',
-                            width:   98,
-                            height:   98,
-                          }, function(err, stdout, stderr){
-                            if (err){
-                                fs.unlink(_file['path'], function (_err) {}); 
-                                reject(err);
-                                return false;
-                            }
-
-
-                            if(user.UserDatum.profileImage){
-                               let _old_file = new User().getProfileImageLocation(user.UserDatum.profileImage);
-                               fs.unlink(_old_file, function (_err) {}); 
-                               fs.unlink(_old_file+"_98x98.jpg", function (_err) {}); 
-                            }
-
-
-                            user.UserDatum.profileImage = _file['filename'];
-                            //console.log(user.UserDatum);
-                            user.UserDatum.save({validate: false, fields: ['profileImage']}).then(user => {
-                                resolve(_file['path']);
-                            })
-                            
-                          }.bind(_file));
-
+      return new Promise((resolve, reject) => {
+        try{
+            if(files.length){
+                let physical_docs = [];
+                for(let c = 0; c < 1; c++){ //files.length
+                  let _file = files[c];
+                  if(_file['fieldname'] !== 'profileImage[]')continue;
+                  im.resize({
+                    srcPath: _file['path'],
+                    dstPath: _file['path']+'_98x98.jpg',
+                    width:   98,
+                    height:   98,
+                  }, function(err, stdout, stderr){
+                    if (err){
+                      fs.unlink(_file['path'], function (_err) {}); 
+                      reject(err);
+                      return false;
                     }
 
-                }
+                    if(user.UserDatum.profileImage){
+                       let _old_file = new User().getProfileImageLocation(user.UserDatum.profileImage);
+                       fs.unlink(_old_file, function (_err) {}); 
+                       fs.unlink(_old_file+"_98x98.jpg", function (_err) {}); 
+                    }
 
-            }catch (e) {
-                reject(e);
+                    user.UserDatum.profileImage = _file['filename'];
+                    user.UserDatum.save({validate: false, fields: ['profileImage']}).then(user => {
+                      resolve(_file['path']);
+                    })
+                  }.bind(_file));
+                }
             }
-        });
+          }catch (e) {
+            reject(e);
+          }
+      });
     }
 
     User.prototype.updateUser = async (user, data) => {
-        return new Promise((resolve, reject) => {
-            console.log(data)
-
-            Object.keys(data).forEach(key => {
-                if (user._modelOptions.hasOwnProperty(key)) {
-                    user._modelOptions[key] = data[key]
-                }
-            })
-            user.setAttributes(data)
-            user.validate().then(user => {
-                user.save({validate: false}).then(user => {
-                    user._modelOptions.oldPassword = null;
-                    user.UserDatum.setAttributes(data)
-                    user.UserDatum.save().then(datum => {
-                        user.UserDatum = datum
-                        resolve(user)
-                    }).catch(err => {
-                        console.log(err)
-                        reject(stringHelper.sequelizeValidationErrorsToArray(Object.assign({}, err).errors))
-                    })
-                }).catch(err => {
-                    console.log(err)
-                    reject(err)
-                })
+      return new Promise((resolve, reject) => {
+        Object.keys(data).forEach(key => {
+            if (user._modelOptions.hasOwnProperty(key)) {
+                user._modelOptions[key] = data[key]
+            }
+        })
+        user.setAttributes(data)
+        user.validate().then(user => {
+          user.save({validate: false}).then(user => {
+            user._modelOptions.oldPassword = null;
+            user.UserDatum.setAttributes(data)
+            user.UserDatum.save().then(datum => {
+                user.UserDatum = datum
+                resolve(user)
             }).catch(err => {
+                console.log(err)
                 reject(stringHelper.sequelizeValidationErrorsToArray(Object.assign({}, err).errors))
             })
-
+          }).catch(err => {
+            console.log(err)
+            reject(err)
+          })
+        }).catch(err => {
+          reject(stringHelper.sequelizeValidationErrorsToArray(Object.assign({}, err).errors))
         })
+      })
     }
 
     User.prototype.login = async (data) => {
-        return new Promise((resolve, reject) => {
-            User.findOne({
-                where: {
-                    email: data.email,
-                    password: data.password
-                },
-                include: [{
-                    model: sequelize.models.Token
-                }, {
-                    model: sequelize.models.UserData
-                }]
-            }).then(user => {
-                if (user == null) {
-                    reject({error: 'Invalid credentials or user not found'})
-                    return
-                }
-                resolve(user)
+      return new Promise((resolve, reject) => {
+        User.findOne({
+            where: {
+                email: data.email,
+                password: data.password
+            },
+            include: [{
+                model: sequelize.models.Token
+            }, {
+                model: sequelize.models.UserData
+            }]
+        }).then(user => {
+            if (user == null) {
+                reject({error: 'Invalid credentials or user not found'})
                 return
-            }).catch(err => {
-                reject(err)
-            })
+            }
+            resolve(user)
+            return
+        }).catch(err => {
+            reject(err)
         })
+      })
     }
 
     User.prototype.findAll = () => {
