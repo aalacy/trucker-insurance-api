@@ -232,12 +232,8 @@ class ROCReport:
                 driver = {
                     'firstName': '&nbsp;',
                     'lastName': '',
-                    'dobY': '',
-                    'dobM': '',
-                    'dobD': '',
-                    'dohY': '',
-                    'dohM': '',
-                    'dohD': '',
+                    'dob': '',
+                    'doh': '',
                     'state': '',
                     'licenseNumber': '',
                     'CDL': ''
@@ -245,8 +241,10 @@ class ROCReport:
             else:
                 driver = self.drivers_information_list[number]
 
-            dob = '{}/{}/{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
-            doh = '{}/{}/{}'.format(driver['dohM'], driver['dohD'], driver['dohY'])
+            # dob = '{}/{}/{}'.format(driver['dobM'], driver['dobD'], driver['dobY'])
+            # doh = '{}/{}/{}'.format(driver['dohM'], driver['dohD'], driver['dohY'])
+            dob = driver['dob']
+            doh = driver['doh']
             if number >= len(self.drivers_information_list):
                 dob = ''
                 doh = ''
@@ -344,7 +342,7 @@ class ROCReport:
                 _owner = self.owners_list[number]
                 owner = {
                     'full_name': "{} {}".format(_owner['firstName'], _owner['lastName']),
-                    'dob': '{}/{}/{}'.format(_owner['dobM'], _owner['dobD'], _owner['dobY']),
+                    'dob': _owner['dob'],
                     'mailing_address': '{} {}, {} {}'.format(_owner['address'], _owner['city'], _owner['state'], _owner['zip']),
                 }
 
