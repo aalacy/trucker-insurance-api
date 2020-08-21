@@ -76,7 +76,8 @@ module.exports = (app) => {
       }
     }
 
-    return submitted
+    return false
+    // return submitted
   }
 
   router.get('/testcoi', (req, res, next) => {
@@ -486,8 +487,7 @@ module.exports = (app) => {
           location: `${_address[index-4]} ${_address[index-3]}`
         }]
         // check if the user already submitted the app with this dot Id
-        // const submitted = await checkDotDuplication(userId)
-        const submitted = false
+        const submitted = await checkDotDuplication(userId)
         if (submitted) {
           res.send({
             type: "submitted",
