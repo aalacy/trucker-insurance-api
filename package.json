@@ -7,7 +7,7 @@
     "win": "set GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/luckytruck-3c61dba4a435.json\" && nodemon ./bin/www",
     "start": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/luckytruck-3c61dba4a435.json\" && NODE_ENV=production nodemon ./bin/www",
     "pm2": "export GOOGLE_APPLICATION_CREDENTIALS=\"/home/ubuntu/Luckytruck_backend_solulab/config/luckytruck-3c61dba4a435.json\" && NODE_ENV=production pm2 start ./bin/www",
-    "debug": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/luckytruck-3c61dba4a435.json\" && NODE_ENV=development node --inspect ./bin/www",
+    "debug": "export GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/luckytruck-3c61dba4a435.json\" && NODE_ENV=development nodemon --inspect ./bin/www",
     "debug:win": "set GOOGLE_APPLICATION_CREDENTIALS=\"/mnt/g/work/LuckyTruck/Luckytruck_backend_solulab/config/luckytruck-3c61dba4a435.json\" && node --inspect ./bin/www"
   },
   "dependencies": {

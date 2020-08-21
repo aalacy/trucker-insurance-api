@@ -974,21 +974,21 @@ module.exports = (app) => {
     if (authSF.status == 'ok') {
       let accessToken = authSF.access_token;
       let instanceUrl = authSF.instance_url;       
-      let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/account/policy?luckyTruckId=${userId}`;
+      let sfReadAccountPoliciesUrl = `${instanceUrl}/services/apexrest/luckytruck/policy?luckyTruckId=${userId}`;
 
       let sfCARes = await fetch(sfReadAccountPoliciesUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                    .then(res => res.json()) // expecting a json response
-                    .then(json => json);
+                    // .then(res => res.json()) // expecting a json response
 
-      if (sfCARes.status == 'Success') {
+      if (sfCARes.status == 200) {
         /* check if dot is verified, if then update dot_verified in users table
         */
+        const policies = await sfCARes.json()
         try {
           await new model.User().updateUser({ dot_verified: true })
         } catch (e) { console.log('/accountinfo/policies', e) }
         res.json({
           status: "ok",
-          policies: sfCARes.policies
+          policies
         })
       } else {
         res.json({
@@ -1015,13 +1015,12 @@ module.exports = (app) => {
       let sfReadAccountPolicyEndorsementUrl = `${instanceUrl}/services/apexrest/account/endorsement?policyId=${policyId}`;
 
       let sfEndorsementRes = await fetch(sfReadAccountPolicyEndorsementUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                    .then(res => res.json()) // expecting a json response
-                    .then(json => json);
 
+      const data = await sfEndorsementRes.json()
       if (sfEndorsementRes.status == 'Success') {
         res.json({
           status: "ok",
-          endorsements: sfEndorsementRes.record
+          endorsements: data.record
         })
       } else {
         res.json({
@@ -1110,9 +1109,9 @@ module.exports = (app) => {
     }
 
     let sfCARes = await fetch(sfReadAccountQuotesUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
-
-    if (sfCARes.status == 'success') {
+                   // expecting a json response
+    const message = await sfCARes.json()               
+    if (sfCARes.status == 200) {
       res.json({
         status: "ok",
         message: ''
@@ -1120,7 +1119,7 @@ module.exports = (app) => {
     } else {
       res.json({
         status: "failure",
-        message: sfCARes.message
+        message: message.message
       })
     }
   });
@@ -1135,17 +1134,18 @@ module.exports = (app) => {
     let sfReadAccountDriversUrl = `${instanceUrl}/services/apexrest/account/driver?dotId=${dotId}`;
 
     let sfCARes = await fetch(sfReadAccountDriversUrl, { method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
+                   // expecting a json response
 
-    if (sfCARes.status != 'Success') {
+    if (sfCARes.status != 200) {
       res.json({
         status: "failure",
         drivers: [],
       })
     } else {
+      const drivers = await sfCARes.json()
       res.json({
         status: "ok",
-        drivers: sfCARes.record,
+        drivers: drivers.record,
       })
     }
   });
@@ -1174,18 +1174,18 @@ module.exports = (app) => {
     }
 
     let sfCARes = await fetch(sfReadAccountDriversUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
+                  // expecting a json response
 
-    console.log(authSF, sfCARes)
-    if (sfCARes.status != 'Success') {
+    const message = await sfCARes.json()
+    if (sfCARes.status != 200) {
       res.json({
         status: "failure",
-        message: sfCARes.message
+        message: message.message
       })
     } else {
       res.json({
         status: "ok",
-        message: sfCARes.message
+        message: message.message
       })
     }
   });
@@ -1200,18 +1200,18 @@ module.exports = (app) => {
     let sfReadAccountDriversUrl = `${instanceUrl}/services/apexrest/account/driver?driverId=${driverId}&reason=${reason}`;
 
     let sfCARes = await fetch(sfReadAccountDriversUrl, { method: 'DELETE', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-                  .then(res => res.json()) // expecting a json response
+                   // expecting a json response
 
-    console.log(authSF, sfCARes)
+    const message = await sfCARes.json()
     if (sfCARes.status != 'Success') {
       res.json({
         status: "failure",
-        message: sfCARes.message
+        message: message.message
       })
     } else {
       res.json({
         status: "ok",
-        message: sfCARes.message
+        message: message.message
       })
     }
   });

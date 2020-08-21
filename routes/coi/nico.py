@@ -3333,7 +3333,7 @@ class ROCReport:
                     [   
                         None,
                         Paragraph("(d)  Is there a hold harmless in the agreement(s)?", extend_style(styles["rc-first-label"])),
-                        self.yes_no(self._26_ques('Q130', "Q126_0"))
+                        self.yes_no(self._26_ques1('Q130', "Q126_0"))
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
