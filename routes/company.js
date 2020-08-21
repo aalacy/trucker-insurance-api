@@ -486,7 +486,8 @@ module.exports = (app) => {
           location: `${_address[index-4]} ${_address[index-3]}`
         }]
         // check if the user already submitted the app with this dot Id
-        const submitted = await checkDotDuplication(userId)
+        // const submitted = await checkDotDuplication(userId)
+        const submitted = false
         if (submitted) {
           res.send({
             type: "submitted",
