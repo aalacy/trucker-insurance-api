@@ -18,36 +18,133 @@ module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
     uuid: DataTypes.STRING,
     user_id: DataTypes.INTEGER,
-    businessStructureRaw: DataTypes.JSON,
+    businessStructureRaw: {
+      type: DataTypes.BLOB,
+      defaultValue: {},
+      get() {
+        return this.getDataValue('businessStructureRaw') ? this.getDataValue('businessStructureRaw').toString('utf8') : null; 
+      },
+    },
     name: DataTypes.STRING,
     dotNumber: DataTypes.STRING,
     dotNumber: DataTypes.STRING,
     dba: DataTypes.STRING,
     powerUnits: DataTypes.STRING,
     phoneNumber: DataTypes.STRING,
-    mailingAddress: DataTypes.JSON,
-    garagingAddress: DataTypes.JSON,
+    mailingAddress: {
+      type: DataTypes.BLOB,
+      defaultValue: {},
+      get() {
+        return this.getDataValue('mailingAddress')? this.getDataValue('mailingAddress').toString('utf8') : null; 
+      },
+    },
+    garagingAddress: {
+      type: DataTypes.BLOB,
+      defaultValue: {},
+      get() {
+        return this.getDataValue('mailingAddress') ? this.getDataValue('garagingAddress').toString('utf8') : null; 
+      },
+    },
     emailAddress: DataTypes.STRING,
     mcNumber: DataTypes.STRING,
     travelRadius: DataTypes.STRING,
-    currentCarrier: DataTypes.JSON,
-    currentEldProvider: DataTypes.JSON,
-    cargoHauled: DataTypes.JSON,
-    cargoGroup: DataTypes.JSON,
+    currentCarrier: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('currentCarrier') ? this.getDataValue('currentCarrier').toString('utf8') : null; 
+      },
+    },
+    currentEldProvider: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('currentEldProvider') ? this.getDataValue('currentEldProvider').toString('utf8') : null; 
+      },
+    },
+    cargoHauled: {
+      type: DataTypes.BLOB,
+      defaultValue: {},
+      get() {
+        return this.getDataValue('cargoHauled') ? this.getDataValue('cargoHauled').toString('utf8') : null; 
+      },
+    },
+    cargoGroup: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('cargoGroup') ? this.getDataValue('cargoGroup').toString('utf8') : null; 
+      },
+    },
     ownerName: DataTypes.STRING,
     businessStructure: DataTypes.STRING,
     businessType: DataTypes.STRING,
-    driverInformationList: DataTypes.JSON,
-    ownerInformationList: DataTypes.JSON,
-    vehicleInformationList: DataTypes.JSON,
+    driverInformationList: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('driverInformationList') ? this.getDataValue('driverInformationList').toString('utf8') : null; 
+      },
+    },
+    ownerInformationList: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('ownerInformationList') ? this.getDataValue('ownerInformationList').toString('utf8') : null; 
+      },
+    },
+    vehicleInformationList: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('vehicleInformationList') ? this.getDataValue('vehicleInformationList').toString('utf8') : null; 
+      },
+    },
     comments: DataTypes.TEXT,
-    attachmentList: DataTypes.JSON,
-    signSignature: DataTypes.JSON,
-    nico_questions: DataTypes.JSON,
-    imageIdFront: DataTypes.JSON,
-    imageIdBack: DataTypes.JSON,
-    imageDOT: DataTypes.JSON,
-    imageRegistration: DataTypes.JSON,
+    attachmentList: {
+      type: DataTypes.BLOB,
+      defaultValue: [],
+      get() {
+        return this.getDataValue('attachmentList') ? this.getDataValue('attachmentList').toString('utf8') : null; 
+      },
+    },
+    signSignature: {
+      type: DataTypes.BLOB,
+      get() {
+        return this.getDataValue('signSignature') ? this.getDataValue('signSignature').toString('utf8') : null; 
+      },
+    },
+    nico_questions: {
+      type: DataTypes.BLOB,
+      defaultValue: {},
+      get() {
+        return this.getDataValue('nico_questions') ? this.getDataValue('nico_questions').toString('utf8') : null; 
+      },
+    },
+    imageIdFront: {
+      type: DataTypes.BLOB,
+      get() {
+        return this.getDataValue('imageIdFront') ? this.getDataValue('imageIdFront').toString('utf8') : null; 
+      },
+    },
+    imageIdBack: {
+      type: DataTypes.BLOB,
+      get() {
+        return this.getDataValue('imageIdBack') ? this.getDataValue('imageIdBack').toString('utf8') : null; 
+      },
+    },
+    imageDOT: {
+      type: DataTypes.BLOB,
+      get() {
+        return this.getDataValue('imageDOT') ? this.getDataValue('imageDOT').toString('utf8') : null; 
+      },
+    },
+    imageRegistration: {
+      type: DataTypes.BLOB,
+      get() {
+        return this.getDataValue('imageRegistration') ? this.getDataValue('imageRegistration').toString('utf8') : null; 
+      },
+    },
     sf_status: DataTypes.STRING,
   }, {});
   Company.associate = function(models) {

@@ -589,10 +589,11 @@ module.exports = (app) => {
       const currentCarrier = company['Carrier Operation'];
       const travelRadius = "";
       const currentEldProvider = [];
-      const cargoHauled = {};
+      const cargoHauled = JSON.stringify({});
       const powerUnits =  company['Power Units'];
       const businessType = '';
       const businessStructure = '';
+      const nico_questions = JSON.stringify({});
 
       if(company["Mailing Address"]){
         let tmp = new model.Company().parseAndAssignAddress(company["Mailing Address"], {}, '');
@@ -609,21 +610,24 @@ module.exports = (app) => {
         });
       }
       const options = {
-        businessStructureRaw: company,
+        businessStructureRaw: JSON.stringify(company),
         name,
         dotNumber,
         dba,
         phoneNumber,
-        mailingAddress,
-        garagingAddress,
+        mailingAddress: JSON.stringify(mailingAddress),
+        garagingAddress: JSON.stringify(garagingAddress),
         emailAddress,
         mcNumber,
         currentCarrier,
         travelRadius,
         currentEldProvider,
         cargoHauled,
-        businessStructure
+        businessStructure,
+        nico_questions
       }
+
+      console.log(options)
 
       await new model.Company().create(uuid, '', {}, options );
 
@@ -942,8 +946,6 @@ module.exports = (app) => {
     }
 
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
-
-    console.log('uuid', uuid)
 
     // Update salesforce if this the last step, sign signature, of form wizard
     let authSF = {}
