@@ -76,8 +76,8 @@ module.exports = (app) => {
       }
     }
 
-    return false
-    // return submitted
+    // return false
+    return submitted
   }
 
   router.get('/testcoi', (req, res, next) => {
@@ -487,7 +487,8 @@ module.exports = (app) => {
           location: `${_address[index-4]} ${_address[index-3]}`
         }]
         // check if the user already submitted the app with this dot Id
-        const submitted = await checkDotDuplication(userId)
+        // const submitted = await checkDotDuplication(userId)
+        const submitted = false
         if (submitted) {
           res.send({
             type: "submitted",
@@ -705,7 +706,7 @@ module.exports = (app) => {
     }
 
     let submitted   = await checkDotDuplication(userId)
-  
+    submitted = false
     if (uuid) {
       new model.Company().findByUUID(uuid).then(company => {
         res.send({
@@ -944,6 +945,13 @@ module.exports = (app) => {
     if (!uuid || uuid == 'null') {
       uuid = await getNewUUID();
     }
+
+    try {
+      if (data.user_id) {
+        const user = await new model.User().findUser({id: data.user_id})
+        await new model.User().updateUser(user, { last_uuid: uuid })
+      }
+    } catch (e) { console.log('/save', e) }
 
     res.cookie('uuid', uuid, { maxAge: 9000000, httpOnly: false });
 

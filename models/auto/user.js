@@ -164,6 +164,7 @@ module.exports = (sequelize, DataTypes) => {
         sf_instance_url:DataTypes.STRING,
         sf_token_expired:DataTypes.DATE,
         account_status:DataTypes.STRING, // submitted or empty for salesforce
+        last_uuid:DataTypes.STRING, // used to retrieve the recent info
     }, {
         passwordConfirm: null,
         oldPassword: null,
