@@ -2762,8 +2762,8 @@ class ROCReport:
                     [   
                         self.right_header("33."),
                         Paragraph("Additional Coverage Options (additional premium may apply):", extend_style(styles["rc-first-label"])),
-                        self.checkbox_text("Additional Insured Endorsement (Lessee)", 55, checked=self.nico_questions['Q105']=='Additional Insured Endorsement (Lessee)'),
-                        self.checkbox_text("Loading and Unloading Coverage", 55, checked=self.nico_questions['Q105']=='Loading and Unloading Coverage'),
+                        self.checkbox_text("Additional Insured Endorsement (Lessee)", 55, checked=('Additional Insured Endorsement (Lessee)' in self.nico_questions['Q105'])),
+                        self.checkbox_text("Loading and Unloading Coverage", 55, checked=('Loading and Unloading Coverage' in self.nico_questions['Q105'])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [
@@ -2779,10 +2779,10 @@ class ROCReport:
                 [
                     [   
                         None,
-                        self.checkbox_text("Earned Freight Coverage", 40, checked=self.nico_questions['Q105']=='Earned Freight Coverage'),
-                        self.checkbox_text("Refrigeration Breakdown Coverage", 50, checked=self.nico_questions['Q105']=='Refrigeration Breakdown Coverage'),
-                        self.checkbox_text("Hired Car Cargo Coverage", 35, checked=self.nico_questions['Q105']=='Hired Car Cargo Coverage'),
-                        self.checkbox_text("Exclude Theft Coverage", 35, checked=self.nico_questions['Q105']=='Exclude Theft Coverage'),
+                        self.checkbox_text("Earned Freight Coverage", 40, checked=('Earned Freight Coverage' in self.nico_questions['Q105'])),
+                        self.checkbox_text("Refrigeration Breakdown Coverage", 50, checked=('Refrigeration Breakdown Coverage' in self.nico_questions['Q105'])),
+                        self.checkbox_text("Hired Car Cargo Coverage", 35, checked=('Hired Car Cargo Coverage' in self.nico_questions['Q105'])),
+                        self.checkbox_text("Exclude Theft Coverage", 35, checked=('Exclude Theft Coverage' in self.nico_questions['Q105'])),
                     ]
                 ],
                 style=extend_table_style(styles["rc-main-table"], [

@@ -23,7 +23,7 @@ class ROCReport:
         self.author = author
         self.name = name or ""
         self.address = address or ""
-        self.policy = json.loads(policy) if policy else {}
+        self.policy = 1 + json.loads(policy) if policy else {}
 
     def validate(self, val):
         if val:

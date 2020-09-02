@@ -187,53 +187,20 @@ module.exports = (app) => {
     }
   })
 
-  router.post('/coi', async (req, res, next) => {
-    const { name, comments, address, newpdf, dotId, policy, userId, policyId, id } = req.body;
-    // if(!uuid)uuid = await getNewUUID();
+  /*
+    read/send pdf
+  */
+  const sendPdf = (res, pdfPath) => {
+    fs.readFile(pdfPath, function (err, data){
+      res.contentType("application/pdf");
+      res.send(data);
+    });
+  }
 
-    const shellPath =  __dirname + '/coi/run_coi.py'
-    let _name = name.replace("'", "###*###").replace('"', '\\"')
-    let _address = address.replace("'", "###*###").replace('"', '\\"')
-    const path = `/public/coi/coi-${_name}${userId}.pdf`
-    let shellCommand = `python ${shellPath} --userId '${userId}' --old_path '${path}' `
-    // if (dotId) {
-    //   shellCommand += ` --dotId ${dotId} `
-    // }
-    if (_name) {
-      shellCommand += `--name "${_name}" `
-    }
-    if (_address) {
-      shellCommand += `--address "${_address}" `
-    }
-    if (policy) {
-      shellCommand += `--policy ${JSON.stringify(policy)} `
-    }
-
-    exec(shellCommand, async (error, stdout, stderr) => {
-      if (error || stderr) {
-        console.log(`error: ${error.message}`);
-        return res.json({
-          status: 'failure',
-          message: 'Failed to upload a new certificate to the Salesforce'
-        })
-      }
-
-      // upload pdf
-      const content = await pdf2base64(webConfig.rootDir+path);
-
-      // no longer update data to SF
-      // const authSF = await new model.User().getSFToken(userId);
-      // let accessToken = authSF.access_token;
-      // let instanceUrl = authSF.instance_url;       
-      // let sfUploadCOIUrl = `${instanceUrl}/services/apexrest/luckytruck/coi`;
-
-      // const sfRequestBody = {
-      //   policyId: JSON.parse(policy).policyId,
-      //   pdfContent
-      // }
-
-      // const sfCARes = await fetch(sfUploadCOIUrl, { method: 'POST', body: JSON.stringify(sfRequestBody), headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} })
-      //             .then(res => res.json()) 
+  const proceedCOIPdf = async (res, pdfPath, newpdf, name, address, comments, policyId, userId, id) => {
+    // upload pdf
+    try {
+      const content = await pdf2base64(webConfig.rootDir+pdfPath);
 
       // save policy data into db
       const title = `Certificate of Insurance - ${moment().format('MM/DD/YYYY')}.pdf`
@@ -287,7 +254,6 @@ module.exports = (app) => {
             })
           }
         }
-
       } else {
         return res.json({
           status: 'ok',
@@ -297,22 +263,61 @@ module.exports = (app) => {
           }
         })
       }
+    } catch (e) { console.log(e)}
+  }
 
-      // if (sfCARes.status == 'error') {
-      //   return res.json({
-      //     status: 'failure',
-      //     message: sfCARes.message
-      //   })
-      // } else {
-      //   return res.json({
-      //     status: 'ok',
-      //     pdf: {
-      //       content: pdfContent,
-      //       name: title
-      //     }
-      //   })
-      // }
-    });
+  router.post('/coi', async (req, res, next) => {
+    const { name, comments, address, newpdf, dotId, policy, userId, policyId, id, uuid } = req.body;
+
+    let _name = name.replace("'", "###*###").replace('"', '\\"')
+    let _address = address.replace("'", "###*###").replace('"', '\\"')
+
+    let pdfPath = `/public/coi/coi-${_name}${userId}.pdf`
+    if (newpdf) {
+      pdfPath = `/public/coi/coi-empty.pdf`
+    }
+
+    try {
+      // const company = await new model.Company().findByUUID(uuid)
+      // await new model.Company().update(uuid, { is_coi_modified: false })
+      if (newpdf && fs.existsSync(webConfig.rootDir+pdfPath)) {
+        proceedCOIPdf(res, pdfPath, newpdf, name, address, comments, policyId, userId, id)
+      } else {
+        const shellPath =  __dirname + '/coi/run_coi.py'
+        let shellCommand = `python ${shellPath} --userId '${userId}' --old_path '${pdfPath}' `
+        // if (dotId) {
+        //   shellCommand += ` --dotId ${dotId} `
+        // }
+        if (_name) {
+          shellCommand += `--name "${_name}" `
+        }
+        if (_address) {
+          shellCommand += `--address "${_address}" `
+        }
+        if (policy) {
+          shellCommand += `--policy ${JSON.stringify(policy)} `
+        }
+
+        console.log('run coi shell')
+        exec(shellCommand, async (error, stdout, stderr) => {
+          if (error || stderr) {
+            console.log(`error: ${error.message}`);
+            return res.json({
+              status: 'failure',
+              message: 'Failed to upload a new certificate to the Salesforce'
+            })
+          }
+
+          proceedCOIPdf(res, pdfPath, newpdf, name, address, comments, policyId, userId, id)
+        });
+      }
+    } catch (e) {
+      console.log(e)
+      return res.json({
+        status: 'failure',
+        message: 'Failed to upload a new certificate to the Salesforce'
+      })
+    }
   })
 
   // Generate Nico PDF in the multi step forms
@@ -331,23 +336,38 @@ module.exports = (app) => {
       return;
     }
 
-    const shellPython = config.python + ' ' + __dirname + '/coi/run_nico.py'
-    let shellCommand = `${shellPython} --uuid ${uuid}`
-
     const pdfPath = __dirname + `/../public/nico/nico-${uuid}.pdf`
 
-    exec(shellCommand, async (error, stdout, stderr) => {
-      console.log(stdout)
-      if (error || stderr) {
-        console.log(error, stderr)
-      }
+    // set is_quote_modified false to avoid redundent action to generate pdf, rather read old one.
+    try {
+      const company = await new model.Company().findByUUID(uuid)
+      if (company && company.is_quote_modified) {
+        await new model.Company().update(uuid, { is_quote_modified: false })
 
-      fs.readFile(pdfPath, function (err, data){
-        // console.log('FsData:'+ JSON.stringify(data));
-        res.contentType("application/pdf");
-        res.send(data);
-       });
-    })
+        const shellPython = config.python + ' ' + __dirname + '/coi/run_nico.py'
+        let shellCommand = `${shellPython} --uuid ${uuid}`
+          
+        exec(shellCommand, async (error, stdout, stderr) => {
+          console.log(stdout)
+          if (error || stderr) {
+            console.log(error, stderr)
+          }
+
+          console.log('run nico shell')
+          sendPdf(res, pdfPath)
+
+          fs.readFile(pdfPath, function (err, data){
+            res.contentType("application/pdf");
+            res.send(data);
+          });
+        })
+      } else {
+        sendPdf(res, pdfPath)
+      }
+    } catch (e) {
+      console.log(e)
+      res.send(null)
+    }
   })
 
   // Generate old PDF in the multi step forms
@@ -366,28 +386,37 @@ module.exports = (app) => {
       return;
     }
 
-    const shellPython = config.python + ' ' + __dirname + '/coi/run_pdf.py'
-    let shellCommand = `${shellPython} --uuid ${uuid}`
-
     const pdfPath = __dirname + `/../public/pdf/app-${uuid}.pdf`
 
-    exec(shellCommand, async (error, stdout, stderr) => {
-      console.log(stdout)
-      if (error || stderr) {
-        console.log(error)
-        res.send({
-          status: "ERROR",
-          data: 'find by uuid',
-          messages: error
+    try {
+      const company = await new model.Company().findByUUID(uuid)
+      if (company && company.is_quote_modified) {
+        await new model.Company().update(uuid, { is_quote_modified: false })
+
+        const shellPython = config.python + ' ' + __dirname + '/coi/run_pdf.py'
+        let shellCommand = `${shellPython} --uuid ${uuid}`
+
+        console.log('run pdf shell')
+        exec(shellCommand, async (error, stdout, stderr) => {
+          console.log(stdout)
+          if (error || stderr) {
+            console.log(error)
+            res.send({
+              status: "ERROR",
+              data: 'find by uuid',
+              messages: error
+            })
+          } else {
+            sendPdf(res, pdfPath)
+          }
         })
       } else {
-        fs.readFile(pdfPath, function (err, data){
-          // console.log('FsData:'+ JSON.stringify(data));
-          res.contentType("application/pdf");
-          res.send(data);
-        });
+        sendPdf(res, pdfPath)
       }
-    })
+    } catch (e) {
+      console.log(e)
+      res.send(null)
+    }
   })
 
   router.all('/pdf-preview', async (req, res, next) => {
@@ -961,6 +990,9 @@ module.exports = (app) => {
       authSF = await new model.User().getSFToken(data.user_id);
     }
 
+    // set is_modified true to see whether or not create new pdf
+    data.is_quote_modified = true
+
     new model.Company().create(uuid, data.user_id, authSF, data).then(profile => {
       res.send({
         status: "OK",
@@ -995,7 +1027,10 @@ module.exports = (app) => {
         */
         const policies = await sfCARes.json()
         try {
-          await new model.User().updateUser({ dot_verified: true })
+          if (userId) {
+            const user = await new model.User().findUser({id: userId})
+            await new model.User().updateUser(user, { dot_verified: true })
+          }
         } catch (e) { console.log('/accountinfo/policies', e) }
         res.json({
           status: "ok",

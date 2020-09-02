@@ -146,6 +146,8 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     sf_status: DataTypes.STRING,
+    is_quote_modified: DataTypes.BOOLEAN,
+    is_coi_modified: DataTypes.BOOLEAN,
   }, {});
   Company.associate = function(models) {
     // associations can be defined here
@@ -707,6 +709,23 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     return list
+  }
+
+  Company.prototype.update = async (uuid, options) => {
+    return new Promise(async (resolve, reject) => {
+      let company = await new Company().findByUUID(uuid);
+      if (company) {
+        await Company.update(
+           options,
+           {where: {uuid} },
+        ).catch(err => {
+          reject(err);
+        })
+        resolve('ok')
+      } else {
+        reject('company not found')
+      }
+    });
   }
 
   return Company;
