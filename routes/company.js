@@ -342,7 +342,6 @@ module.exports = (app) => {
     try {
       const company = await new model.Company().findByUUID(uuid)
       if (company && company.is_quote_modified) {
-        await new model.Company().update(uuid, { is_quote_modified: false })
 
         const shellPython = config.python + ' ' + __dirname + '/coi/run_nico.py'
         let shellCommand = `${shellPython} --uuid ${uuid}`
@@ -353,13 +352,9 @@ module.exports = (app) => {
             console.log(error, stderr)
           }
 
+          await new model.Company().update(uuid, { is_quote_modified: false })
           console.log('run nico shell')
           sendPdf(res, pdfPath)
-
-          fs.readFile(pdfPath, function (err, data){
-            res.contentType("application/pdf");
-            res.send(data);
-          });
         })
       } else {
         sendPdf(res, pdfPath)
@@ -391,8 +386,6 @@ module.exports = (app) => {
     try {
       const company = await new model.Company().findByUUID(uuid)
       if (company && company.is_quote_modified) {
-        await new model.Company().update(uuid, { is_quote_modified: false })
-
         const shellPython = config.python + ' ' + __dirname + '/coi/run_pdf.py'
         let shellCommand = `${shellPython} --uuid ${uuid}`
 
@@ -407,6 +400,7 @@ module.exports = (app) => {
               messages: error
             })
           } else {
+            await new model.Company().update(uuid, { is_quote_modified: false })
             sendPdf(res, pdfPath)
           }
         })
