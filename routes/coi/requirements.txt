@@ -3,3 +3,4 @@ reportlab==3.3.0
 PyPDF2
 requests
 sqlalchemy
+python-dotenv==0.14.0

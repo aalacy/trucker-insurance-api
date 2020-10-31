@@ -8,10 +8,11 @@ from datetime import datetime as date, timedelta
 import sqlalchemy as db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-
+from dotenv import load_dotenv
 from pdf import pdf
 
 BASE_PATH = os.getcwd()
+load_dotenv(os.path.join(BASE_PATH, '.env'))
 config_path = BASE_PATH + '/config/config.json'
 # load json config file
 config_data = {}
