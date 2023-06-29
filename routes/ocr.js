@@ -85,7 +85,7 @@ module.exports = (app) => {
               } catch(e) {
                 result = e
               }
-          }  else if(theFile.fieldname === 'imageDOT'){
+          } else if(theFile.fieldname === 'imageDOT'){
             try {
               result = await ocr.dot(theFile.path);
             } catch(e) {

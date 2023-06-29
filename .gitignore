@@ -9,3 +9,4 @@ public/company/*
 tmp
 __pycache__
 *.pyc
+config.js
